@@ -11,7 +11,7 @@
 		"prepare": "husky",
 		"ensure:composer": "composer install",
 		"typecheck": "tsc --noEmit",
-		"lint:php:all": "vendor/bin/phpstan analyze --memory-limit 1G",
+		"lint:php:all": "php -d memory_limit=2G vendor/bin/phpstan analyze --memory-limit 2G",
 		"precommit": "npm run typecheck && npm run lint:php:all",
 		"prepush": "npm run ensure:composer && npm run typecheck && npm run lint:php:all && npm run build"
 	},
