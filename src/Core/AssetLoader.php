@@ -15,31 +15,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 class AssetLoader extends AbstractModule {
 
 	public function register(): void {
-		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_frontend' ) );
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_block_data' ), 5 );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin' ) );
-		add_action( 'enqueue_block_assets', array( $this, 'enqueue_block_assets' ) );
-	}
-
-	public function enqueue_frontend(): void {
-		if ( ! is_product() ) {
-			return;
-		}
-
-		wp_enqueue_style(
-			'beplus-advanced-reviews-frontend',
-			$this->plugin_url . 'assets/css/reviews.css',
-			array(),
-			$this->version
-		);
-
-		wp_enqueue_script(
-			'beplus-advanced-reviews-frontend',
-			$this->plugin_url . 'assets/js/review-list.js',
-			array(),
-			$this->version,
-			true
-		);
 	}
 
 	/**
@@ -126,12 +103,4 @@ class AssetLoader extends AbstractModule {
 		);
 	}
 
-	public function enqueue_block_assets(): void {
-		wp_enqueue_style(
-			'beplus-advanced-reviews-block',
-			$this->plugin_url . 'blocks/advanced-review/style.css',
-			array(),
-			$this->version
-		);
-	}
 }

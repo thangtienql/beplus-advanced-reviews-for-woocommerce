@@ -321,42 +321,49 @@
 		var mediaFiles = [];
 		block._bparMediaFiles = mediaFiles;
 
-		var fileInputs = form.querySelectorAll( 'input[type="file"]' );
+		var uploadZone = form.querySelector( '.beplus-advanced-reviews__upload-zone' );
+		var fileInput = form.querySelector( '.beplus-advanced-reviews__upload-zone-input' );
 
-		fileInputs.forEach( function ( input ) {
-			input.addEventListener( 'change', function () {
-				if ( ! input.files ) return;
-				for ( var i = 0; i < input.files.length; i++ ) {
-					var file = input.files[ i ];
+		if ( fileInput ) {
+			fileInput.addEventListener( 'change', function () {
+				if ( ! fileInput.files ) return;
+				for ( var i = 0; i < fileInput.files.length; i++ ) {
+					var file = fileInput.files[ i ];
 					var isImage = file.type && file.type.indexOf( 'image/' ) === 0;
 					var isVideo = file.type && file.type.indexOf( 'video/' ) === 0;
 					if ( isImage || isVideo ) {
 						mediaFiles.push( { file: file, removed: false } );
 					}
 				}
-				input.value = '';
+				fileInput.value = '';
 				updatePreviews();
 			} );
-		} );
+		}
 
-		var pasteArea = block.querySelector( '.beplus-advanced-reviews__paste-area' );
-		if ( pasteArea ) {
-			pasteArea.addEventListener( 'dragover', function ( e ) {
+		if ( uploadZone && fileInput ) {
+			uploadZone.addEventListener( 'click', function ( e ) {
+				if ( e.target === fileInput ) return;
+				fileInput.click();
+			} );
+		}
+
+		if ( uploadZone ) {
+			uploadZone.addEventListener( 'dragover', function ( e ) {
 				e.preventDefault();
 				e.stopPropagation();
-				pasteArea.classList.add( 'beplus-advanced-reviews__paste-area--dragover' );
+				uploadZone.classList.add( 'beplus-advanced-reviews__upload-zone--dragover' );
 			} );
 
-			pasteArea.addEventListener( 'dragleave', function ( e ) {
+			uploadZone.addEventListener( 'dragleave', function ( e ) {
 				e.preventDefault();
 				e.stopPropagation();
-				pasteArea.classList.remove( 'beplus-advanced-reviews__paste-area--dragover' );
+				uploadZone.classList.remove( 'beplus-advanced-reviews__upload-zone--dragover' );
 			} );
 
-			pasteArea.addEventListener( 'drop', function ( e ) {
+			uploadZone.addEventListener( 'drop', function ( e ) {
 				e.preventDefault();
 				e.stopPropagation();
-				pasteArea.classList.remove( 'beplus-advanced-reviews__paste-area--dragover' );
+				uploadZone.classList.remove( 'beplus-advanced-reviews__upload-zone--dragover' );
 
 				var files = e.dataTransfer.files;
 				if ( ! files || ! files.length ) return;
@@ -676,12 +683,12 @@
 	function initPasteSupport( block ) {
 		if ( ! bparData.pasteEnabled ) return;
 
-		var pasteArea = block.querySelector( '.beplus-advanced-reviews__paste-area' );
-		if ( ! pasteArea ) return;
+		var uploadZone = block.querySelector( '.beplus-advanced-reviews__upload-zone' );
+		if ( ! uploadZone ) return;
 
-		var pasteInput = pasteArea.querySelector( '.beplus-advanced-reviews__paste-input' );
+		var pasteInput = uploadZone.querySelector( '.beplus-advanced-reviews__paste-input' );
 
-		pasteArea.addEventListener( 'paste', function ( e ) {
+		uploadZone.addEventListener( 'paste', function ( e ) {
 			var items = e.clipboardData && e.clipboardData.items;
 			if ( ! items ) return;
 

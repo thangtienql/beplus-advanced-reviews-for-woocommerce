@@ -1,0 +1,18 @@
+@use 'variables' as v;
+@use 'layout';
+@use 'stars';
+@use 'distribution';
+@use 'review-card';
+@use 'filter-bar';
+@use 'load-more';
+@use 'form';
+
+:root {
+	--bpar-green: #{v.$green};
+	--bpar-green-light: #{v.$green-light};
+	--bpar-text: #{v.$text};
+	--bpar-muted: #{v.$muted};
+	--bpar-border: #{v.$border};
+	--bpar-bg: #{v.$bg};
+	--bpar-radius: #{v.$radius};
+}

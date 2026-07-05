@@ -72,61 +72,50 @@ $user = wp_get_current_user();
 		<?php if ( $show_images && $images_enabled ) : ?>
 			<div class="beplus-advanced-reviews__media-preview" style="display:none;"></div>
 
-			<div class="beplus-advanced-reviews__file-upload">
-				<label for="bpar-file-input" class="beplus-advanced-reviews__file-label">
-					<?php esc_html_e( 'Add images', 'beplus-advanced-reviews' ); ?>
-				</label>
-				<input
-					type="file"
-					id="bpar-file-input"
-					name="media[]"
-					multiple
-					accept="image/jpeg,image/png,image/webp"
-					aria-label="<?php esc_attr_e( 'Upload review images', 'beplus-advanced-reviews' ); ?>"
-				>
-				<p class="beplus-advanced-reviews__file-hint">
-					<?php
-					printf(
-						/* translators: %s: max image size in MB */
-						esc_html__( 'Accepted formats: JPEG, PNG, WebP (max %s MB per image)', 'beplus-advanced-reviews' ),
-						esc_html( (string) ( beplus_advanced_reviews_get_settings()['max_image_size_mb'] ?? 2 ) )
-					);
-					?>
-				</p>
-			</div>
+			<?php
+			$max_image_mb = beplus_advanced_reviews_get_settings()['max_image_size_mb'] ?? 2;
+			$max_video_mb = beplus_advanced_reviews_get_settings()['max_video_size_mb'] ?? 20;
+			$accept_types = $videos_enabled
+				? 'image/jpeg,image/png,image/webp,video/mp4,video/webm,video/ogg'
+				: 'image/jpeg,image/png,image/webp';
+			?>
 
-			<?php if ( $videos_enabled ) : ?>
-				<div class="beplus-advanced-reviews__file-upload">
-					<label for="bpar-video-input" class="beplus-advanced-reviews__file-label">
-						<?php esc_html_e( 'Add videos', 'beplus-advanced-reviews' ); ?>
-					</label>
-					<input
-						type="file"
-						id="bpar-video-input"
-						name="media[]"
-						multiple
-						accept="video/mp4,video/webm,video/ogg"
-						aria-label="<?php esc_attr_e( 'Upload review videos', 'beplus-advanced-reviews' ); ?>"
-					>
-					<p class="beplus-advanced-reviews__file-hint">
+			<div class="beplus-advanced-reviews__upload-zone" tabindex="0"
+				aria-label="<?php esc_attr_e( 'Upload files — click, drag and drop, or paste from clipboard', 'beplus-advanced-reviews' ); ?>">
+				<div class="beplus-advanced-reviews__upload-zone-content">
+					<span class="beplus-advanced-reviews__upload-zone-icon" aria-hidden="true">
+						<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+							<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+							<polyline points="17 8 12 3 7 8"/>
+							<line x1="12" y1="3" x2="12" y2="15"/>
+						</svg>
+					</span>
+					<p class="beplus-advanced-reviews__upload-zone-text">
+						<?php esc_html_e( 'Click to browse, drag and drop files here, or paste from clipboard', 'beplus-advanced-reviews' ); ?>
+					</p>
+					<p class="beplus-advanced-reviews__upload-zone-hint">
 						<?php
-						printf(
+						/* translators: %s: max image size in MB */
+						echo esc_html( sprintf( __( 'Images: JPEG, PNG, WebP (max %s MB)', 'beplus-advanced-reviews' ), $max_image_mb ) );
+						if ( $videos_enabled ) {
 							/* translators: %s: max video size in MB */
-							esc_html__( 'Accepted formats: MP4, WebM, OGG (max %s MB per video)', 'beplus-advanced-reviews' ),
-							esc_html( (string) ( beplus_advanced_reviews_get_settings()['max_video_size_mb'] ?? 20 ) )
-						);
+							echo ' — ' . esc_html( sprintf( __( 'Videos: MP4, WebM, OGG (max %s MB)', 'beplus-advanced-reviews' ), $max_video_mb ) );
+						}
 						?>
 					</p>
 				</div>
-			<?php endif; ?>
-
-			<?php if ( $paste_enabled ) : ?>
-				<div class="beplus-advanced-reviews__paste-area" tabindex="0"
-					aria-label="<?php esc_attr_e( 'Drag and drop or paste images from clipboard', 'beplus-advanced-reviews' ); ?>">
-					<p><?php esc_html_e( 'Drag & drop images/videos here, or paste from clipboard', 'beplus-advanced-reviews' ); ?></p>
+				<input
+					type="file"
+					class="beplus-advanced-reviews__upload-zone-input"
+					name="media[]"
+					multiple
+					accept="<?php echo esc_attr( $accept_types ); ?>"
+					aria-label="<?php esc_attr_e( 'Select files to upload', 'beplus-advanced-reviews' ); ?>"
+				>
+				<?php if ( $paste_enabled ) : ?>
 					<input type="hidden" class="beplus-advanced-reviews__paste-input" name="paste_image" value="">
-				</div>
-			<?php endif; ?>
+				<?php endif; ?>
+			</div>
 		<?php endif; ?>
 
 		<button type="submit" class="beplus-advanced-reviews__submit-btn">

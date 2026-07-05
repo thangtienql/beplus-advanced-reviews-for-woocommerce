@@ -1,0 +1,22 @@
+@use 'variables' as v;
+
+$prefix: beplus-advanced-reviews;
+
+.#{$prefix}__stars {
+	display: inline-flex;
+	gap: 1px;
+}
+
+.#{$prefix}__star {
+	display: inline-block;
+	font-size: 1em;
+	line-height: 1;
+
+	&--filled {
+		color: v.$green;
+	}
+
+	&--empty {
+		color: v.$star-empty;
+	}
+}
