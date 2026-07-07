@@ -29,7 +29,8 @@ class SettingsRegistry extends AbstractModule {
 	 * @return void
 	 */
 	public function add_settings_page(): void {
-		add_options_page(
+		add_submenu_page(
+			'woocommerce',
 			__( 'BePlus Reviews', 'beplus-advanced-reviews' ),
 			__( 'BePlus Reviews', 'beplus-advanced-reviews' ),
 			'manage_options',

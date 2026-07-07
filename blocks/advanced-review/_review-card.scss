@@ -79,6 +79,7 @@ $prefix: beplus-advanced-reviews;
 	display: flex;
 	gap: 6px;
 	flex-wrap: wrap;
+	align-items: flex-start;
 	margin-bottom: 8px;
 }
 
@@ -135,6 +136,9 @@ $prefix: beplus-advanced-reviews;
 
 	video {
 		display: block;
+		width: 80px;
+		height: 80px;
+		object-fit: cover;
 		border-radius: v.$radius-sm;
 	}
 

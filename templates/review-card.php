@@ -58,7 +58,7 @@ $images        = $review['images'] ?? array();
 					<?php $is_video = ! empty( $media['mime_type'] ) && str_starts_with( $media['mime_type'], 'video/' ); ?>
 					<?php if ( $is_video ) : ?>
 						<button type="button" class="beplus-advanced-reviews__review-media-btn beplus-advanced-reviews__review-media-btn--video" data-media-index="<?php echo esc_attr( (string) $idx ); ?>" data-media-type="video" aria-label="<?php esc_attr_e( 'View media', 'beplus-advanced-reviews' ); ?>">
-							<video src="<?php echo esc_url( $media['url'] ?? '' ); ?>" width="320" class="beplus-advanced-reviews__review-video" muted preload="metadata"></video>
+							<video src="<?php echo esc_url( $media['url'] ?? '' ); ?>" width="80" height="80" class="beplus-advanced-reviews__review-video" muted preload="metadata"></video>
 						</button>
 					<?php else : ?>
 						<button type="button" class="beplus-advanced-reviews__review-media-btn" data-media-index="<?php echo esc_attr( (string) $idx ); ?>" data-media-type="image" aria-label="<?php esc_attr_e( 'View media', 'beplus-advanced-reviews' ); ?>">

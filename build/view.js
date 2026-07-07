@@ -98,7 +98,7 @@
             review.images.forEach(function(img, idx) {
               if (img.mime_type && img.mime_type.indexOf("video/") === 0) {
                 html += '<button type="button" class="beplus-advanced-reviews__review-media-btn beplus-advanced-reviews__review-media-btn--video" data-media-index="' + idx + '" data-media-type="video" aria-label="' + escAttr(bparData.i18n.viewMedia || "View media") + '">';
-                html += '<video src="' + escAttr(img.url) + '" width="320" class="beplus-advanced-reviews__review-video" muted preload="metadata"></video>';
+                html += '<video src="' + escAttr(img.url) + '" width="80" height="80" class="beplus-advanced-reviews__review-video" muted preload="metadata"></video>';
                 html += "</button>";
               } else {
                 html += '<button type="button" class="beplus-advanced-reviews__review-media-btn" data-media-index="' + idx + '" data-media-type="image" aria-label="' + escAttr(bparData.i18n.viewMedia || "View media") + '">';
@@ -510,7 +510,7 @@
         review.images.forEach(function(img, idx) {
           if (img.mime_type && img.mime_type.indexOf("video/") === 0) {
             html += '<button type="button" class="beplus-advanced-reviews__review-media-btn beplus-advanced-reviews__review-media-btn--video" data-media-index="' + idx + '" data-media-type="video" aria-label="' + escAttr(bparData.i18n.viewMedia || "View media") + '">';
-            html += '<video src="' + escAttr(img.url) + '" width="320" class="beplus-advanced-reviews__review-video" muted preload="metadata"></video>';
+            html += '<video src="' + escAttr(img.url) + '" width="80" height="80" class="beplus-advanced-reviews__review-video" muted preload="metadata"></video>';
             html += "</button>";
           } else {
             html += '<button type="button" class="beplus-advanced-reviews__review-media-btn" data-media-index="' + idx + '" data-media-type="image" aria-label="' + escAttr(bparData.i18n.viewMedia || "View media") + '">';
