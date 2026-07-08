@@ -91,6 +91,12 @@ class SettingsRegistry extends AbstractModule {
 		<?php
 	}
 
+	/**
+	 * Render display settings card.
+	 *
+	 * @param array<string, mixed> $settings Plugin settings.
+	 * @return void
+	 */
 	private function render_display_card( array $settings ): void {
 		$display_mode = $settings['display_mode'] ?? 'replace';
 		$load_count   = absint( $settings['load_more_count'] ?? 10 );
@@ -132,6 +138,12 @@ class SettingsRegistry extends AbstractModule {
 		<?php
 	}
 
+	/**
+	 * Render behavior settings card.
+	 *
+	 * @param array<string, mixed> $settings Plugin settings.
+	 * @return void
+	 */
 	private function render_behavior_card( array $settings ): void {
 		$threshold     = absint( $settings['rating_threshold'] ?? 0 );
 		$enable_filter = ! empty( $settings['enable_filter'] );
@@ -175,6 +187,12 @@ class SettingsRegistry extends AbstractModule {
 		<?php
 	}
 
+	/**
+	 * Render image settings card.
+	 *
+	 * @param array<string, mixed> $settings Plugin settings.
+	 * @return void
+	 */
 	private function render_image_card( array $settings ): void {
 		$enable_images = ! empty( $settings['enable_images'] );
 		$enable_paste  = ! empty( $settings['enable_paste'] );
@@ -226,6 +244,12 @@ class SettingsRegistry extends AbstractModule {
 		<?php
 	}
 
+	/**
+	 * Render video settings card.
+	 *
+	 * @param array<string, mixed> $settings Plugin settings.
+	 * @return void
+	 */
 	private function render_video_card( array $settings ): void {
 		$enable_videos    = ! empty( $settings['enable_videos'] );
 		$max_video_size   = absint( $settings['max_video_size_mb'] ?? 20 );
@@ -269,6 +293,12 @@ class SettingsRegistry extends AbstractModule {
 		<?php
 	}
 
+	/**
+	 * Sanitize settings before save.
+	 *
+	 * @param array<string, mixed> $input Raw input.
+	 * @return array<string, mixed>
+	 */
 	public function sanitize_settings( array $input ): array {
 		$defaults = $this->get_defaults();
 		$clean    = array();
@@ -314,6 +344,11 @@ class SettingsRegistry extends AbstractModule {
 		return $clean;
 	}
 
+	/**
+	 * Get all settings merged with defaults.
+	 *
+	 * @return array<string, mixed>
+	 */
 	public function get_all(): array {
 		$saved = get_option( self::OPTION_KEY, array() );
 		if ( ! is_array( $saved ) ) {
@@ -328,10 +363,21 @@ class SettingsRegistry extends AbstractModule {
 		return $settings['display_mode'] ?? 'replace';
 	}
 
+	/**
+	 * Update settings.
+	 *
+	 * @param array<string, mixed> $settings Settings to save.
+	 * @return bool
+	 */
 	public function update( array $settings ): bool {
 		return update_option( self::OPTION_KEY, $settings, false );
 	}
 
+	/**
+	 * Get default settings.
+	 *
+	 * @return array<string, mixed>
+	 */
 	private function get_defaults(): array {
 		return array(
 			'display_mode'      => 'replace',
