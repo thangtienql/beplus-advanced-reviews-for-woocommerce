@@ -1,21 +1,28 @@
-$green: #21652F;
-$green-light: #E2EBE4;
-$green-dragover-bg: #eef5ef;
-$green-hover-bg: #f8fbf8;
-$text: #101010;
-$muted: #666;
-$border: #E2EBE4;
-$bg: #fff;
-$radius: 10px;
-$radius-sm: 6px;
-$radius-pill: 20px;
+// ==========================================================================
+// Fallback defaults — used ONLY as fallback values in style.scss :root.
+// Actual runtime colors are resolved via CSS custom properties that
+// inherit from the active WordPress theme's global styles (theme.json).
+// ==========================================================================
+
+// --- Primary accent ---
+$primary-fallback: #21652F;
+
+// --- Text & background ---
+$text-fallback: #101010;
+$bg-fallback: #fff;
+
+// --- Semantic (not theme-dependent, hardcoded) ---
 $star-empty: #ccc;
-$date-muted: #767676;
 $error-bg: #f8d7da;
 $error-text: #721c24;
 $error-border: #f5c6cb;
 $success-bg: #d4edda;
 $success-text: #155724;
 $success-border: #c3e6cb;
+
+// --- Layout tokens (not color, unchanged) ---
+$radius: 10px;
+$radius-sm: 6px;
+$radius-pill: 20px;
 $card-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
 $card-shadow-hover: 0 2px 8px rgba(0, 0, 0, 0.06);

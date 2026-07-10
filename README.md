@@ -17,6 +17,7 @@
 - [Installation](#-installation)
 - [Configuration](#%EF%B8%8F-configuration)
 - [Block Usage](#-block-usage)
+- [Theme Integration](#-theme-integration)
 - [REST API](#-rest-api)
 - [Development](#%EF%B8%8F-development)
 - [Project Structure](#-project-structure)
@@ -131,6 +132,50 @@ Navigate to **WooCommerce → Advanced Reviews** in your WordPress admin.
 | `showAvatar` | `boolean` | `true` | Show/hide reviewer avatars |
 | `reviewsPerLoad` | `number` | `10` | Number of reviews per page/load |
 | `enableLazyLoad` | `boolean` | `true` | Enable lazy loading for the review list |
+
+---
+
+## 🎨 Theme Integration
+
+The plugin automatically inherits colors from the active WordPress theme's global styles (`theme.json`). No configuration needed — it just works.
+
+### How It Works
+
+All frontend colors are defined as `--bpar-*` CSS custom properties that map to WordPress theme variables:
+
+| Plugin Token | Theme Variable | Fallback |
+|---|---|---|
+| `--bpar-primary` | `--wp--preset--color--primary` | `#21652F` |
+| `--bpar-text` | `--wp--preset--color--contrast` | `#101010` |
+| `--bpar-bg` | `--wp--preset--color--base` | `#fff` |
+
+Derived colors (hover states, muted text, borders) are automatically computed from the primary color using CSS `color-mix()`.
+
+### Customization
+
+Override any token in your theme's custom CSS:
+
+```css
+:root {
+  --bpar-primary: #0073aa;  /* Use a custom accent color */
+}
+```
+
+Or in your `theme.json`:
+
+```json
+{
+  "settings": {
+    "color": {
+      "palette": [
+        { "slug": "primary", "color": "#0073aa", "name": "Primary" }
+      ]
+    }
+  }
+}
+```
+
+> **Fallback:** Themes without `theme.json` (classic themes) will use the hardcoded fallback colors. Semantic colors (error/success) are always hardcoded.
 
 ---
 
@@ -266,7 +311,7 @@ beplus-advanced-reviews-for-woocommerce/
 
 ---
 
-## 🪝 Hooks & Extensibility
+## Hooks & Extensibility
 
 ### Filters
 

@@ -1,5 +1,3 @@
-@use 'variables' as v;
-
 $prefix: beplus-advanced-reviews-for-woocommerce;
 
 .#{$prefix}__stars {
@@ -18,10 +16,10 @@ $prefix: beplus-advanced-reviews-for-woocommerce;
 	}
 
 	&--filled {
-		color: v.$green;
+		color: var(--bpar-primary);
 	}
 
 	&--empty {
-		color: v.$star-empty;
+		color: var(--bpar-star-empty);
 	}
 }

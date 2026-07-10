@@ -7,20 +7,54 @@
 @use 'load-more';
 @use 'form';
 
+// ==========================================================================
+// Theme-Aware CSS Custom Properties
+//
+// The --bpar-* tokens form the plugin's internal design token layer.
+// Primary/text/background colors inherit from the active WP theme's
+// global styles (theme.json) via --wp--preset--color--* variables.
+// Derived tones (hover, light, muted, border) are computed with
+// CSS color-mix(). Themes without theme.json get the hardcoded fallbacks.
+// ==========================================================================
+
 :root {
-	--bpar-green: #{v.$green};
-	--bpar-green-light: #{v.$green-light};
-	--bpar-text: #{v.$text};
-	--bpar-muted: #{v.$muted};
-	--bpar-border: #{v.$border};
-	--bpar-bg: #{v.$bg};
+	/* ── Primary accent ─────────────────────────────────────────────── */
+	/* Fallback chain: primary → accent → accent-1 → hardcoded */
+	--bpar-primary: var(--wp--preset--color--primary, var(--wp--preset--color--accent, var(--wp--preset--color--accent-1, #{v.$primary-fallback})));
+	--bpar-primary-light: color-mix(in srgb, var(--bpar-primary) 12%, white);
+	--bpar-primary-hover: color-mix(in srgb, var(--bpar-primary) 90%, white);
+	--bpar-primary-hover-bg: color-mix(in srgb, var(--bpar-primary) 5%, white);
+	--bpar-primary-dragover-bg: color-mix(in srgb, var(--bpar-primary) 8%, white);
+
+	/* ── Text & background ──────────────────────────────────────────── */
+	/* Fallback chain: contrast → foreground → hardcoded */
+	--bpar-text: var(--wp--preset--color--contrast, var(--wp--preset--color--foreground, #{v.$text-fallback}));
+	/* Fallback chain: base → background → hardcoded */
+	--bpar-bg: var(--wp--preset--color--base, var(--wp--preset--color--background, #{v.$bg-fallback}));
+
+	/* ── Derived neutral tones ──────────────────────────────────────── */
+	--bpar-muted: color-mix(in srgb, var(--bpar-text) 55%, var(--bpar-bg));
+	--bpar-date-muted: color-mix(in srgb, var(--bpar-text) 46%, var(--bpar-bg));
+	--bpar-border: color-mix(in srgb, var(--bpar-primary) 15%, var(--bpar-bg));
+	--bpar-border-dark: color-mix(in srgb, var(--bpar-border) 85%, black);
+
+	/* ── Semantic (not theme-dependent) ─────────────────────────────── */
+	--bpar-star-empty: #{v.$star-empty};
+	--bpar-error-bg: #{v.$error-bg};
+	--bpar-error-text: #{v.$error-text};
+	--bpar-error-border: #{v.$error-border};
+	--bpar-success-bg: #{v.$success-bg};
+	--bpar-success-text: #{v.$success-text};
+	--bpar-success-border: #{v.$success-border};
+
+	/* ── Shadows ────────────────────────────────────────────────────── */
+	--bpar-card-shadow: #{v.$card-shadow};
+	--bpar-card-shadow-hover: #{v.$card-shadow-hover};
+
+	/* ── Layout tokens ──────────────────────────────────────────────── */
 	--bpar-radius: #{v.$radius};
 	--bpar-radius-sm: #{v.$radius-sm};
 	--bpar-radius-pill: #{v.$radius-pill};
-	--bpar-date-muted: #{v.$date-muted};
-	--bpar-star-empty: #{v.$star-empty};
-	--bpar-card-shadow: #{v.$card-shadow};
-	--bpar-card-shadow-hover: #{v.$card-shadow-hover};
 	--bpar-gap-sm: 8px;
 	--bpar-gap-md: 16px;
 	--bpar-gap-lg: 24px;

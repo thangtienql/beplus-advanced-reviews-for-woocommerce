@@ -202,6 +202,46 @@ beplus-advanced-reviews-for-woocommerce/
 
 > **Note:** This plugin keeps procedural helpers in `includes/` alongside PSR-4 code in `src/`. Prefer `src/` for new classes; use `includes/` for lightweight helper functions or compatibility wrappers.
 
+### 4.1 CSS Theming Architecture
+
+The plugin uses a **theme-aware color system** — all frontend colors inherit from the active WordPress theme's global styles (`theme.json`). No hardcoded brand colors appear in the compiled CSS at runtime.
+
+**How it works:**
+
+1. `_variables.scss` defines **fallback values only** (e.g., `$primary-fallback: #21652F`).
+2. `style.scss` declares `--bpar-*` CSS custom properties in `:root`, mapping each to a WP theme variable with the SCSS fallback:
+   ```css
+   --bpar-primary: var(--wp--preset--color--primary, #21652F);
+   --bpar-text:    var(--wp--preset--color--contrast, #101010);
+   --bpar-bg:      var(--wp--preset--color--base, #fff);
+   ```
+3. Derived tones (hover, light, muted, border) are computed via CSS `color-mix()`:
+   ```css
+   --bpar-primary-hover: color-mix(in srgb, var(--bpar-primary) 90%, white);
+   --bpar-muted:         color-mix(in srgb, var(--bpar-text) 55%, var(--bpar-bg));
+   --bpar-border:        color-mix(in srgb, var(--bpar-primary) 15%, var(--bpar-bg));
+   ```
+4. All SCSS partials (`_layout.scss`, `_review-card.scss`, etc.) reference only `var(--bpar-*)` — never raw SCSS color variables.
+5. **Semantic colors** (error/success) are hardcoded and not theme-dependent.
+
+**Token reference:**
+
+| Token | Maps to | Fallback |
+|-------|---------|----------|
+| `--bpar-primary` | `--wp--preset--color--primary` | `#21652F` |
+| `--bpar-text` | `--wp--preset--color--contrast` | `#101010` |
+| `--bpar-bg` | `--wp--preset--color--base` | `#fff` |
+| `--bpar-primary-light` | `color-mix(primary 12%, white)` | — |
+| `--bpar-primary-hover` | `color-mix(primary 90%, white)` | — |
+| `--bpar-muted` | `color-mix(text 55%, bg)` | — |
+| `--bpar-date-muted` | `color-mix(text 46%, bg)` | — |
+| `--bpar-border` | `color-mix(primary 15%, bg)` | — |
+
+**To customize:** override any `--bpar-*` token in your theme's custom CSS or `theme.json`:
+```css
+:root { --bpar-primary: #0073aa; }
+```
+
 ---
 
 ## 5. Bootstrap File — `beplus-advanced-reviews-for-woocommerce.php`

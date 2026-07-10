@@ -29,6 +29,7 @@ Beplus Advanced Reviews For Woocommerce replaces or enhances the default WooComm
 * **Gutenberg block** — drag-and-drop `Advanced Reviews` block, automatically applied to all Single Product pages on activation
 * **Display modes** — *Keep default* (manual block placement) or *Replace default* (auto-override WooCommerce reviews)
 * **Accessible** — WCAG 2.1 AA compliant: keyboard navigable, focus management, `aria-live` regions, `prefers-reduced-motion` support
+* **Theme-aware styling** — automatically inherits colors from the active theme's `theme.json` global styles, with graceful fallback for classic themes
 
 **For Developers:**
 
@@ -85,6 +86,10 @@ Yes. The plugin exposes a full REST API under the `beplus-advanced-reviews-for-w
 
 WordPress 6.0+, WooCommerce 7.0+, and PHP 7.4+ (8.0+ recommended).
 
+= Does it match my theme's colors? =
+
+Yes. The plugin automatically inherits colors from your active theme's `theme.json` global styles (primary, text, background). All colors are defined as `--bpar-*` CSS custom properties and can be overridden in custom CSS. Classic themes without `theme.json` will see the default color scheme.
+
 == Screenshots ==
 
 1. Star distribution chart and review list on a product page
@@ -112,6 +117,7 @@ WordPress 6.0+, WooCommerce 7.0+, and PHP 7.4+ (8.0+ recommended).
 * REST API for reviews, distribution, and settings
 * Plugin settings page under WooCommerce menu
 * WCAG 2.1 AA accessibility
+* Theme-aware color system — inherits from active theme's `theme.json` global styles
 * i18n ready with `beplus-advanced-reviews-for-woocommerce` text domain
 
 == Upgrade Notice ==

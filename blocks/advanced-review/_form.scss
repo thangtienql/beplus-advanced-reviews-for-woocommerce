@@ -1,13 +1,10 @@
-@use 'variables' as v;
-@use 'sass:color';
-
 $prefix: beplus-advanced-reviews-for-woocommerce;
 
 .#{$prefix}__submit-form {
 	&-wrapper {
 		margin-top: 32px;
 		padding-top: 32px;
-		border-top: 1px solid v.$border;
+		border-top: 1px solid var(--bpar-border);
 		width: 100%;
 	}
 
@@ -15,7 +12,7 @@ $prefix: beplus-advanced-reviews-for-woocommerce;
 		font-size: 20px;
 		font-weight: 700;
 		margin-bottom: 20px;
-		color: v.$text;
+		color: var(--bpar-text);
 	}
 
 	display: flex;
@@ -25,26 +22,26 @@ $prefix: beplus-advanced-reviews-for-woocommerce;
 	label {
 		font-size: 13px;
 		font-weight: 500;
-		color: v.$muted;
+		color: var(--bpar-muted);
 	}
 
 	textarea {
 		width: 100%;
 		min-height: 110px;
 		padding: 12px 14px;
-		border: 1px solid v.$border;
-		border-radius: v.$radius-sm;
+		border: 1px solid var(--bpar-border);
+		border-radius: var(--bpar-radius-sm);
 		font-family: inherit;
 		font-size: 14px;
 		resize: vertical;
-		background: v.$bg;
+		background: var(--bpar-bg);
 		box-sizing: border-box;
 		transition: border-color 0.2s ease, box-shadow 0.2s ease;
 
 		&:focus {
-			border-color: v.$green;
+			border-color: var(--bpar-primary);
 			outline: none;
-			box-shadow: 0 0 0 1px v.$green;
+			box-shadow: 0 0 0 1px var(--bpar-primary);
 		}
 	}
 
@@ -52,17 +49,17 @@ $prefix: beplus-advanced-reviews-for-woocommerce;
 	input[type="email"] {
 		width: 100%;
 		padding: 10px 14px;
-		border: 1px solid v.$border;
-		border-radius: v.$radius-sm;
+		border: 1px solid var(--bpar-border);
+		border-radius: var(--bpar-radius-sm);
 		font-family: inherit;
 		font-size: 14px;
-		background: v.$bg;
+		background: var(--bpar-bg);
 		transition: border-color 0.2s ease, box-shadow 0.2s ease;
 
 		&:focus {
-			border-color: v.$green;
+			border-color: var(--bpar-primary);
 			outline: none;
-			box-shadow: 0 0 0 1px v.$green;
+			box-shadow: 0 0 0 1px var(--bpar-primary);
 		}
 	}
 }
@@ -83,7 +80,7 @@ $prefix: beplus-advanced-reviews-for-woocommerce;
 	clip: rect(0 0 0 0);
 
 	&:focus-visible+.#{$prefix}__star-label {
-		outline: 2px solid v.$green;
+		outline: 2px solid var(--bpar-primary);
 		outline-offset: 2px;
 		border-radius: 3px;
 	}
@@ -94,7 +91,7 @@ $prefix: beplus-advanced-reviews-for-woocommerce;
 	align-items: center;
 	width: 2em;
 	height: 2em;
-	color: v.$star-empty;
+	color: var(--bpar-star-empty);
 	cursor: pointer;
 	transition: color 0.2s ease, transform 0.15s ease;
 
@@ -110,16 +107,16 @@ $prefix: beplus-advanced-reviews-for-woocommerce;
 	&:hover,
 	&:hover~&,
 	&--active {
-		color: v.$green !important;
+		color: var(--bpar-primary) !important;
 	}
 }
 
 .#{$prefix}__submit-btn {
 	align-self: flex-start;
 	padding: 11px 28px;
-	border: 1px solid v.$green;
-	border-radius: v.$radius-sm;
-	background: v.$green;
+	border: 1px solid var(--bpar-primary);
+	border-radius: var(--bpar-radius-sm);
+	background: var(--bpar-primary);
 	color: #fff;
 	cursor: pointer;
 	font-size: 14px;
@@ -127,7 +124,7 @@ $prefix: beplus-advanced-reviews-for-woocommerce;
 	transition: background 0.2s ease, transform 0.1s ease, box-shadow 0.2s ease;
 
 	&:hover {
-		background: color.adjust(v.$green, $lightness: 4%);
+		background: var(--bpar-primary-hover);
 	}
 
 	&:active {
@@ -135,7 +132,7 @@ $prefix: beplus-advanced-reviews-for-woocommerce;
 	}
 
 	&:focus-visible {
-		outline: 2px solid v.$green;
+		outline: 2px solid var(--bpar-primary);
 		outline-offset: 2px;
 	}
 
@@ -151,22 +148,22 @@ $prefix: beplus-advanced-reviews-for-woocommerce;
 
 .#{$prefix}__upload-zone {
 	padding: 24px 16px;
-	border: 2px dashed v.$border;
-	border-radius: v.$radius;
+	border: 2px dashed var(--bpar-border);
+	border-radius: var(--bpar-radius);
 	text-align: center;
 	cursor: pointer;
 	transition: border-color 0.2s, background 0.2s;
-	background: v.$bg;
+	background: var(--bpar-bg);
 
 	&:hover,
 	&:focus-within {
-		border-color: v.$green;
-		background: v.$green-hover-bg;
+		border-color: var(--bpar-primary);
+		background: var(--bpar-primary-hover-bg);
 	}
 
 	&--dragover {
-		border-color: v.$green !important;
-		background: v.$green-dragover-bg !important;
+		border-color: var(--bpar-primary) !important;
+		background: var(--bpar-primary-dragover-bg) !important;
 	}
 
 	&-input {
@@ -189,20 +186,20 @@ $prefix: beplus-advanced-reviews-for-woocommerce;
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		color: v.$muted;
+		color: var(--bpar-muted);
 		margin-bottom: 4px;
 	}
 
 	&-text {
 		margin: 0;
 		font-size: 14px;
-		color: v.$muted;
+		color: var(--bpar-muted);
 	}
 
 	&-hint {
 		margin: 0;
 		font-size: 12px;
-		color: v.$date-muted;
+		color: var(--bpar-date-muted);
 	}
 }
 
@@ -220,19 +217,19 @@ $prefix: beplus-advanced-reviews-for-woocommerce;
 	}
 
 	&-img {
-		border-radius: v.$radius-sm;
+		border-radius: var(--bpar-radius-sm);
 		object-fit: cover;
-		border: 1px solid v.$border;
+		border: 1px solid var(--bpar-border);
 	}
 
 	&-video {
-		border-radius: v.$radius-sm;
-		border: 1px solid v.$border;
+		border-radius: var(--bpar-radius-sm);
+		border: 1px solid var(--bpar-border);
 	}
 
 	&-name {
 		font-size: 11px;
-		color: v.$muted;
+		color: var(--bpar-muted);
 		max-width: 80px;
 		overflow: hidden;
 		text-overflow: ellipsis;
@@ -267,26 +264,26 @@ $prefix: beplus-advanced-reviews-for-woocommerce;
 	margin-top: 8px;
 
 	img {
-		border-radius: v.$radius-sm;
+		border-radius: var(--bpar-radius-sm);
 		object-fit: cover;
 	}
 }
 
 .#{$prefix}__form-message {
 	padding: 12px 16px;
-	border-radius: v.$radius-sm;
+	border-radius: var(--bpar-radius-sm);
 	margin-bottom: 14px;
 	font-size: 14px;
 
 	&--success {
-		background: v.$success-bg;
-		color: v.$success-text;
-		border: 1px solid v.$success-border;
+		background: var(--bpar-success-bg);
+		color: var(--bpar-success-text);
+		border: 1px solid var(--bpar-success-border);
 	}
 
 	&--error {
-		background: v.$error-bg;
-		color: v.$error-text;
-		border: 1px solid v.$error-border;
+		background: var(--bpar-error-bg);
+		color: var(--bpar-error-text);
+		border: 1px solid var(--bpar-error-border);
 	}
 }

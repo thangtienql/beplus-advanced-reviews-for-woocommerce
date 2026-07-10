@@ -36,6 +36,7 @@ Long-form context stays in this file and in `Document Plugin.md`; avoid duplicat
 | REST namespace | `beplus-advanced-reviews-for-woocommerce/v1` |
 | Block prefix | `beplus-advanced-reviews/` |
 | CSS prefix | `beplus-advanced-reviews-for-woocommerce` (BEM) |
+| CSS design tokens | `--bpar-*` (mapped to WP theme.json `--wp--preset--color--*` with fallbacks) |
 | DB table prefix | `{wpdb->prefix}bparfw_` |
 
 ## Core features
@@ -76,6 +77,17 @@ Accessible via WooCommerce > Advanced Reviews. Contains two main tabs:
 - **Media:**
   - Toggle image uploads (`enable_images`), allow clipboard paste, and set max image size (MB).
   - Toggle video uploads (`enable_videos`), set max video size (`max_video_size_mb`).
+
+### 6. Theme-Aware Color System
+- All frontend colors inherit from the active WordPress theme's global styles (`theme.json`).
+- The plugin defines `--bpar-*` CSS custom properties in `:root` (see `style.scss`) that map to WP theme variables:
+  - `--bpar-primary` → `var(--wp--preset--color--primary, #21652F)`
+  - `--bpar-text` → `var(--wp--preset--color--contrast, #101010)`
+  - `--bpar-bg` → `var(--wp--preset--color--base, #fff)`
+- Derived tones (hover, light, muted, border) use CSS `color-mix()` from the primary color.
+- Semantic colors (error/success) are hardcoded and not theme-dependent.
+- Themes without `theme.json` get the hardcoded fallback values.
+- To override: set `--bpar-primary` (or any `--bpar-*` token) in custom CSS.
 
 ## Files you usually touch
 

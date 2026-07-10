@@ -1,13 +1,11 @@
-@use 'variables' as v;
-
 $prefix: beplus-advanced-reviews-for-woocommerce;
 
 .#{$prefix}__distribution {
-	background: v.$bg;
-	border: 1px solid v.$border;
-	border-radius: v.$radius;
+	background: var(--bpar-bg);
+	border: 1px solid var(--bpar-border);
+	border-radius: var(--bpar-radius);
 	padding: 22px;
-	box-shadow: v.$card-shadow;
+	box-shadow: var(--bpar-card-shadow);
 
 	&-header {
 		margin-bottom: 0;
@@ -28,7 +26,7 @@ $prefix: beplus-advanced-reviews-for-woocommerce;
 		font-size: 48px;
 		font-weight: 700;
 		line-height: 0.95;
-		color: v.$green;
+		color: var(--bpar-primary);
 		letter-spacing: -0.02em;
 	}
 
@@ -46,7 +44,7 @@ $prefix: beplus-advanced-reviews-for-woocommerce;
 .#{$prefix}__total {
 	display: block;
 	font-size: 14px;
-	color: v.$date-muted;
+	color: var(--bpar-date-muted);
 	line-height: 1;
 	margin-top: 2px;
 	width: 100%;
@@ -72,7 +70,7 @@ $prefix: beplus-advanced-reviews-for-woocommerce;
 		gap: 3px;
 		width: 40px;
 		font-size: 13px;
-		color: v.$muted;
+		color: var(--bpar-muted);
 
 		svg {
 			width: 12px;
@@ -84,14 +82,14 @@ $prefix: beplus-advanced-reviews-for-woocommerce;
 	&-track {
 		flex: 1;
 		height: 10px;
-		background: v.$green-light;
+		background: var(--bpar-primary-light);
 		border-radius: 5px;
 		overflow: hidden;
 	}
 
 	&-fill {
 		height: 100%;
-		background: v.$green;
+		background: var(--bpar-primary);
 		border-radius: 5px;
 		transition: width 0.3s ease;
 	}
@@ -99,7 +97,7 @@ $prefix: beplus-advanced-reviews-for-woocommerce;
 	&-count {
 		width: 28px;
 		font-size: 13px;
-		color: v.$date-muted;
+		color: var(--bpar-date-muted);
 		text-align: right;
 		font-weight: 500;
 	}
