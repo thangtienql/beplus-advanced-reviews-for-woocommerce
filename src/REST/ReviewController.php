@@ -124,7 +124,7 @@ class ReviewController extends \WP_REST_Controller {
 			'rating'           => $request->get_param( 'rating' ),
 			'has_images'       => $request->get_param( 'has_images' ),
 			'sort'             => $request->get_param( 'sort' ),
-			'exclude'          => $request->get_param( 'exclude' ),
+			'exclude'          => $request->get_param( 'exclude' ), // phpcs:ignore WordPressVIPMinimum.Performance.WPQueryParams.PostNotIn_exclude -- Used in custom SQL for load-more deduplication with a small bounded list.
 			'rating_threshold' => $rating_threshold,
 		);
 
@@ -132,7 +132,7 @@ class ReviewController extends \WP_REST_Controller {
 		$result  = $this->repository->get_reviews( $product_id, $args );
 
 		$reviews = $this->formatter->format_list( $result['reviews'] );
-		$reviews = apply_filters( HookManager::REVIEW_RESULTS, $reviews, $product_id );
+		$reviews = apply_filters( HookManager::REVIEW_RESULTS, $reviews, $product_id ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.DynamicHooknameFound -- Constant resolves to 'beplus_advanced_reviews.review_results'.
 
 		$response = array(
 			'reviews'      => $reviews,
@@ -195,7 +195,7 @@ class ReviewController extends \WP_REST_Controller {
 			$this->media_handler->upload_pasted_image( $comment_id, $base64_data );
 		}
 
-			do_action( HookManager::REVIEW_SUBMITTED, $comment_id, $params['product_id'] );
+			do_action( HookManager::REVIEW_SUBMITTED, $comment_id, $params['product_id'] ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.DynamicHooknameFound -- Constant resolves to 'beplus_advanced_reviews.review_submitted'.
 
 			$review = $this->repository->get_review_by_id( $comment_id );
 			$data   = $review ? $this->formatter->format( $review ) : null;
@@ -209,7 +209,9 @@ class ReviewController extends \WP_REST_Controller {
 			) );
 		} catch ( \Throwable $e ) {
 			ob_end_clean();
-			error_log( 'Beplus Advanced Reviews For Woocommerce Error: ' . $e->getMessage() . "\n" . $e->getTraceAsString() );
+			if ( function_exists( 'wc_get_logger' ) ) {
+				wc_get_logger()->error( 'Error: ' . $e->getMessage() . "\n" . $e->getTraceAsString(), array( 'source' => 'beplus-advanced-reviews-for-woocommerce' ) );
+			}
 			return new \WP_Error( 'internal_error', $e->getMessage(), array( 'status' => 500 ) );
 		}
 	}

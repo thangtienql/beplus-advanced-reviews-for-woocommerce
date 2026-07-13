@@ -9,6 +9,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Template file; variables are local to the included scope.
 $product_id  = $args['product_id'] ?? 0;
 $show_avatar = ! empty( $args['show_avatar'] );
 $show_images = ! empty( $args['show_images'] );

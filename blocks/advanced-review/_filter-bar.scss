@@ -22,7 +22,6 @@ $prefix: beplus-advanced-reviews-for-woocommerce;
 .#{$prefix}__filter-label {
 	font-size: 16px;
 	font-weight: 500;
-	color: var(--bpar-muted);
 	margin-bottom: 0 !important;
 
 	@media (max-width: 768px) {
@@ -52,7 +51,6 @@ $prefix: beplus-advanced-reviews-for-woocommerce;
 	font-size: 14px;
 	font-weight: 500;
 	background: var(--bpar-bg);
-	color: var(--bpar-text);
 	cursor: pointer;
 	transition: all 0.2s ease;
 	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
@@ -80,16 +78,11 @@ $prefix: beplus-advanced-reviews-for-woocommerce;
 	gap: 10px;
 	cursor: pointer;
 	margin-bottom: 0 !important;
-
-	&:hover .#{$prefix}__filter-toggle-text {
-		color: var(--bpar-text);
-	}
 }
 
 .#{$prefix}__filter-toggle-text {
 	font-size: 14px;
 	font-weight: 500;
-	color: var(--bpar-muted);
 	transition: color 0.2s ease;
 }
 
@@ -166,7 +159,6 @@ $prefix: beplus-advanced-reviews-for-woocommerce;
 	font-size: 14px;
 	font-weight: 500;
 	background: var(--bpar-bg);
-	color: var(--bpar-text);
 	cursor: pointer;
 	transition: all 0.2s ease;
 	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
@@ -187,7 +179,6 @@ $prefix: beplus-advanced-reviews-for-woocommerce;
 	position: absolute;
 	right: 12px;
 	pointer-events: none;
-	color: var(--bpar-muted);
 	display: flex;
 	transition: color 0.2s ease;
 }

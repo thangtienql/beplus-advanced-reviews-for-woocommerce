@@ -13,6 +13,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Block render template; variables are scoped by WordPress's block rendering lifecycle.
+
 $product_id = beplus_advanced_reviews_for_woocommerce_get_current_product_id();
 
 if ( ! $product_id ) {
@@ -82,7 +84,7 @@ $wrapper_attrs = get_block_wrapper_attributes(
 								<option value="<?php echo esc_attr( (string) $i ); ?>">
 									<?php
 									/* translators: %d: Number of stars */
-									printf( esc_html__( '%d stars', 'beplus-advanced-reviews-for-woocommerce' ), $i );
+									echo esc_html( sprintf( __( '%d stars', 'beplus-advanced-reviews-for-woocommerce' ), $i ) );
 									?>
 								</option>
 							<?php endfor; ?>

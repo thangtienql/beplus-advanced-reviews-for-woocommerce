@@ -20,7 +20,7 @@
 :root {
 	/* ── Primary accent ─────────────────────────────────────────────── */
 	/* Fallback chain: primary → accent → accent-1 → hardcoded */
-	--bpar-primary: var(--wp--preset--color--primary, var(--wp--preset--color--accent, var(--wp--preset--color--accent-1, #{v.$primary-fallback})));
+	--bpar-primary: var(--wp--preset--color--contrast, #{v.$primary-fallback});
 	--bpar-primary-light: color-mix(in srgb, var(--bpar-primary) 12%, white);
 	--bpar-primary-hover: color-mix(in srgb, var(--bpar-primary) 90%, white);
 	--bpar-primary-hover-bg: color-mix(in srgb, var(--bpar-primary) 5%, white);
@@ -28,7 +28,7 @@
 
 	/* ── Text & background ──────────────────────────────────────────── */
 	/* Fallback chain: contrast → foreground → hardcoded */
-	--bpar-text: var(--wp--preset--color--contrast, var(--wp--preset--color--foreground, #{v.$text-fallback}));
+	--bpar-text: var(--wp--preset--color--base, #{v.$text-fallback});
 	/* Fallback chain: base → background → hardcoded */
 	--bpar-bg: var(--wp--preset--color--base, var(--wp--preset--color--background, #{v.$bg-fallback}));
 

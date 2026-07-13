@@ -1,8 +1,8 @@
-=== Beplus Advanced Reviews For Woocommerce ===
-Contributors: beplus
-Tags: woocommerce, reviews, product reviews, images, videos, star rating, gutenberg, filter, ajax
+=== Beplus Advanced Reviews for WooCommerce ===
+Contributors: bearsthemes, tienbeplus
+Tags: woocommerce, reviews, product reviews, star rating, ajax
 Requires at least: 6.0
-Tested up to: 6.8
+Tested up to: 7.0
 Requires PHP: 7.4
 Stable tag: 1.0.0
 License: GPLv2 or later
@@ -12,7 +12,7 @@ Modern WooCommerce product reviews with image & video support, star distribution
 
 == Description ==
 
-Beplus Advanced Reviews For Woocommerce replaces or enhances the default WooCommerce product reviews with a modern, AJAX-driven interface built as a Gutenberg block.
+Beplus Advanced Reviews for WooCommerce replaces or enhances the default WooCommerce product reviews with a modern, AJAX-driven interface built as a Gutenberg block.
 
 **Key Features:**
 
@@ -102,7 +102,7 @@ Yes. The plugin automatically inherits colors from your active theme's `theme.js
 == Changelog ==
 
 = 1.0.0 =
-* Initial release
+* Initial release. No upgrade steps required.
 * Average rating score and total review count
 * Star distribution bar chart (1★–5★)
 * Review cards with avatar, rating, content, date, and media
@@ -119,8 +119,3 @@ Yes. The plugin automatically inherits colors from your active theme's `theme.js
 * WCAG 2.1 AA accessibility
 * Theme-aware color system — inherits from active theme's `theme.json` global styles
 * i18n ready with `beplus-advanced-reviews-for-woocommerce` text domain
-
-== Upgrade Notice ==
-
-= 1.0.0 =
-Initial release. No upgrade steps required.

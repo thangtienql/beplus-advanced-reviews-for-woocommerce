@@ -12,7 +12,6 @@ $prefix: beplus-advanced-reviews-for-woocommerce;
 		font-size: 20px;
 		font-weight: 700;
 		margin-bottom: 20px;
-		color: var(--bpar-text);
 	}
 
 	display: flex;
@@ -22,7 +21,7 @@ $prefix: beplus-advanced-reviews-for-woocommerce;
 	label {
 		font-size: 13px;
 		font-weight: 500;
-		color: var(--bpar-muted);
+		color: #7c7c7c;
 	}
 
 	textarea {
@@ -117,7 +116,7 @@ $prefix: beplus-advanced-reviews-for-woocommerce;
 	border: 1px solid var(--bpar-primary);
 	border-radius: var(--bpar-radius-sm);
 	background: var(--bpar-primary);
-	color: #fff;
+	color: var(--bpar-text);
 	cursor: pointer;
 	font-size: 14px;
 	font-weight: 500;
@@ -186,20 +185,17 @@ $prefix: beplus-advanced-reviews-for-woocommerce;
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		color: var(--bpar-muted);
 		margin-bottom: 4px;
 	}
 
 	&-text {
 		margin: 0;
 		font-size: 14px;
-		color: var(--bpar-muted);
 	}
 
 	&-hint {
 		margin: 0;
 		font-size: 12px;
-		color: var(--bpar-date-muted);
 	}
 }
 

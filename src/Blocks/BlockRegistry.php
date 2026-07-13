@@ -48,7 +48,7 @@ class BlockRegistry extends AbstractModule {
 			}
 		}
 
-		$extra_blocks = apply_filters( HookManager::BLOCKS, array() );
+		$extra_blocks = apply_filters( HookManager::BLOCKS, array() ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.DynamicHooknameFound -- Constant resolves to 'beplus_advanced_reviews.blocks'.
 		foreach ( $extra_blocks as $block_dir ) {
 			if ( file_exists( $block_dir . '/block.json' ) ) {
 				register_block_type_from_metadata( $block_dir );

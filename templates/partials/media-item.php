@@ -9,6 +9,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Template file; variables are local to the included scope.
 $url       = esc_url( $args['url'] ?? '' );
 $thumbnail = esc_url( $args['thumbnail'] ?? '' );
 $alt       = esc_attr( $args['alt'] ?? '' );

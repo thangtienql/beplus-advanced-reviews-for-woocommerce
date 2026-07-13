@@ -35,7 +35,6 @@ class Plugin {
 		$this->boot_registered_modules();
 
 		add_action( 'rest_api_init', array( $this, 'init_rest_controllers' ) );
-		add_action( 'init', array( $this, 'load_textdomain' ) );
 		add_filter( 'block_categories_all', array( $this, 'register_block_category' ) );
 	}
 
@@ -70,7 +69,7 @@ class Plugin {
 	}
 
 	private function register_services_from_filter(): void {
-		$services = apply_filters( HookManager::SERVICES, array() );
+		$services = apply_filters( HookManager::SERVICES, array() ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.DynamicHooknameFound -- Constant resolves to 'beplus_advanced_reviews.services'.
 		$this->container->register( $services );
 	}
 
@@ -111,13 +110,6 @@ class Plugin {
 		return $categories;
 	}
 
-	public function load_textdomain(): void {
-		load_plugin_textdomain(
-			'beplus-advanced-reviews-for-woocommerce',
-			false,
-			dirname( BEPLUS_ADVANCED_REVIEWS_FOR_WOOCOMMERCE_PLUGIN_BASENAME ) . '/languages'
-		);
-	}
 
 	public function activate(): void {
 		$schema = new SchemaManager( $this->container );

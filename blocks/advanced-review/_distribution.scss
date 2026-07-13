@@ -44,7 +44,6 @@ $prefix: beplus-advanced-reviews-for-woocommerce;
 .#{$prefix}__total {
 	display: block;
 	font-size: 14px;
-	color: var(--bpar-date-muted);
 	line-height: 1;
 	margin-top: 2px;
 	width: 100%;
@@ -70,7 +69,6 @@ $prefix: beplus-advanced-reviews-for-woocommerce;
 		gap: 3px;
 		width: 40px;
 		font-size: 13px;
-		color: var(--bpar-muted);
 
 		svg {
 			width: 12px;
@@ -97,7 +95,6 @@ $prefix: beplus-advanced-reviews-for-woocommerce;
 	&-count {
 		width: 28px;
 		font-size: 13px;
-		color: var(--bpar-date-muted);
 		text-align: right;
 		font-weight: 500;
 	}

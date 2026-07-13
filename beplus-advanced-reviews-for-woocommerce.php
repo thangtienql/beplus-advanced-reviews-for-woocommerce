@@ -1,13 +1,12 @@
 <?php
 /**
- * Plugin Name: Beplus Advanced Reviews For Woocommerce
+ * Plugin Name: Beplus Advanced Reviews for WooCommerce
  * Plugin URI:  https://github.com/thangtienql/beplus-advanced-reviews-for-woocommerce
- * Description: Modern WooCommerce product reviews with image support, star distribution, AJAX filtering, and load more.
+ * Description: A modern WooCommerce product review system featuring image and video uploads, star distribution, AJAX filtering, and seamless pagination.
  * Version:     1.0.0
  * Author:      Beplus
  * Author URI:  https://beplusthemes.com/
  * Text Domain: beplus-advanced-reviews-for-woocommerce
- * Domain Path: /languages
  * Requires at least: 6.0
  * Requires PHP: 7.4
  * Requires Plugins: woocommerce
@@ -26,9 +25,9 @@ define( 'BEPLUS_ADVANCED_REVIEWS_FOR_WOOCOMMERCE_PLUGIN_DIR', plugin_dir_path( _
 define( 'BEPLUS_ADVANCED_REVIEWS_FOR_WOOCOMMERCE_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 define( 'BEPLUS_ADVANCED_REVIEWS_FOR_WOOCOMMERCE_PLUGIN_BASENAME', plugin_basename( __FILE__ ) );
 
-$autoload = BEPLUS_ADVANCED_REVIEWS_FOR_WOOCOMMERCE_PLUGIN_DIR . 'vendor/autoload.php';
-if ( file_exists( $autoload ) ) {
-	require_once $autoload;
+$beplus_advanced_reviews_for_woocommerce_autoload = BEPLUS_ADVANCED_REVIEWS_FOR_WOOCOMMERCE_PLUGIN_DIR . 'vendor/autoload.php';
+if ( file_exists( $beplus_advanced_reviews_for_woocommerce_autoload ) ) {
+	require_once $beplus_advanced_reviews_for_woocommerce_autoload;
 } else {
 	spl_autoload_register(
 		function ( string $class_name ) {

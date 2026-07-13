@@ -43,7 +43,7 @@ class ReviewQuery {
 			$exclude = array_map( 'absint', explode( ',', $params['exclude'] ) );
 			$exclude = array_filter( $exclude );
 			if ( ! empty( $exclude ) ) {
-				$args['exclude'] = $exclude;
+				$args['exclude'] = $exclude; // phpcs:ignore WordPressVIPMinimum.Performance.WPQueryParams.PostNotIn_exclude -- Custom SQL NOT IN for load-more deduplication; bounded list.
 			}
 		}
 
@@ -59,7 +59,7 @@ class ReviewQuery {
 			}
 		}
 
-		$args = apply_filters( 'beplus-advanced-reviews-for-woocommerce/review.query', $args, $params );
+		$args = apply_filters( \BeplusAdvancedReviewsForWoocommerce\Core\HookManager::REVIEW_QUERY, $args, $params ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.DynamicHooknameFound -- Constant resolves to 'beplus_advanced_reviews.review_query'.
 
 		return $args;
 	}

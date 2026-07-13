@@ -15,6 +15,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 class ReviewRepository {
 
 	/**
+	 * Cache group for all review queries.
+	 *
+	 * @var string
+	 */
+	private const CACHE_GROUP = 'bparfw_reviews';
+
+	/**
 	 * Get reviews for a product.
 	 *
 	 * @param int   $product_id Product ID.
@@ -89,6 +96,7 @@ class ReviewRepository {
 			$join .= " INNER JOIN {$wpdb->commentmeta} cm ON c.comment_ID = cm.comment_id";
 		}
 
+		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber -- $join, $where, $orderby are safely built above; $params count matches placeholders at runtime.
 		$query = $wpdb->prepare(
 			"SELECT SQL_CALC_FOUND_ROWS c.*, cm_rating.meta_value as rating_value
 			FROM {$wpdb->comments} c
@@ -99,9 +107,10 @@ class ReviewRepository {
 			LIMIT %d OFFSET %d",
 			array_merge( $params, array( $per_page, $offset ) )
 		);
+		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
 
-		$reviews  = $wpdb->get_results( $query ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-		$total    = $wpdb->get_var( 'SELECT FOUND_ROWS()' );
+		$reviews  = $wpdb->get_results( $query ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Paginated listing with dynamic filters; not suitable for object cache. $query is safely prepared.
+		$total    = $wpdb->get_var( 'SELECT FOUND_ROWS()' ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Must run immediately after SQL_CALC_FOUND_ROWS.
 		$pages    = $per_page > 0 ? ceil( $total / $per_page ) : 0;
 
 		return array(
@@ -119,6 +128,13 @@ class ReviewRepository {
 	 * @return array<string, mixed>
 	 */
 	public function get_star_distribution( int $product_id ): array {
+		$cache_key = 'star_dist_' . $product_id;
+		$cached    = wp_cache_get( $cache_key, self::CACHE_GROUP );
+
+		if ( false !== $cached ) {
+			return $cached;
+		}
+
 		global $wpdb;
 
 		$query = $wpdb->prepare(
@@ -138,29 +154,33 @@ class ReviewRepository {
 			$product_id
 		);
 
-		$row = $wpdb->get_row( $query ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+		$row = $wpdb->get_row( $query ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery
 
 		if ( ! $row ) {
-			return array(
+			$result = array(
 				'product_id' => $product_id,
 				'total'      => 0,
 				'average'    => 0.0,
 				'stars'      => array( '5' => 0, '4' => 0, '3' => 0, '2' => 0, '1' => 0 ),
 			);
+		} else {
+			$result = array(
+				'product_id' => $product_id,
+				'total'      => (int) $row->total,
+				'average'    => round( (float) $row->average, 1 ),
+				'stars'      => array(
+					'5' => (int) $row->stars_5,
+					'4' => (int) $row->stars_4,
+					'3' => (int) $row->stars_3,
+					'2' => (int) $row->stars_2,
+					'1' => (int) $row->stars_1,
+				),
+			);
 		}
 
-		return array(
-			'product_id' => $product_id,
-			'total'      => (int) $row->total,
-			'average'    => round( (float) $row->average, 1 ),
-			'stars'      => array(
-				'5' => (int) $row->stars_5,
-				'4' => (int) $row->stars_4,
-				'3' => (int) $row->stars_3,
-				'2' => (int) $row->stars_2,
-				'1' => (int) $row->stars_1,
-			),
-		);
+		wp_cache_set( $cache_key, $result, self::CACHE_GROUP );
+
+		return $result;
 	}
 
 	/**
@@ -170,16 +190,26 @@ class ReviewRepository {
 	 * @return bool
 	 */
 	public function has_images( int $comment_id ): bool {
+		$cache_key = 'has_images_' . $comment_id;
+		$cached    = wp_cache_get( $cache_key, self::CACHE_GROUP );
+
+		if ( false !== $cached ) {
+			return (bool) $cached;
+		}
+
 		global $wpdb;
 
-		$count = $wpdb->get_var(
+		$count = $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
 			$wpdb->prepare(
 				"SELECT COUNT(*) FROM {$wpdb->prefix}bparfw_review_media WHERE comment_id = %d",
 				$comment_id
 			)
 		);
 
-		return (int) $count > 0;
+		$result = (int) $count > 0;
+		wp_cache_set( $cache_key, $result, self::CACHE_GROUP );
+
+		return $result;
 	}
 
 	/**
@@ -189,9 +219,16 @@ class ReviewRepository {
 	 * @return object|null
 	 */
 	public function get_review_by_id( int $comment_id ) {
+		$cache_key = 'review_' . $comment_id;
+		$cached    = wp_cache_get( $cache_key, self::CACHE_GROUP );
+
+		if ( false !== $cached ) {
+			return $cached;
+		}
+
 		global $wpdb;
 
-		return $wpdb->get_row(
+		$result = $wpdb->get_row( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
 			$wpdb->prepare(
 				"SELECT c.*, cm.meta_value as rating_value
 				FROM {$wpdb->comments} c
@@ -200,5 +237,9 @@ class ReviewRepository {
 				$comment_id
 			)
 		);
+
+		wp_cache_set( $cache_key, $result, self::CACHE_GROUP );
+
+		return $result;
 	}
 }

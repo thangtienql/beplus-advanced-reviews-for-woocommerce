@@ -4,7 +4,7 @@ $prefix: beplus-advanced-reviews-for-woocommerce;
 	max-width: 100%;
 	margin: 0;
 	font-family: inherit;
-	color: var(--bpar-text);
+	color: var(--bpar-primary);
 
 	&--loading {
 		min-height: 200px;
@@ -70,7 +70,7 @@ $prefix: beplus-advanced-reviews-for-woocommerce;
 		border: 1px solid var(--bpar-primary);
 		border-radius: var(--bpar-radius-sm);
 		background: var(--bpar-primary);
-		color: #fff;
+		color: var(--bpar-text);
 		font-size: 14px;
 		font-weight: 500;
 		cursor: pointer;
@@ -94,7 +94,6 @@ $prefix: beplus-advanced-reviews-for-woocommerce;
 	&__no-reviews {
 		text-align: center;
 		padding: 32px;
-		color: var(--bpar-date-muted);
 		font-size: 14px;
 	}
 

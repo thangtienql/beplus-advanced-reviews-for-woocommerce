@@ -24,7 +24,7 @@ class AssetLoader extends AbstractModule {
 	 * always has it available, regardless of context (product page or not).
 	 */
 	public function enqueue_block_data(): void {
-		wp_register_script( 'beplus-advanced-reviews-for-woocommerce-data', false );
+		wp_register_script( 'beplus-advanced-reviews-for-woocommerce-data', false, array(), BEPLUS_ADVANCED_REVIEWS_FOR_WOOCOMMERCE_VERSION, false );
 		wp_localize_script(
 			'beplus-advanced-reviews-for-woocommerce-data',
 			'bparfwData',

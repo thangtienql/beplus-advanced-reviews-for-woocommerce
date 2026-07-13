@@ -9,6 +9,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Template file; variables are local to the included scope.
 $product_id  = $args['product_id'] ?? 0;
 $show_images = ! empty( $args['show_images'] );
 $paste_enabled = beplus_advanced_reviews_for_woocommerce_is_paste_enabled();
@@ -36,11 +37,11 @@ $user = wp_get_current_user();
 					class="beplus-advanced-reviews-for-woocommerce__star-label"
 					aria-label="<?php
 					/* translators: %d: Number of stars */
-					printf( esc_attr__( '%d stars', 'beplus-advanced-reviews-for-woocommerce' ), $i );
+					echo esc_attr( sprintf( __( '%d stars', 'beplus-advanced-reviews-for-woocommerce' ), $i ) );
 					?>"
 					title="<?php
 					/* translators: %d: Number of stars */
-					printf( esc_attr__( '%d stars', 'beplus-advanced-reviews-for-woocommerce' ), $i );
+					echo esc_attr( sprintf( __( '%d stars', 'beplus-advanced-reviews-for-woocommerce' ), $i ) );
 					?>"
 				><?php echo beplus_advanced_reviews_for_woocommerce_star_icon(); // phpcs:ignore ?></label>
 			<?php endfor; ?>
@@ -105,9 +106,11 @@ $user = wp_get_current_user();
 						<?php
 						$hints = array();
 						if ( $images_enabled ) {
+							/* translators: %s is the maximum image size in megabytes */
 							$hints[] = sprintf( __( 'Images: JPEG, PNG, WebP (max %s MB)', 'beplus-advanced-reviews-for-woocommerce' ), $max_image_mb );
 						}
 						if ( $videos_enabled ) {
+							/* translators: %s is the maximum video size in megabytes */
 							$hints[] = sprintf( __( 'Videos: MP4, WebM, OGG (max %s MB)', 'beplus-advanced-reviews-for-woocommerce' ), $max_video_mb );
 						}
 						echo esc_html( implode( ' — ', $hints ) );

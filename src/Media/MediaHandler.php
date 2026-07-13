@@ -155,9 +155,16 @@ class MediaHandler extends AbstractModule {
 	 * @return array<int, array<string, mixed>> List of attachment data.
 	 */
 	public function get_review_media( int $comment_id ): array {
+		$cache_key = 'review_media_' . $comment_id;
+		$cached    = wp_cache_get( $cache_key, 'bparfw_reviews' );
+
+		if ( false !== $cached ) {
+			return $cached;
+		}
+
 		global $wpdb;
 
-		$rows = $wpdb->get_results(
+		$rows = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
 			$wpdb->prepare(
 				"SELECT attachment_id FROM {$wpdb->prefix}bparfw_review_media WHERE comment_id = %d ORDER BY sort_order ASC",
 				$comment_id
@@ -185,6 +192,8 @@ class MediaHandler extends AbstractModule {
 			}
 		}
 
+		wp_cache_set( $cache_key, $media, 'bparfw_reviews' );
+
 		return $media;
 	}
 
@@ -207,7 +216,7 @@ class MediaHandler extends AbstractModule {
 		foreach ( $attachment_ids as $attachment_id ) {
 			$this->storage->delete( $attachment_id );
 
-			do_action( HookManager::MEDIA_DELETED, $comment_id, $attachment_id );
+			do_action( HookManager::MEDIA_DELETED, $comment_id, $attachment_id ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.DynamicHooknameFound -- Constant resolves to 'beplus_advanced_reviews.media_deleted'.
 		}
 
 		$this->remove_media_links( $comment_id );
@@ -325,7 +334,9 @@ class MediaHandler extends AbstractModule {
 		$result = $this->storage->store( $file_path, $file['name'] );
 
 		if ( is_wp_error( $result ) ) {
-			error_log( 'Beplus Advanced Reviews For Woocommerce: Storage store() failed. comment_id=' . $comment_id . ' error=' . $result->get_error_message() );
+			if ( function_exists( 'wc_get_logger' ) ) {
+				wc_get_logger()->error( 'Storage store() failed. comment_id=' . $comment_id . ' error=' . $result->get_error_message(), array( 'source' => 'beplus-advanced-reviews-for-woocommerce' ) );
+			}
 			return null;
 		}
 
@@ -333,7 +344,7 @@ class MediaHandler extends AbstractModule {
 
 		$this->storage->generate_metadata( $attachment_id, $file_path );
 
-		$inserted = $wpdb->insert(
+		$inserted = $wpdb->insert( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
 			$wpdb->prefix . 'bparfw_review_media',
 			array(
 				'comment_id'    => $comment_id,
@@ -345,10 +356,12 @@ class MediaHandler extends AbstractModule {
 		);
 
 		if ( false === $inserted ) {
-			error_log( 'Beplus Advanced Reviews For Woocommerce: Failed to insert review media link. comment_id=' . $comment_id . ' attachment_id=' . $attachment_id . ' error=' . $wpdb->last_error );
+			if ( function_exists( 'wc_get_logger' ) ) {
+				wc_get_logger()->error( 'Failed to insert review media link. comment_id=' . $comment_id . ' attachment_id=' . $attachment_id . ' error=' . $wpdb->last_error, array( 'source' => 'beplus-advanced-reviews-for-woocommerce' ) );
+			}
 		}
 
-		do_action( HookManager::MEDIA_UPLOADED, $comment_id, $attachment_id );
+		do_action( HookManager::MEDIA_UPLOADED, $comment_id, $attachment_id ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.DynamicHooknameFound -- Constant resolves to 'beplus_advanced_reviews.media_uploaded'.
 
 		return $attachment_id;
 	}
@@ -360,9 +373,16 @@ class MediaHandler extends AbstractModule {
 	 * @return array<int, int>
 	 */
 	private function get_attachment_ids_for_comment( int $comment_id ): array {
+		$cache_key = 'attachment_ids_' . $comment_id;
+		$cached    = wp_cache_get( $cache_key, 'bparfw_reviews' );
+
+		if ( false !== $cached ) {
+			return $cached;
+		}
+
 		global $wpdb;
 
-		$rows = $wpdb->get_results(
+		$rows = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
 			$wpdb->prepare(
 				"SELECT attachment_id FROM {$wpdb->prefix}bparfw_review_media WHERE comment_id = %d",
 				$comment_id
@@ -370,15 +390,20 @@ class MediaHandler extends AbstractModule {
 		);
 
 		if ( empty( $rows ) ) {
+			wp_cache_set( $cache_key, array(), 'bparfw_reviews' );
 			return array();
 		}
 
-		return array_map(
+		$result = array_map(
 			function ( $row ) {
 				return (int) $row->attachment_id;
 			},
 			$rows
 		);
+
+		wp_cache_set( $cache_key, $result, 'bparfw_reviews' );
+
+		return $result;
 	}
 
 	/**
@@ -390,11 +415,15 @@ class MediaHandler extends AbstractModule {
 	private function remove_media_links( int $comment_id ): void {
 		global $wpdb;
 
-		$wpdb->delete(
+		$wpdb->delete( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 			$wpdb->prefix . 'bparfw_review_media',
 			array( 'comment_id' => $comment_id ),
 			array( '%d' )
 		);
+
+		wp_cache_delete( 'review_media_' . $comment_id, 'bparfw_reviews' );
+		wp_cache_delete( 'attachment_ids_' . $comment_id, 'bparfw_reviews' );
+		wp_cache_delete( 'has_images_' . $comment_id, 'bparfw_reviews' );
 	}
 
 	/**

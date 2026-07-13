@@ -61,7 +61,6 @@ $prefix: beplus-advanced-reviews-for-woocommerce;
 .#{$prefix}__review-author {
 	font-size: 14px;
 	font-weight: 600;
-	color: var(--bpar-text);
 }
 
 .#{$prefix}__review-rating {
@@ -72,14 +71,12 @@ $prefix: beplus-advanced-reviews-for-woocommerce;
 .#{$prefix}__review-content {
 	font-size: 14px;
 	line-height: 1.5;
-	color: var(--bpar-text);
 	margin-bottom: 10px;
 	word-break: break-word;
 }
 
 .#{$prefix}__review-date {
 	font-size: 13px;
-	color: var(--bpar-date-muted);
 }
 
 .#{$prefix}__review-images {
