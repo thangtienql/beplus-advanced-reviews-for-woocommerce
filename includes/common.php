@@ -22,16 +22,18 @@ function beplus_advanced_reviews_for_woocommerce_get_settings(): array {
 	}
 
 	$defaults = array(
-		'display_mode'     => 'keep',
-		'enable_images'    => true,
-		'enable_paste'     => true,
-		'enable_filter'    => true,
-		'enable_sort'      => true,
-		'load_more_count'  => 10,
-		'rating_threshold' => 0,
+		'display_mode'      => 'keep',
+		'enable_images'     => true,
+		'enable_paste'      => true,
+		'enable_filter'     => true,
+		'enable_sort'       => true,
+		'load_more_count'   => 10,
+		'rating_threshold'  => 0,
 		'max_image_size_mb' => 2,
-		'enable_videos'    => false,
+		'enable_videos'     => false,
 		'max_video_size_mb' => 20,
+		'enable_verified'   => true,
+		'verified_statuses' => 'completed_processing',
 	);
 
 	$saved = get_option( 'beplus_advanced_reviews_for_woocommerce_settings', array() );
@@ -133,6 +135,16 @@ function beplus_advanced_reviews_for_woocommerce_get_max_video_size(): int {
 	$settings = beplus_advanced_reviews_for_woocommerce_get_settings();
 	$mb       = isset( $settings['max_video_size_mb'] ) ? absint( $settings['max_video_size_mb'] ) : 20;
 	return $mb * 1024 * 1024;
+}
+
+/**
+ * Check if verified purchase badge is enabled.
+ *
+ * @return bool
+ */
+function beplus_advanced_reviews_for_woocommerce_is_verified_enabled(): bool {
+	$settings = beplus_advanced_reviews_for_woocommerce_get_settings();
+	return ! empty( $settings['enable_verified'] );
 }
 
 /**

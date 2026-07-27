@@ -8,6 +8,8 @@
 
 namespace BeplusAdvancedReviewsForWoocommerce\Reviews;
 
+use BeplusAdvancedReviewsForWoocommerce\Verified\VerifiedPurchaseChecker;
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
@@ -38,6 +40,7 @@ class ReviewRepository {
 			'has_images'       => false,
 			'sort'             => 'newest',
 			'rating_threshold' => 0,
+			'verified_only'    => false,
 		);
 
 		$args = wp_parse_args( $args, $defaults );
@@ -63,6 +66,23 @@ class ReviewRepository {
 
 		if ( $args['has_images'] ) {
 			$where .= ' AND EXISTS (SELECT 1 FROM ' . $wpdb->prefix . 'bparfw_review_media rm WHERE rm.comment_id = c.comment_ID)';
+		}
+
+		if ( ! empty( $args['verified_only'] ) ) {
+			$checker        = new VerifiedPurchaseChecker();
+			$verified_emails = $checker->get_verified_emails( $product_id );
+			if ( empty( $verified_emails ) ) {
+				// No verified purchasers yet — return empty result.
+				return array(
+					'reviews' => array(),
+					'total'   => 0,
+					'pages'   => 0,
+					'page'    => $page,
+				);
+			}
+			$placeholders_v = implode( ',', array_fill( 0, count( $verified_emails ), '%s' ) );
+			$where         .= " AND c.comment_author_email IN ({$placeholders_v})";
+			$params         = array_merge( $params, $verified_emails );
 		}
 
 		if ( ! empty( $args['exclude'] ) && is_array( $args['exclude'] ) ) {

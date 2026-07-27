@@ -59,8 +59,10 @@ class SettingsController extends \WP_REST_Controller {
 	 * @return \WP_REST_Response|\WP_Error
 	 */
 	public function update_settings( \WP_REST_Request $request ) {
-		$params   = $request->get_json_params();
-		$sanitized = $this->registry->sanitize_settings( $params );
+		$params    = $request->get_json_params();
+		$existing  = $this->registry->get_all();
+		$merged    = array_merge( $existing, $params ?? array() );
+		$sanitized = $this->registry->sanitize_settings( $merged );
 		$updated   = $this->registry->update( $sanitized );
 
 		if ( ! $updated ) {

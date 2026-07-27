@@ -31,6 +31,7 @@ $show_filter_bar   = ! empty( $attributes['showFilterBar'] ) && beplus_advanced_
 $show_submit_form  = ! empty( $attributes['showSubmitForm'] );
 $show_images       = ! empty( $attributes['showImages'] );
 $show_avatar       = ! empty( $attributes['showAvatar'] );
+$show_verified_filter = ! empty( $attributes['showVerifiedFilter'] ) && beplus_advanced_reviews_for_woocommerce_is_verified_enabled();
 $show_sort         = beplus_advanced_reviews_for_woocommerce_is_sort_enabled();
 $reviews_per_load  = isset( $attributes['reviewsPerLoad'] ) && $attributes['reviewsPerLoad'] > 0
 	? absint( $attributes['reviewsPerLoad'] )
@@ -122,6 +123,18 @@ $wrapper_attrs = get_block_wrapper_attributes(
 						<span class="beplus-advanced-reviews-for-woocommerce__filter-toggle-text"><?php esc_html_e( 'With images only', 'beplus-advanced-reviews-for-woocommerce' ); ?></span>
 						<div class="beplus-advanced-reviews-for-woocommerce__filter-toggle-switch">
 							<input type="checkbox" class="beplus-advanced-reviews-for-woocommerce__filter-images-input" aria-label="<?php esc_attr_e( 'Show only reviews with images', 'beplus-advanced-reviews-for-woocommerce' ); ?>">
+							<span class="beplus-advanced-reviews-for-woocommerce__filter-toggle-slider"></span>
+						</div>
+					</label>
+				</div>
+			<?php endif; ?>
+
+			<?php if ( $show_verified_filter ) : ?>
+				<div class="beplus-advanced-reviews-for-woocommerce__filter-verified">
+					<label class="beplus-advanced-reviews-for-woocommerce__filter-toggle">
+						<span class="beplus-advanced-reviews-for-woocommerce__filter-toggle-text"><?php esc_html_e( 'Verified only', 'beplus-advanced-reviews-for-woocommerce' ); ?></span>
+						<div class="beplus-advanced-reviews-for-woocommerce__filter-toggle-switch">
+							<input type="checkbox" class="beplus-advanced-reviews-for-woocommerce__filter-verified-input" aria-label="<?php esc_attr_e( 'Show only verified purchase reviews', 'beplus-advanced-reviews-for-woocommerce' ); ?>">
 							<span class="beplus-advanced-reviews-for-woocommerce__filter-toggle-slider"></span>
 						</div>
 					</label>

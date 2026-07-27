@@ -126,15 +126,18 @@ $prefix: beplus-advanced-reviews-for-woocommerce;
 	}
 }
 
-.#{$prefix}__filter-images-input:checked+.#{$prefix}__filter-toggle-slider {
+.#{$prefix}__filter-images-input:checked+.#{$prefix}__filter-toggle-slider,
+.#{$prefix}__filter-verified-input:checked+.#{$prefix}__filter-toggle-slider {
 	background-color: var(--bpar-primary);
 }
 
-.#{$prefix}__filter-images-input:checked+.#{$prefix}__filter-toggle-slider:before {
+.#{$prefix}__filter-images-input:checked+.#{$prefix}__filter-toggle-slider:before,
+.#{$prefix}__filter-verified-input:checked+.#{$prefix}__filter-toggle-slider:before {
 	transform: translateX(16px);
 }
 
-.#{$prefix}__filter-images-input:focus-visible+.#{$prefix}__filter-toggle-slider {
+.#{$prefix}__filter-images-input:focus-visible+.#{$prefix}__filter-toggle-slider,
+.#{$prefix}__filter-verified-input:focus-visible+.#{$prefix}__filter-toggle-slider {
 	outline: 2px solid var(--bpar-primary);
 	outline-offset: 2px;
 }

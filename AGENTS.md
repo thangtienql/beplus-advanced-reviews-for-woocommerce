@@ -74,11 +74,20 @@ Accessible via WooCommerce > Advanced Reviews. Contains two main tabs:
   - **Display Mode:** Keep default (manual block placement) vs Replace default (automatically overrides WooCommerce reviews). Logic lives in `src/Core/Placement.php`.
   - **Reviews per load:** Number of reviews shown before the "Load More" button appears.
   - **Review Behavior:** Minimum rating to display, toggle filter bar, and toggle sort controls.
+  - **Verified Purchase:** Toggle badge on/off and choose which order statuses count as verified (Completed + Processing, or Completed only).
 - **Media:**
   - Toggle image uploads (`enable_images`), allow clipboard paste, and set max image size (MB).
   - Toggle video uploads (`enable_videos`), set max video size (`max_video_size_mb`).
 
-### 6. Theme-Aware Color System
+### 6. Verified Purchase Badge
+- Reviews from customers who have purchased the product display a **"Verified Purchase" badge** on their review card.
+- **Detection:** Batch query checks both logged-in users (via user ID) and guest users (via email) against WooCommerce orders with status `completed` or `processing`.
+- **Verified-only filter:** A "Verified only" toggle on the front-end filter bar lets visitors narrow reviews to verified purchasers only.
+- **Cache & bust:** Results are cached for 5 minutes per product; cache is automatically cleared when an order transitions to `completed` or `processing`.
+- **Admin control:** Toggle the feature on/off and select which order statuses count via **WooCommerce → Advanced Reviews → General → Verified Purchase**.
+- Core logic lives in `src/Verified/VerifiedPurchaseChecker.php` and `src/Verified/VerifiedPurchaseModule.php`.
+
+### 7. Theme-Aware Color System
 - All frontend colors inherit from the active WordPress theme's global styles (`theme.json`).
 - The plugin defines `--bpar-*` CSS custom properties in `:root` (see `style.scss`) that map to WP theme variables:
   - `--bpar-primary` → `var(--wp--preset--color--primary, #21652F)`
@@ -103,6 +112,7 @@ Accessible via WooCommerce > Advanced Reviews. Contains two main tabs:
 | REST API | `src/REST/*Controller.php` | — |
 | Media handling | `src/Media/MediaHandler.php` | — |
 | Display mode / placement | `src/Core/Placement.php` | — |
+| Verified purchase | `src/Verified/VerifiedPurchaseChecker.php`, `src/Verified/VerifiedPurchaseModule.php` | — |
 
 After changing JS/TS or block sources, run **`npm run build`** (or **`npm run watch`**) from the plugin root.
 
@@ -143,6 +153,8 @@ Outside `boot()`, the bootstrap file (`beplus-advanced-reviews-for-woocommerce.p
 | `SettingsController` | `src/REST/SettingsController.php` | Admin settings REST |
 | `SchemaManager` | `src/DB/SchemaManager.php` | Create / migrate custom DB tables on activation |
 | `Placement` | `src/Core/Placement.php` | Display mode logic (keep/replace) |
+| `VerifiedPurchaseChecker` | `src/Verified/VerifiedPurchaseChecker.php` | Batch check purchase status, cache, bust cache |
+| `VerifiedPurchaseModule` | `src/Verified/VerifiedPurchaseModule.php` | Hooks for cache busting on order status change |
 
 ## Database schema
 
@@ -182,9 +194,9 @@ Page load
         ├── Renders review list cards with **image lightboxes**
         └── Binds filter bar + sort controls
 
-User applies filter (star / images-only)
+User applies filter (star / images-only / verified-only)
   └── Client-side filter in view.js (no reload for first page)
-        └── If next page needed → REST GET /reviews?product_id=…&rating=…&has_images=1&page=…
+        └── If next page needed → REST GET /reviews?product_id=…&rating=…&has_images=1&verified_only=1&page=…
 
 User submits review
   └── REST POST /reviews  →  ReviewController::create_review()
@@ -199,7 +211,7 @@ User submits review
 
 | Method | Route | Auth | Description |
 |--------|-------|------|-------------|
-| `GET` | `/reviews` | public | List reviews; supports `product_id`, `rating`, `has_images`, `page`, `per_page`, `sort` |
+| `GET` | `/reviews` | public | List reviews; supports `product_id`, `rating`, `has_images`, `verified_only`, `page`, `per_page`, `sort` |
 | `GET` | `/reviews/distribution` | public | Star distribution counts for a product |
 | `POST` | `/reviews` | logged-in or nonce | Submit a new review with rating and optional images |
 | `DELETE` | `/reviews/(?P<id>\d+)` | `manage_woocommerce` | Remove a review |

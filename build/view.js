@@ -13,6 +13,7 @@
       let currentPage = 1;
       let currentRating = 0;
       let currentHasImages = false;
+      let currentVerifiedOnly = false;
       let currentSort = "newest";
       let totalPages = 1;
       block._bparExcludeIds = [];
@@ -22,6 +23,7 @@
       const filterRatingSelect = block.querySelector(".beplus-advanced-reviews-for-woocommerce__filter-rating-select");
       const filterImagesCheckbox = block.querySelector(".beplus-advanced-reviews-for-woocommerce__filter-images-input");
       const sortSelect = block.querySelector(".beplus-advanced-reviews-for-woocommerce__sort-select");
+      const verifiedCheckbox = block.querySelector(".beplus-advanced-reviews-for-woocommerce__filter-verified-input");
       const distributionArea = block.querySelector(".beplus-advanced-reviews-for-woocommerce__distribution");
       loadInitialReviews();
       loadDistribution();
@@ -84,6 +86,9 @@
         if (currentHasImages) {
           url.searchParams.set("has_images", "1");
         }
+        if (currentVerifiedOnly) {
+          url.searchParams.set("verified_only", "1");
+        }
         if (block._bparExcludeIds && block._bparExcludeIds.length > 0) {
           url.searchParams.set("exclude", block._bparExcludeIds.join(","));
         }
@@ -113,6 +118,12 @@
           html += '<div class="beplus-advanced-reviews-for-woocommerce__review-body">';
           html += '<div class="beplus-advanced-reviews-for-woocommerce__review-header">';
           html += '<span class="beplus-advanced-reviews-for-woocommerce__review-author">' + escHtml(review.author) + "</span>";
+          if (review.is_verified) {
+            html += '<span class="beplus-advanced-reviews-for-woocommerce__verified-badge" aria-label="' + escAttr(bparfwData.i18n.verifiedPurchase || "Verified Purchase") + '">';
+            html += '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg> ';
+            html += escHtml(bparfwData.i18n.verifiedPurchase || "Verified Purchase");
+            html += "</span>";
+          }
           html += '<span class="beplus-advanced-reviews-for-woocommerce__review-rating">' + renderStars(review.rating) + "</span>";
           html += "</div>";
           html += '<div class="beplus-advanced-reviews-for-woocommerce__review-content">' + review.content + "</div>";
@@ -190,6 +201,12 @@
       if (filterImagesCheckbox) {
         filterImagesCheckbox.addEventListener("change", function() {
           currentHasImages = filterImagesCheckbox.checked;
+          applyFilter();
+        });
+      }
+      if (verifiedCheckbox) {
+        verifiedCheckbox.addEventListener("change", function() {
+          currentVerifiedOnly = verifiedCheckbox.checked;
           applyFilter();
         });
       }

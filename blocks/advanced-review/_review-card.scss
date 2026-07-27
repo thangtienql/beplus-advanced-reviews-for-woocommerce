@@ -63,6 +63,25 @@ $prefix: beplus-advanced-reviews-for-woocommerce;
 	font-weight: 600;
 }
 
+.#{$prefix}__verified-badge {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	padding: 2px 8px;
+	border-radius: var(--bpar-radius-pill, 9999px);
+	background: color-mix(in srgb, var(--bpar-primary) 12%, transparent);
+	color: var(--bpar-primary);
+	font-size: 12px;
+	font-weight: 500;
+	line-height: 1.5;
+	white-space: nowrap;
+	flex-shrink: 0;
+
+	svg {
+		flex-shrink: 0;
+	}
+}
+
 .#{$prefix}__review-rating {
 	display: inline-flex;
 	flex-shrink: 0;

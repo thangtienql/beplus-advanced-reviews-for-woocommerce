@@ -45,7 +45,7 @@ A drag-and-drop Gutenberg block that renders the full review experience. **Autom
 | **Review media** | Uploaded media (images/videos) or copy/pasted images attached to a review, displayed via lightbox |
 | **Review submission form** | Inline form to write and submit a review with rating and media, including video preview |
 | **Load More button** | AJAX "Load More" to fetch the next page of reviews |
-| **Filter & Sort** | Filter by star rating, show only reviews with media, sort by date/rating. Also supports hiding reviews below a minimum `rating_threshold`. |
+| **Filter & Sort** | Filter by star rating, show only reviews with media, show only verified purchases, sort by date/rating. Also supports hiding reviews below a minimum `rating_threshold`. |
 
 ### 2.3 Review Card
 
@@ -66,7 +66,17 @@ Each review card displays:
 - Linked via `{wpdb->prefix}bparfw_review_media` table
 - Lightbox functionality to view both images and videos on the frontend
 
-### 2.5 Plugin Settings — Display Mode
+### 2.5 Verified Purchase Badge
+
+Reviews from customers who have actually purchased the product display a **"Verified Purchase" badge** on their review card.
+
+- **Detection:** Batch query checks both logged-in users (via user ID) and guest users (via email) against WooCommerce orders with `completed` or `processing` status.
+- **Verified-only filter:** A toggle on the filter bar lets visitors show only reviews from verified purchasers.
+- **Caching:** Results are cached per product for 5 minutes; cache is automatically cleared when an order transitions to `completed` or `processing` (`src/Verified/VerifiedPurchaseModule.php`).
+- **Admin control:** Toggle on/off + choose order status option under **WooCommerce → Advanced Reviews → General → Verified Purchase** (`enable_verified`, `verified_statuses`).
+- Core logic: `src/Verified/VerifiedPurchaseChecker.php`.
+
+### 2.6 Plugin Settings — Display Mode
 
 | Mode | Behavior |
 |------|----------|
@@ -148,6 +158,10 @@ beplus-advanced-reviews-for-woocommerce/
 │   │
 │   ├── Blocks/
 │   │   └── BlockRegistry.php
+│   │
+│   ├── Verified/
+│   │   ├── VerifiedPurchaseChecker.php
+│   │   └── VerifiedPurchaseModule.php
 │   │
 │   └── Functions/
 │       └── helpers.php
@@ -908,7 +922,7 @@ User submits review
 
 | Method | Route | Auth | Description |
 |--------|-------|------|-------------|
-| `GET` | `/reviews` | public | List reviews; supports `product_id`, `rating`, `has_images`, `page`, `per_page`, `sort` |
+| `GET` | `/reviews` | public | List reviews; supports `product_id`, `rating`, `has_images`, `verified_only`, `page`, `per_page`, `sort` |
 | `GET` | `/reviews/distribution` | public | Star distribution counts for a product |
 | `POST` | `/reviews` | logged-in or nonce | Submit a new review with rating and optional images |
 | `DELETE` | `/reviews/{id}` | `manage_woocommerce` | Remove a review |
@@ -1156,6 +1170,8 @@ Target **WCAG 2.1 AA** for all plugin-owned UI: review list, filter bar, submiss
 | `ReviewRepository` | `src/Reviews/ReviewRepository.php` | Review data access |
 | `ReviewFormatter` | `src/Reviews/ReviewFormatter.php` | API response formatting |
 | `ReviewSubmission` | `src/Reviews/ReviewSubmission.php` | Review creation logic |
+| `VerifiedPurchaseChecker` | `src/Verified/VerifiedPurchaseChecker.php` | Batch verified check + cache |
+| `VerifiedPurchaseModule` | `src/Verified/VerifiedPurchaseModule.php` | Cache bust on order status change |
 | REST namespace | `beplus-advanced-reviews-for-woocommerce/v1` | Public API |
 | Primary block | `blocks/advanced-review/` | Advanced Review block |
 

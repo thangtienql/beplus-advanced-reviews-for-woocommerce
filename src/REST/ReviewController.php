@@ -123,6 +123,7 @@ class ReviewController extends \WP_REST_Controller {
 			'per_page'         => $request->get_param( 'per_page' ),
 			'rating'           => $request->get_param( 'rating' ),
 			'has_images'       => $request->get_param( 'has_images' ),
+			'verified_only'    => $request->get_param( 'verified_only' ),
 			'sort'             => $request->get_param( 'sort' ),
 			'exclude'          => $request->get_param( 'exclude' ), // phpcs:ignore WordPressVIPMinimum.Performance.WPQueryParams.PostNotIn_exclude -- Used in custom SQL for load-more deduplication with a small bounded list.
 			'rating_threshold' => $rating_threshold,
@@ -321,6 +322,11 @@ class ReviewController extends \WP_REST_Controller {
 			),
 			'has_images' => array(
 				'description'       => __( 'Show only reviews with images.', 'beplus-advanced-reviews-for-woocommerce' ),
+				'type'              => 'boolean',
+				'default'           => false,
+			),
+			'verified_only' => array(
+				'description'       => __( 'Show only reviews from verified purchasers.', 'beplus-advanced-reviews-for-woocommerce' ),
 				'type'              => 'boolean',
 				'default'           => false,
 			),

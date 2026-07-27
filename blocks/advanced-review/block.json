@@ -14,7 +14,8 @@
 		"showImages":       { "type": "boolean", "default": true },
 		"showAvatar":       { "type": "boolean", "default": true },
 		"reviewsPerLoad":   { "type": "number",  "default": 10 },
-		"enableLazyLoad":   { "type": "boolean", "default": true }
+		"enableLazyLoad":   { "type": "boolean", "default": true },
+		"showVerifiedFilter": { "type": "boolean", "default": true }
 	},
 	"supports": {
 		"html": false,

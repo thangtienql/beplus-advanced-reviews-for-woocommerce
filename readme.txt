@@ -23,7 +23,8 @@ Beplus Advanced Reviews for WooCommerce replaces or enhances the default WooComm
 * **Video uploads** — customers attach MP4, WebM, or OGG videos to their reviews
 * **Clipboard paste** — paste images directly from the clipboard into the review form
 * **Lightbox** — full-size image and video preview in an accessible overlay
-* **Smart filter bar** — filter by star rating (multi-select) or show only reviews with images, no page reload
+* **Smart filter bar** — filter by star rating (multi-select), show only reviews with images, or show only verified purchase reviews; no page reload
+* **Verified Purchase badge** — reviews from customers who actually bought the product are automatically marked with a "Verified Purchase" badge
 * **Sort controls** — sort by date (newest/oldest) or rating (highest/lowest)
 * **Load More (AJAX)** — paginated review list with a Load More button powered by the REST API
 * **Gutenberg block** — drag-and-drop `Advanced Reviews` block, automatically applied to all Single Product pages on activation
@@ -85,6 +86,10 @@ Yes. The plugin exposes a full REST API under the `beplus-advanced-reviews-for-w
 = What are the requirements? =
 
 WordPress 6.0+, WooCommerce 7.0+, and PHP 7.4+ (8.0+ recommended).
+
+= How does the "Verified Purchase" badge work? =
+
+Reviews from customers who have purchased the product (order status: Completed or Processing) automatically display a "Verified Purchase" badge. The badge can be turned on/off, and you can choose which order statuses count as verified, in the plugin settings.
 
 = Does it match my theme's colors? =
 

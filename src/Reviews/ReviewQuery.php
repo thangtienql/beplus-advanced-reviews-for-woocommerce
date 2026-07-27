@@ -51,6 +51,10 @@ class ReviewQuery {
 			$args['rating_threshold'] = absint( $params['rating_threshold'] );
 		}
 
+		if ( isset( $params['verified_only'] ) ) {
+			$args['verified_only'] = filter_var( $params['verified_only'], FILTER_VALIDATE_BOOLEAN );
+		}
+
 		if ( isset( $params['sort'] ) ) {
 			$allowed_sorts = array( 'newest', 'oldest', 'highest', 'lowest' );
 			$sort          = sanitize_text_field( $params['sort'] );

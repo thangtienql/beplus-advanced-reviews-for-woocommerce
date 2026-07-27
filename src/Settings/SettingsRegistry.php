@@ -76,6 +76,7 @@ class SettingsRegistry extends AbstractModule {
 				<div class="bparfw-settings__panel is-active" data-bparfw-panel="general">
 					<?php $this->render_display_card( $settings ); ?>
 					<?php $this->render_behavior_card( $settings ); ?>
+					<?php $this->render_verified_card( $settings ); ?>
 				</div>
 
 				<div class="bparfw-settings__panel" data-bparfw-panel="media">
@@ -294,6 +295,58 @@ class SettingsRegistry extends AbstractModule {
 	}
 
 	/**
+	 * Render verified purchase settings card.
+	 *
+	 * @param array<string, mixed> $settings Plugin settings.
+	 * @return void
+	 */
+	private function render_verified_card( array $settings ): void {
+		$enable_verified  = ! empty( $settings['enable_verified'] );
+		$verified_status  = $settings['verified_statuses'] ?? 'completed_processing';
+		?>
+		<div class="bparfw-settings__card">
+			<div class="bparfw-settings__card-header">
+				<h2 class="bparfw-settings__card-title"><?php echo esc_html__( 'Verified Purchase', 'beplus-advanced-reviews-for-woocommerce' ); ?></h2>
+				<label class="bparfw-toggle" for="bparfw-enable-verified">
+					<input type="checkbox" id="bparfw-enable-verified" class="bparfw-toggle__input" name="<?php echo esc_attr( self::OPTION_KEY ); ?>[enable_verified]" value="1" <?php checked( $enable_verified ); ?> data-bparfw-toggle="verified">
+					<span class="bparfw-toggle__track" aria-hidden="true">
+						<span class="bparfw-toggle__thumb"></span>
+					</span>
+					<span class="bparfw-toggle__state" data-bparfw-state-label="verified"><?php echo $enable_verified ? esc_html__( 'On', 'beplus-advanced-reviews-for-woocommerce' ) : esc_html__( 'Off', 'beplus-advanced-reviews-for-woocommerce' ); ?></span>
+				</label>
+			</div>
+
+			<p class="description bparfw-image__off-note" data-bparfw-off-note="verified" <?php echo $enable_verified ? 'hidden' : ''; ?>>
+				<?php echo esc_html__( 'Verified Purchase badges are off. Enable this to show a "Verified Purchase" badge on reviews from customers who bought the product.', 'beplus-advanced-reviews-for-woocommerce' ); ?>
+			</p>
+
+			<div class="bparfw-image__panel" data-bparfw-panel-section="verified" <?php echo $enable_verified ? '' : 'hidden'; ?>>
+				<p class="description bparfw-image__intro">
+					<?php echo esc_html__( 'Reviews from customers who have purchased this product will display a "Verified Purchase" badge. Customers can also filter to show only verified reviews.', 'beplus-advanced-reviews-for-woocommerce' ); ?>
+				</p>
+
+				<div class="bparfw-settings__choice-list" style="margin-top:1rem;">
+					<label class="bparfw-settings__choice">
+						<input type="radio" name="<?php echo esc_attr( self::OPTION_KEY ); ?>[verified_statuses]" value="completed_processing" <?php checked( 'completed_processing', $verified_status ); ?>>
+						<span class="bparfw-settings__choice-text">
+							<strong><?php echo esc_html__( 'Completed + Processing', 'beplus-advanced-reviews-for-woocommerce' ); ?></strong>
+							<span><?php echo esc_html__( 'Count an order as verified when its status is either Completed or Processing.', 'beplus-advanced-reviews-for-woocommerce' ); ?></span>
+						</span>
+					</label>
+					<label class="bparfw-settings__choice">
+						<input type="radio" name="<?php echo esc_attr( self::OPTION_KEY ); ?>[verified_statuses]" value="completed" <?php checked( 'completed', $verified_status ); ?>>
+						<span class="bparfw-settings__choice-text">
+							<strong><?php echo esc_html__( 'Completed only', 'beplus-advanced-reviews-for-woocommerce' ); ?></strong>
+							<span><?php echo esc_html__( 'Only count an order as verified when its status is Completed.', 'beplus-advanced-reviews-for-woocommerce' ); ?></span>
+						</span>
+					</label>
+				</div>
+			</div>
+		</div>
+		<?php
+	}
+
+	/**
 	 * Sanitize settings before save.
 	 *
 	 * @param array<string, mixed> $input Raw input.
@@ -333,13 +386,20 @@ class SettingsRegistry extends AbstractModule {
 			? max( 1, min( 100, absint( $input['max_video_size_mb'] ) ) )
 			: $defaults['max_video_size_mb'];
 
-		$clean['enable_filter'] = isset( $input['enable_filter'] )
-			? ! empty( $input['enable_filter'] )
-			: ! empty( $defaults['enable_filter'] );
+		$clean['enable_filter'] = ! empty( $input['enable_filter'] );
 
-		$clean['enable_sort'] = isset( $input['enable_sort'] )
-			? ! empty( $input['enable_sort'] )
-			: ! empty( $defaults['enable_sort'] );
+		$clean['enable_sort'] = ! empty( $input['enable_sort'] );
+
+		$clean['enable_verified'] = ! empty( $input['enable_verified'] );
+
+		$clean['verified_statuses'] = isset( $input['verified_statuses'] )
+			? sanitize_text_field( $input['verified_statuses'] )
+			: $defaults['verified_statuses'];
+
+		$allowed_status_opts = array( 'completed', 'completed_processing' );
+		if ( ! in_array( $clean['verified_statuses'], $allowed_status_opts, true ) ) {
+			$clean['verified_statuses'] = 'completed_processing';
+		}
 
 		return $clean;
 	}
@@ -390,6 +450,8 @@ class SettingsRegistry extends AbstractModule {
 			'max_image_size_mb' => 2,
 			'enable_videos'     => false,
 			'max_video_size_mb' => 20,
+			'enable_verified'   => true,
+			'verified_statuses' => 'completed_processing',
 		);
 	}
 }

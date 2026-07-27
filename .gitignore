@@ -27,6 +27,9 @@ package-lock.json
 *.log
 wp-content/debug.log
 
+# Claude Code
+.claude/settings.local.json
+
 # Environment
 .env
 .env.*

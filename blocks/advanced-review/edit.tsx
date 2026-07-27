@@ -25,6 +25,7 @@ registerBlockType( blockJson.name, {
 			showAvatar,
 			reviewsPerLoad,
 			enableLazyLoad,
+			showVerifiedFilter,
 		} = attributes;
 
 		const blockProps = useBlockProps( {
@@ -59,6 +60,11 @@ registerBlockType( blockJson.name, {
 							label={ __( 'Show reviewer avatar', 'beplus-advanced-reviews-for-woocommerce' ) }
 							checked={ showAvatar }
 							onChange={ ( val ) => setAttributes( { showAvatar: val } ) }
+						/>
+						<ToggleControl
+							label={ __( 'Show verified purchase filter', 'beplus-advanced-reviews-for-woocommerce' ) }
+							checked={ showVerifiedFilter }
+							onChange={ ( val ) => setAttributes( { showVerifiedFilter: val } ) }
 						/>
 						<RangeControl
 							label={ __( 'Reviews per load', 'beplus-advanced-reviews-for-woocommerce' ) }

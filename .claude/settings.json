@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm *)",
+      "Bash(php *)",
+      "Bash(composer *)",
+      "Bash(git *)",
+      "Bash(node *)",
+      "Bash(npx *)"
+    ]
+  }
+}
