@@ -6,6 +6,8 @@
  */
 
 ( function () {
+	var hashRedirectInitialized = false;
+
 	document.addEventListener( 'DOMContentLoaded', function () {
 		const blocks = document.querySelectorAll( '.beplus-advanced-reviews-for-woocommerce[data-product-id]' );
 
@@ -307,6 +309,7 @@
 		initMediaUpload( block );
 		initPasteSupport( block );
 		initLightbox( block );
+		initHashRedirect( block );
 	}
 
 	/**
@@ -347,11 +350,25 @@
 				return;
 			}
 
+			// Email validation: only when the field is present (guest users).
+			var emailInput = form.querySelector( '#bpar-email' );
+			var email = emailInput ? ( emailInput.value || '' ).trim() : '';
+			if ( emailInput ) {
+				if ( ! email ) {
+					showFormMessage( block, bparfwData.i18n.emailRequired, 'error' );
+					return;
+				}
+				if ( ! /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test( email ) ) {
+					showFormMessage( block, bparfwData.i18n.invalidEmail, 'error' );
+					return;
+				}
+			}
+
 			var data = {
 				rating: rating,
 				content: content,
 				author: formData.get( 'author' ) || '',
-				email: formData.get( 'email' ) || '',
+				email: email,
 			};
 
 			submitReview( block, data, form );
@@ -1119,5 +1136,74 @@
 		setTimeout( function () {
 			msg.remove();
 		}, 5000 );
+	}
+
+	/**
+	 * Redirect #reviews / #tab-reviews hash links to the plugin's reviews tab.
+	 *
+	 * When the plugin is in "replace" mode, the default WooCommerce reviews tab
+	 * is removed and replaced with "advanced_reviews". Links pointing to the old
+	 * hash no longer have a target — this handler redirects them.
+	 *
+	 * @param {HTMLElement} block The block container element.
+	 */
+	function initHashRedirect( block ) {
+		// Helper: find the <a> inside the plugin's tab title.
+		function getPluginTabAnchor() {
+			var li = document.getElementById( 'tab-title-advanced_reviews' );
+			if ( ! li ) return null;
+			return li.querySelector( 'a' );
+		}
+
+		// 1) Page load hash: #reviews or #tab-reviews.
+		var hash = window.location.hash;
+		if ( hash === '#reviews' || hash === '#tab-reviews' ) {
+			var tabAnchor = getPluginTabAnchor();
+			if ( tabAnchor ) {
+				tabAnchor.click();
+				setTimeout( function () {
+					var container = document.getElementById( 'tab-advanced_reviews' ) || block;
+					container.scrollIntoView( { behavior: 'smooth', block: 'start' } );
+				}, 200 );
+			} else {
+				block.scrollIntoView( { behavior: 'smooth', block: 'start' } );
+			}
+		}
+
+		// 2) Click interception (only once globally).
+		if ( ! hashRedirectInitialized ) {
+			hashRedirectInitialized = true;
+			document.addEventListener( 'click', function ( e ) {
+				var link = e.target.closest( 'a' );
+				if ( ! link ) return;
+
+				var href = link.getAttribute( 'href' );
+				if ( ! href ) return;
+
+				var isReviewsHash = ( href === '#reviews' || href === '#tab-reviews'
+					|| href.endsWith( '#reviews' ) || href.endsWith( '#tab-reviews' ) );
+				if ( ! isReviewsHash ) return;
+
+				e.preventDefault();
+				e.stopPropagation();
+				e.stopImmediatePropagation();
+
+				var tabAnchor = getPluginTabAnchor();
+				if ( tabAnchor ) {
+					tabAnchor.click();
+					setTimeout( function () {
+						var container = document.getElementById( 'tab-advanced_reviews' );
+						if ( container ) {
+							container.scrollIntoView( { behavior: 'smooth', block: 'start' } );
+						}
+					}, 200 );
+				} else {
+					var firstBlock = document.querySelector( '.beplus-advanced-reviews-for-woocommerce[data-product-id]' );
+					if ( firstBlock ) {
+						firstBlock.scrollIntoView( { behavior: 'smooth', block: 'start' } );
+					}
+				}
+			}, true ); // Capture phase — fires before WC handler on a.woocommerce-review-link.
+		}
 	}
 } )();

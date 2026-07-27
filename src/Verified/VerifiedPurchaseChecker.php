@@ -135,6 +135,9 @@ class VerifiedPurchaseChecker {
 			}
 
 			foreach ( $order->get_items() as $item ) {
+				if ( ! ( $item instanceof \WC_Order_Item_Product ) ) {
+					continue;
+				}
 				if ( $item->get_product_id() === $product_id ) {
 					$email = $order->get_billing_email();
 					if ( ! empty( $email ) && ! in_array( $email, $verified, true ) ) {

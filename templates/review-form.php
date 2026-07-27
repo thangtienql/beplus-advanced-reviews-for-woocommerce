@@ -56,12 +56,13 @@ $user = wp_get_current_user();
 				placeholder="<?php esc_attr_e( 'Enter your name', 'beplus-advanced-reviews-for-woocommerce' ); ?>"
 				required
 			>
-			<label for="bpar-email"><?php esc_html_e( 'Your email', 'beplus-advanced-reviews-for-woocommerce' ); ?></label>
+			<label for="bpar-email"><?php esc_html_e( 'Your email *', 'beplus-advanced-reviews-for-woocommerce' ); ?></label>
 			<input
 				id="bpar-email"
 				type="email"
 				name="email"
 				placeholder="<?php esc_attr_e( 'Enter your email', 'beplus-advanced-reviews-for-woocommerce' ); ?>"
+				required
 			>
 		<?php endif; ?>
 

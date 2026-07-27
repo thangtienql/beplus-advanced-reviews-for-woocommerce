@@ -106,6 +106,24 @@ class ReviewSubmission {
 			);
 		}
 
+		// Email validation: required for guest users; logged-in users get email from profile.
+		$current_user = wp_get_current_user();
+		if ( ! $current_user->exists() ) {
+			$email = isset( $data['email'] ) ? trim( $data['email'] ) : '';
+			if ( empty( $email ) ) {
+				return new \WP_Error(
+					'missing_email',
+					__( 'Please provide your email address.', 'beplus-advanced-reviews-for-woocommerce' )
+				);
+			}
+			if ( ! is_email( $email ) ) {
+				return new \WP_Error(
+					'invalid_email',
+					__( 'Please provide a valid email address.', 'beplus-advanced-reviews-for-woocommerce' )
+				);
+			}
+		}
+
 		return true;
 	}
 }

@@ -1,5 +1,6 @@
 (() => {
   (function() {
+    var hashRedirectInitialized = false;
     document.addEventListener("DOMContentLoaded", function() {
       const blocks = document.querySelectorAll(".beplus-advanced-reviews-for-woocommerce[data-product-id]");
       blocks.forEach(function(block) {
@@ -220,6 +221,7 @@
       initMediaUpload(block);
       initPasteSupport(block);
       initLightbox(block);
+      initHashRedirect(block);
     }
     function initReviewForm(block) {
       var form = block.querySelector(".beplus-advanced-reviews-for-woocommerce__submit-form");
@@ -248,11 +250,23 @@
           showFormMessage(block, bparfwData.i18n.contentRequired, "error");
           return;
         }
+        var emailInput = form.querySelector("#bpar-email");
+        var email = emailInput ? (emailInput.value || "").trim() : "";
+        if (emailInput) {
+          if (!email) {
+            showFormMessage(block, bparfwData.i18n.emailRequired, "error");
+            return;
+          }
+          if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+            showFormMessage(block, bparfwData.i18n.invalidEmail, "error");
+            return;
+          }
+        }
         var data = {
           rating,
           content,
           author: formData.get("author") || "",
-          email: formData.get("email") || ""
+          email
         };
         submitReview(block, data, form);
       });
@@ -875,6 +889,59 @@
       setTimeout(function() {
         msg.remove();
       }, 5e3);
+    }
+    function initHashRedirect(block) {
+      function getPluginTabAnchor() {
+        var li = document.getElementById("tab-title-advanced_reviews");
+        if (!li)
+          return null;
+        return li.querySelector("a");
+      }
+      var hash = window.location.hash;
+      if (hash === "#reviews" || hash === "#tab-reviews") {
+        var tabAnchor = getPluginTabAnchor();
+        if (tabAnchor) {
+          tabAnchor.click();
+          setTimeout(function() {
+            var container = document.getElementById("tab-advanced_reviews") || block;
+            container.scrollIntoView({ behavior: "smooth", block: "start" });
+          }, 200);
+        } else {
+          block.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+      }
+      if (!hashRedirectInitialized) {
+        hashRedirectInitialized = true;
+        document.addEventListener("click", function(e) {
+          var link = e.target.closest("a");
+          if (!link)
+            return;
+          var href = link.getAttribute("href");
+          if (!href)
+            return;
+          var isReviewsHash = href === "#reviews" || href === "#tab-reviews" || href.endsWith("#reviews") || href.endsWith("#tab-reviews");
+          if (!isReviewsHash)
+            return;
+          e.preventDefault();
+          e.stopPropagation();
+          e.stopImmediatePropagation();
+          var tabAnchor2 = getPluginTabAnchor();
+          if (tabAnchor2) {
+            tabAnchor2.click();
+            setTimeout(function() {
+              var container = document.getElementById("tab-advanced_reviews");
+              if (container) {
+                container.scrollIntoView({ behavior: "smooth", block: "start" });
+              }
+            }, 200);
+          } else {
+            var firstBlock = document.querySelector(".beplus-advanced-reviews-for-woocommerce[data-product-id]");
+            if (firstBlock) {
+              firstBlock.scrollIntoView({ behavior: "smooth", block: "start" });
+            }
+          }
+        }, true);
+      }
     }
   })();
 })();

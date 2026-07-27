@@ -71,6 +71,8 @@ class AssetLoader extends AbstractModule {
 				),
 				'imageNotAllowed' => __( 'Image uploads are not allowed.', 'beplus-advanced-reviews-for-woocommerce' ),
 				'videoNotAllowed' => __( 'Video uploads are not allowed.', 'beplus-advanced-reviews-for-woocommerce' ),
+				'emailRequired'    => __( 'Please provide your email address.', 'beplus-advanced-reviews-for-woocommerce' ),
+				'invalidEmail'     => __( 'Please provide a valid email address.', 'beplus-advanced-reviews-for-woocommerce' ),
 				'verifiedPurchase' => __( 'Verified Purchase', 'beplus-advanced-reviews-for-woocommerce' ),
 			),
 		);

@@ -18,7 +18,7 @@ class VerifiedPurchaseModule extends AbstractModule {
 
 	private VerifiedPurchaseChecker $checker;
 
-	public function __construct( $container ) {
+	public function __construct( \BeplusAdvancedReviewsForWoocommerce\Core\Container $container ) {
 		parent::__construct( $container );
 		$this->checker = new VerifiedPurchaseChecker();
 	}
@@ -41,6 +41,9 @@ class VerifiedPurchaseModule extends AbstractModule {
 		}
 
 		foreach ( $order->get_items() as $item ) {
+			if ( ! ( $item instanceof \WC_Order_Item_Product ) ) {
+				continue;
+			}
 			$product_id = $item->get_product_id();
 			if ( $product_id ) {
 				$this->checker->bust_cache_for_product( $product_id );
