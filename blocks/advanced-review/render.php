@@ -117,28 +117,28 @@ $wrapper_attrs = get_block_wrapper_attributes(
 			<?php endif; ?>
 			</div>
 
+			<?php if ( ( $show_filter_bar && $show_images ) || $show_verified_filter ) : ?>
+			<div class="beplus-advanced-reviews-for-woocommerce__filter-controls-right">
 			<?php if ( $show_filter_bar && $show_images ) : ?>
-				<div class="beplus-advanced-reviews-for-woocommerce__filter-images">
-					<label class="beplus-advanced-reviews-for-woocommerce__filter-toggle">
-						<span class="beplus-advanced-reviews-for-woocommerce__filter-toggle-text"><?php esc_html_e( 'With images only', 'beplus-advanced-reviews-for-woocommerce' ); ?></span>
-						<div class="beplus-advanced-reviews-for-woocommerce__filter-toggle-switch">
-							<input type="checkbox" class="beplus-advanced-reviews-for-woocommerce__filter-images-input" aria-label="<?php esc_attr_e( 'Show only reviews with images', 'beplus-advanced-reviews-for-woocommerce' ); ?>">
-							<span class="beplus-advanced-reviews-for-woocommerce__filter-toggle-slider"></span>
-						</div>
-					</label>
-				</div>
+				<button type="button"
+					class="beplus-advanced-reviews-for-woocommerce__filter-chip"
+					data-filter="images"
+					aria-pressed="false">
+					<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+					<span><?php esc_html_e( 'With images', 'beplus-advanced-reviews-for-woocommerce' ); ?></span>
+				</button>
 			<?php endif; ?>
 
 			<?php if ( $show_verified_filter ) : ?>
-				<div class="beplus-advanced-reviews-for-woocommerce__filter-verified">
-					<label class="beplus-advanced-reviews-for-woocommerce__filter-toggle">
-						<span class="beplus-advanced-reviews-for-woocommerce__filter-toggle-text"><?php esc_html_e( 'Verified only', 'beplus-advanced-reviews-for-woocommerce' ); ?></span>
-						<div class="beplus-advanced-reviews-for-woocommerce__filter-toggle-switch">
-							<input type="checkbox" class="beplus-advanced-reviews-for-woocommerce__filter-verified-input" aria-label="<?php esc_attr_e( 'Show only verified purchase reviews', 'beplus-advanced-reviews-for-woocommerce' ); ?>">
-							<span class="beplus-advanced-reviews-for-woocommerce__filter-toggle-slider"></span>
-						</div>
-					</label>
-				</div>
+				<button type="button"
+					class="beplus-advanced-reviews-for-woocommerce__filter-chip"
+					data-filter="verified"
+					aria-pressed="false">
+					<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+					<span><?php esc_html_e( 'Verified', 'beplus-advanced-reviews-for-woocommerce' ); ?></span>
+				</button>
+			<?php endif; ?>
+			</div>
 			<?php endif; ?>
 			</div>
 

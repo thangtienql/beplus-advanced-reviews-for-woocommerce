@@ -22,9 +22,9 @@
       const loadMoreBtn = block.querySelector(".beplus-advanced-reviews-for-woocommerce__load-more");
       const loadMoreWrapper = block.querySelector(".beplus-advanced-reviews-for-woocommerce__load-more-wrapper");
       const filterRatingSelect = block.querySelector(".beplus-advanced-reviews-for-woocommerce__filter-rating-select");
-      const filterImagesCheckbox = block.querySelector(".beplus-advanced-reviews-for-woocommerce__filter-images-input");
+      const filterImagesChip = block.querySelector('.beplus-advanced-reviews-for-woocommerce__filter-chip[data-filter="images"]');
       const sortSelect = block.querySelector(".beplus-advanced-reviews-for-woocommerce__sort-select");
-      const verifiedCheckbox = block.querySelector(".beplus-advanced-reviews-for-woocommerce__filter-verified-input");
+      const verifiedChip = block.querySelector('.beplus-advanced-reviews-for-woocommerce__filter-chip[data-filter="verified"]');
       const distributionArea = block.querySelector(".beplus-advanced-reviews-for-woocommerce__distribution");
       loadInitialReviews();
       loadDistribution();
@@ -201,15 +201,17 @@
           applyFilter();
         });
       }
-      if (filterImagesCheckbox) {
-        filterImagesCheckbox.addEventListener("change", function() {
-          currentHasImages = filterImagesCheckbox.checked;
+      if (filterImagesChip) {
+        filterImagesChip.addEventListener("click", function() {
+          currentHasImages = !currentHasImages;
+          filterImagesChip.setAttribute("aria-pressed", currentHasImages ? "true" : "false");
           applyFilter();
         });
       }
-      if (verifiedCheckbox) {
-        verifiedCheckbox.addEventListener("change", function() {
-          currentVerifiedOnly = verifiedCheckbox.checked;
+      if (verifiedChip) {
+        verifiedChip.addEventListener("click", function() {
+          currentVerifiedOnly = !currentVerifiedOnly;
+          verifiedChip.setAttribute("aria-pressed", currentVerifiedOnly ? "true" : "false");
           applyFilter();
         });
       }
