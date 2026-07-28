@@ -58,6 +58,13 @@ $prefix: beplus-advanced-reviews-for-woocommerce;
 	margin-bottom: 6px;
 }
 
+.#{$prefix}__review-author-group {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	flex-wrap: wrap;
+}
+
 .#{$prefix}__review-author {
 	font-size: 14px;
 	font-weight: 600;

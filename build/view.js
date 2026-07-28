@@ -118,6 +118,7 @@
           }
           html += '<div class="beplus-advanced-reviews-for-woocommerce__review-body">';
           html += '<div class="beplus-advanced-reviews-for-woocommerce__review-header">';
+          html += '<div class="beplus-advanced-reviews-for-woocommerce__review-author-group">';
           html += '<span class="beplus-advanced-reviews-for-woocommerce__review-author">' + escHtml(review.author) + "</span>";
           if (review.is_verified) {
             html += '<span class="beplus-advanced-reviews-for-woocommerce__verified-badge" aria-label="' + escAttr(bparfwData.i18n.verifiedPurchase || "Verified Purchase") + '">';
@@ -125,6 +126,7 @@
             html += escHtml(bparfwData.i18n.verifiedPurchase || "Verified Purchase");
             html += "</span>";
           }
+          html += "</div>";
           html += '<span class="beplus-advanced-reviews-for-woocommerce__review-rating">' + renderStars(review.rating) + "</span>";
           html += "</div>";
           html += '<div class="beplus-advanced-reviews-for-woocommerce__review-content">' + review.content + "</div>";
@@ -561,7 +563,9 @@
       }
       html += '<div class="beplus-advanced-reviews-for-woocommerce__review-body">';
       html += '<div class="beplus-advanced-reviews-for-woocommerce__review-header">';
+      html += '<div class="beplus-advanced-reviews-for-woocommerce__review-author-group">';
       html += '<span class="beplus-advanced-reviews-for-woocommerce__review-author">' + escHtml(review.author) + "</span>";
+      html += "</div>";
       html += '<span class="beplus-advanced-reviews-for-woocommerce__review-rating">' + renderStars(review.rating) + "</span>";
       html += "</div>";
       html += '<div class="beplus-advanced-reviews-for-woocommerce__review-content">' + review.content + "</div>";

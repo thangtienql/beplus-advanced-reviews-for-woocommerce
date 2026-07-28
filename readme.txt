@@ -40,6 +40,11 @@ Beplus Advanced Reviews for WooCommerce replaces or enhances the default WooComm
 * Swappable media storage backend (default: WordPress Media Library)
 * PHPStan static analysis and TypeScript type checking
 
+**About BePlus:**
+
+This plugin is developed and maintained by [BePlus](https://beplusthemes.com/), a WordPress and Shopify development studio with 10+ years of experience building themes and plugins for nonprofits and eCommerce brands.
+Learn more at [beplusthemes.com](https://beplusthemes.com/).
+
 == Installation ==
 
 1. Upload the plugin files to `/wp-content/plugins/beplus-advanced-reviews-for-woocommerce/`, or install the plugin through the WordPress plugins screen directly.
@@ -97,12 +102,11 @@ Yes. The plugin automatically inherits colors from your active theme's `theme.js
 
 == Screenshots ==
 
-1. Star distribution chart and review list on a product page
-2. Review card with image attachments and lightbox preview
-3. Smart filter bar — filter by star rating and images-only
-4. Review submission form with image upload and clipboard paste
-5. Plugin settings — General tab (display mode, reviews per load)
-6. Plugin settings — Media tab (image/video upload toggles, max sizes)
+1. Plugin settings — General tab (display mode, reviews per load)
+2. Plugin settings — Media tab (image/video upload toggles, max sizes)
+3. Plugin settings — Media tab (image/video upload toggles, max sizes)
+4. Review card with image attachments and lightbox preview
+5. Review submission form with image upload and clipboard paste
 
 == Changelog ==
 
