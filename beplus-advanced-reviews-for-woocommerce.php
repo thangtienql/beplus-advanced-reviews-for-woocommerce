@@ -3,7 +3,7 @@
  * Plugin Name: Beplus Advanced Reviews for WooCommerce
  * Plugin URI:  https://github.com/thangtienql/beplus-advanced-reviews-for-woocommerce
  * Description: A modern WooCommerce product review system featuring image and video uploads, star distribution, AJAX filtering, and seamless pagination.
- * Version:     1.0.0
+ * Version:     1.0.1
  * Author:      Beplus
  * Author URI:  https://beplusthemes.com/
  * Text Domain: beplus-advanced-reviews-for-woocommerce
@@ -20,7 +20,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'BEPLUS_ADVANCED_REVIEWS_FOR_WOOCOMMERCE_VERSION', '1.0.0' );
+define( 'BEPLUS_ADVANCED_REVIEWS_FOR_WOOCOMMERCE_VERSION', '1.0.1' );
 define( 'BEPLUS_ADVANCED_REVIEWS_FOR_WOOCOMMERCE_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'BEPLUS_ADVANCED_REVIEWS_FOR_WOOCOMMERCE_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 define( 'BEPLUS_ADVANCED_REVIEWS_FOR_WOOCOMMERCE_PLUGIN_BASENAME', plugin_basename( __FILE__ ) );

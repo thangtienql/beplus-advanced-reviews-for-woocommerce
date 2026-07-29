@@ -4,7 +4,7 @@ Tags: woocommerce, reviews, product reviews, star rating, ajax
 Requires at least: 6.0
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 1.0.0
+Stable tag: 1.0.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -42,8 +42,7 @@ Beplus Advanced Reviews for WooCommerce replaces or enhances the default WooComm
 
 **About BePlus:**
 
-This plugin is developed and maintained by [BePlus](https://beplusthemes.com/), a WordPress and Shopify development studio with 10+ years of experience building themes and plugins for nonprofits and eCommerce brands.
-Learn more at [beplusthemes.com](https://beplusthemes.com/).
+This plugin is developed and maintained by [BePlus](https://beplusthemes.com/), a WordPress and Shopify development studio with 10+ years of experience building themes and plugins for nonprofits and eCommerce brands. Learn more at [beplusthemes.com](https://beplusthemes.com/).
 
 == Installation ==
 
@@ -106,9 +105,12 @@ Yes. The plugin automatically inherits colors from your active theme's `theme.js
 2. Plugin settings — Media tab (image/video upload toggles, max sizes)
 3. Plugin settings — Media tab (image/video upload toggles, max sizes)
 4. Review card with image attachments and lightbox preview
-5. Review submission form with image upload and clipboard paste
+5. Block gutenberg
 
 == Changelog ==
+
+= 1.0.1 =
+* Updated About BePlus section with detailed company information
 
 = 1.0.0 =
 * Initial release. No upgrade steps required.
