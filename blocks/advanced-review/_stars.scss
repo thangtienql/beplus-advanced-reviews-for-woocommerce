@@ -22,4 +22,27 @@ $prefix: beplus-advanced-reviews-for-woocommerce;
 	&--empty {
 		color: var(--bpar-star-empty);
 	}
+
+	&--partial {
+		position: relative;
+	}
+
+	&__filled-clip {
+		position: absolute;
+		inset: 0;
+		color: var(--bpar-primary);
+		z-index: 1;
+		display: flex;
+		align-items: center;
+		width: 100%;
+		height: 100%;
+	}
+
+	&__empty-base {
+		color: var(--bpar-star-empty);
+		display: inline-flex;
+		align-items: center;
+		width: 100%;
+		height: 100%;
+	}
 }

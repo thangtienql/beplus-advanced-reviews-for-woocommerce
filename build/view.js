@@ -519,6 +519,28 @@
       }
       return '<span class="beplus-advanced-reviews-for-woocommerce__stars" aria-label="' + rating + ' out of 5 stars">' + stars + "</span>";
     }
+    function renderPartialStars(rating, size) {
+      rating = Math.max(0, Math.min(5, rating || 0));
+      size = size || 1;
+      var pxSize = 16 * size;
+      var stars = "";
+      var svg = '<svg width="' + pxSize + '" height="' + pxSize + '" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>';
+      for (var i = 1; i <= 5; i++) {
+        if (rating >= i) {
+          stars += '<span class="beplus-advanced-reviews-for-woocommerce__star beplus-advanced-reviews-for-woocommerce__star--filled" aria-hidden="true" style="width:' + size + "em;height:" + size + 'em;">' + svg + "</span>";
+        } else if (rating > i - 1) {
+          var pct = Math.round((rating - (i - 1)) * 100);
+          var right = 100 - pct;
+          stars += '<span class="beplus-advanced-reviews-for-woocommerce__star beplus-advanced-reviews-for-woocommerce__star--partial" aria-hidden="true" style="width:' + size + "em;height:" + size + 'em;">';
+          stars += '<span class="beplus-advanced-reviews-for-woocommerce__star__empty-base">' + svg + "</span>";
+          stars += '<span class="beplus-advanced-reviews-for-woocommerce__star__filled-clip" style="clip-path:inset(0 ' + right + '% 0 0)">' + svg + "</span>";
+          stars += "</span>";
+        } else {
+          stars += '<span class="beplus-advanced-reviews-for-woocommerce__star beplus-advanced-reviews-for-woocommerce__star--empty" aria-hidden="true" style="width:' + size + "em;height:" + size + 'em;">' + svg + "</span>";
+        }
+      }
+      return '<span class="beplus-advanced-reviews-for-woocommerce__stars" aria-label="' + rating.toFixed(1) + ' out of 5 stars">' + stars + "</span>";
+    }
     function buildDistribution(data) {
       if (!data || !data.total) {
         return '<p class="beplus-advanced-reviews-for-woocommerce__no-reviews">' + bparfwData.i18n.noReviews + "</p>";
@@ -526,7 +548,7 @@
       var html = '<div class="beplus-advanced-reviews-for-woocommerce__distribution-header">';
       html += '<div class="beplus-advanced-reviews-for-woocommerce__average">';
       html += '<span class="beplus-advanced-reviews-for-woocommerce__average-value">' + (data.average || 0) + "</span>";
-      html += '<span class="beplus-advanced-reviews-for-woocommerce__average-stars">' + renderStars(Math.round(data.average || 0), 1.2) + "</span>";
+      html += '<span class="beplus-advanced-reviews-for-woocommerce__average-stars">' + renderPartialStars(data.average || 0, 1) + "</span>";
       html += '<span class="beplus-advanced-reviews-for-woocommerce__total">' + data.total + " " + (data.total === 1 ? "review" : "reviews") + "</span>";
       html += "</div>";
       html += '<div class="beplus-advanced-reviews-for-woocommerce__distribution-bars">';

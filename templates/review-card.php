@@ -10,7 +10,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Template file; variables are local to the included scope.
-$review       = $args['review'] ?? array();
+$review        = $args['review'] ?? array();
 $show_avatar   = ! empty( $args['show_avatar'] );
 $show_images   = ! empty( $args['show_images'] );
 $rating        = (int) ( $review['rating'] ?? 0 );
@@ -20,6 +20,7 @@ $content       = wp_kses_post( $review['content'] ?? '' );
 $date_human    = esc_html( $review['date_human'] ?? '' );
 $avatar        = esc_url( $review['avatar'] ?? '' );
 $images        = $review['images'] ?? array();
+$is_verified   = ! empty( $review['is_verified'] );
 ?>
 <article class="beplus-advanced-reviews-for-woocommerce__review-card">
 	<?php if ( $show_avatar ) : ?>
@@ -33,7 +34,15 @@ $images        = $review['images'] ?? array();
 	<?php endif; ?>
 	<div class="beplus-advanced-reviews-for-woocommerce__review-body">
 		<div class="beplus-advanced-reviews-for-woocommerce__review-header">
-			<span class="beplus-advanced-reviews-for-woocommerce__review-author"><?php echo $author; // phpcs:ignore ?></span>
+			<div class="beplus-advanced-reviews-for-woocommerce__review-author-group">
+				<span class="beplus-advanced-reviews-for-woocommerce__review-author"><?php echo $author; // phpcs:ignore ?></span>
+				<?php if ( $is_verified ) : ?>
+					<span class="beplus-advanced-reviews-for-woocommerce__verified-badge" aria-label="<?php esc_attr_e( 'Verified Purchase', 'beplus-advanced-reviews-for-woocommerce' ); ?>">
+						<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+						<?php esc_html_e( 'Verified Purchase', 'beplus-advanced-reviews-for-woocommerce' ); ?>
+					</span>
+				<?php endif; ?>
+			</div>
 			<span class="beplus-advanced-reviews-for-woocommerce__review-rating">
 				<?php echo beplus_advanced_reviews_for_woocommerce_render_stars( $rating ); // phpcs:ignore ?>
 			</span>

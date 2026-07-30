@@ -29,7 +29,7 @@ if ( ! $data['total'] ) {
 		<span class="beplus-advanced-reviews-for-woocommerce__average-value"><?php echo esc_html( number_format_i18n( (float) $data['average'], 1 ) ); ?></span>
 		<div>
 			<span class="beplus-advanced-reviews-for-woocommerce__average-stars">
-				<?php echo beplus_advanced_reviews_for_woocommerce_render_stars( (int) round( $data['average'] ), 1 ); // phpcs:ignore ?>
+				<?php echo beplus_advanced_reviews_for_woocommerce_render_partial_stars( (float) $data['average'], 1 ); // phpcs:ignore ?>
 			</span>
 			<span class="beplus-advanced-reviews-for-woocommerce__total">
 				<?php
