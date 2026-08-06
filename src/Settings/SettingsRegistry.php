@@ -66,6 +66,9 @@ class SettingsRegistry extends AbstractModule {
 				<a href="#tab-media" class="bparfw-settings__tab" data-bparfw-tab="media">
 					<?php echo esc_html__( 'Media', 'beplus-advanced-reviews-for-woocommerce' ); ?>
 				</a>
+				<a href="#tab-styling" class="bparfw-settings__tab" data-bparfw-tab="styling">
+					<?php echo esc_html__( 'Styling', 'beplus-advanced-reviews-for-woocommerce' ); ?>
+				</a>
 			</nav>
 
 			<form method="post" action="options.php" class="bparfw-settings__form">
@@ -82,6 +85,10 @@ class SettingsRegistry extends AbstractModule {
 				<div class="bparfw-settings__panel" data-bparfw-panel="media">
 					<?php $this->render_image_card( $settings ); ?>
 					<?php $this->render_video_card( $settings ); ?>
+				</div>
+
+				<div class="bparfw-settings__panel" data-bparfw-panel="styling">
+					<?php $this->render_styling_card( $settings ); ?>
 				</div>
 
 				<div class="bparfw-settings__actions">
@@ -347,6 +354,124 @@ class SettingsRegistry extends AbstractModule {
 	}
 
 	/**
+	 * Render a single color picker row.
+	 *
+	 * @param string                $key      Color settings key.
+	 * @param string                $label    Human-readable label.
+	 * @param string                $desc     Description text.
+	 * @param array<string, mixed>  $settings Plugin settings.
+	 * @param array<string, string> $defaults Default color values.
+	 * @return void
+	 */
+	private function render_color_field( string $key, string $label, string $desc, array $settings, array $defaults ): void {
+		$colors    = $settings['colors'] ?? array();
+		$value     = $colors[ $key ] ?? $defaults[ $key ] ?? '#000000';
+		$default   = $defaults[ $key ] ?? '#000000';
+		$is_custom = ( $value !== $default );
+		$field_name = esc_attr( self::OPTION_KEY . '[colors][' . $key . ']' );
+		$field_id   = 'bparfw-color-' . esc_attr( $key );
+		?>
+		<div class="bparfw-color-field" data-bparfw-color-field>
+			<div class="bparfw-color-field__info">
+				<label class="bparfw-color-field__label" for="<?php echo $field_id; ?>"><?php echo esc_html( $label ); ?></label>
+				<p class="bparfw-color-field__desc"><?php echo esc_html( $desc ); ?></p>
+			</div>
+			<div class="bparfw-color-field__controls">
+				<button type="button" class="bparfw-color-field__swatch" data-bparfw-color-swatch="<?php echo esc_attr( $key ); ?>" style="background-color:<?php echo esc_attr( $value ); ?>" aria-label="<?php echo esc_attr( sprintf( __( 'Choose %s', 'beplus-advanced-reviews-for-woocommerce' ), $label ) ); ?>">
+					<input type="color" id="<?php echo $field_id; ?>" name="<?php echo $field_name; ?>" value="<?php echo esc_attr( $value ); ?>" class="bparfw-color-field__native" data-bparfw-color-input="<?php echo esc_attr( $key ); ?>" data-bparfw-color-default="<?php echo esc_attr( $default ); ?>">
+				</button>
+				<input type="text" class="bparfw-color-field__hex" data-bparfw-color-hex="<?php echo esc_attr( $key ); ?>" value="<?php echo esc_attr( $value ); ?>" maxlength="7" pattern="^#[0-9A-Fa-f]{6}$" aria-label="<?php echo esc_attr( sprintf( __( 'Hex value for %s', 'beplus-advanced-reviews-for-woocommerce' ), $label ) ); ?>">
+				<span class="bparfw-color-field__status" data-bparfw-color-status="<?php echo esc_attr( $key ); ?>">
+					<?php if ( $is_custom ) : ?>
+						<span class="bparfw-color-field__chip bparfw-color-field__chip--custom"><?php echo esc_html__( 'Custom', 'beplus-advanced-reviews-for-woocommerce' ); ?></span>
+					<?php else : ?>
+						<span class="bparfw-color-field__chip bparfw-color-field__chip--default"><?php echo esc_html__( 'Default', 'beplus-advanced-reviews-for-woocommerce' ); ?></span>
+					<?php endif; ?>
+				</span>
+				<button type="button" class="bparfw-color-field__reset" data-bparfw-color-reset="<?php echo esc_attr( $key ); ?>" <?php echo $is_custom ? '' : 'hidden'; ?> aria-label="<?php echo esc_attr( sprintf( __( 'Reset %s to default', 'beplus-advanced-reviews-for-woocommerce' ), $label ) ); ?>">
+					<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M1 4v6h6M23 20v-6h-6"/><path d="M20.49 9A9 9 0 005.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 013.51 15"/></svg>
+				</button>
+			</div>
+			<p class="bparfw-color-field__error" data-bparfw-color-error="<?php echo esc_attr( $key ); ?>" hidden><?php echo esc_html__( 'Enter a valid hex color (e.g. #FF0000).', 'beplus-advanced-reviews-for-woocommerce' ); ?></p>
+		</div>
+		<?php
+	}
+
+	/**
+	 * Render styling settings card.
+	 *
+	 * @param array<string, mixed> $settings Plugin settings.
+	 * @return void
+	 */
+	private function render_styling_card( array $settings ): void {
+		$defaults = $this->get_defaults()['colors'];
+		?>
+		<div class="bparfw-settings__card">
+			<h2 class="bparfw-settings__card-title"><?php echo esc_html__( 'Frontend Colors', 'beplus-advanced-reviews-for-woocommerce' ); ?></h2>
+			<p class="description" style="margin-bottom:1.25rem;"><?php echo esc_html__( 'Customize every color used on the front-end review display. Leave a color at its default to keep the theme-aware styling.', 'beplus-advanced-reviews-for-woocommerce' ); ?></p>
+
+			<fieldset class="bparfw-color-group">
+				<legend class="bparfw-color-group__legend"><?php echo esc_html__( 'Primary Accent', 'beplus-advanced-reviews-for-woocommerce' ); ?></legend>
+				<?php
+				$this->render_color_field( 'primary', __( 'Primary Color', 'beplus-advanced-reviews-for-woocommerce' ), __( 'Main accent color used for stars, buttons, and links.', 'beplus-advanced-reviews-for-woocommerce' ), $settings, $defaults );
+				$this->render_color_field( 'primary_light', __( 'Primary Light', 'beplus-advanced-reviews-for-woocommerce' ), __( 'Light tint of the primary color, used for subtle backgrounds.', 'beplus-advanced-reviews-for-woocommerce' ), $settings, $defaults );
+				$this->render_color_field( 'primary_hover', __( 'Primary Hover', 'beplus-advanced-reviews-for-woocommerce' ), __( 'Slightly lighter primary for hover states on buttons and links.', 'beplus-advanced-reviews-for-woocommerce' ), $settings, $defaults );
+				$this->render_color_field( 'primary_hover_bg', __( 'Primary Hover Background', 'beplus-advanced-reviews-for-woocommerce' ), __( 'Very light primary tint for hover backgrounds on cards.', 'beplus-advanced-reviews-for-woocommerce' ), $settings, $defaults );
+				$this->render_color_field( 'primary_dragover_bg', __( 'Primary Dragover Background', 'beplus-advanced-reviews-for-woocommerce' ), __( 'Background color shown during drag-and-drop file uploads.', 'beplus-advanced-reviews-for-woocommerce' ), $settings, $defaults );
+				?>
+			</fieldset>
+
+			<fieldset class="bparfw-color-group">
+				<legend class="bparfw-color-group__legend"><?php echo esc_html__( 'Text & Background', 'beplus-advanced-reviews-for-woocommerce' ); ?></legend>
+				<?php
+				$this->render_color_field( 'text', __( 'Text Color', 'beplus-advanced-reviews-for-woocommerce' ), __( 'Main text color for review content and labels.', 'beplus-advanced-reviews-for-woocommerce' ), $settings, $defaults );
+				$this->render_color_field( 'bg', __( 'Background Color', 'beplus-advanced-reviews-for-woocommerce' ), __( 'Background color for cards and panels.', 'beplus-advanced-reviews-for-woocommerce' ), $settings, $defaults );
+				?>
+			</fieldset>
+
+			<fieldset class="bparfw-color-group">
+				<legend class="bparfw-color-group__legend"><?php echo esc_html__( 'Derived Tones', 'beplus-advanced-reviews-for-woocommerce' ); ?></legend>
+				<?php
+				$this->render_color_field( 'muted', __( 'Muted Text', 'beplus-advanced-reviews-for-woocommerce' ), __( 'Secondary text for descriptions and helper copy.', 'beplus-advanced-reviews-for-woocommerce' ), $settings, $defaults );
+				$this->render_color_field( 'date_muted', __( 'Date Muted', 'beplus-advanced-reviews-for-woocommerce' ), __( 'Color for review dates and timestamps.', 'beplus-advanced-reviews-for-woocommerce' ), $settings, $defaults );
+				$this->render_color_field( 'border', __( 'Border Color', 'beplus-advanced-reviews-for-woocommerce' ), __( 'Border color for cards, inputs, and dividers.', 'beplus-advanced-reviews-for-woocommerce' ), $settings, $defaults );
+				$this->render_color_field( 'border_dark', __( 'Border Dark', 'beplus-advanced-reviews-for-woocommerce' ), __( 'Darker border for focus states and emphasis.', 'beplus-advanced-reviews-for-woocommerce' ), $settings, $defaults );
+				?>
+			</fieldset>
+
+			<fieldset class="bparfw-color-group">
+				<legend class="bparfw-color-group__legend"><?php echo esc_html__( 'Stars', 'beplus-advanced-reviews-for-woocommerce' ); ?></legend>
+				<?php
+				$this->render_color_field( 'star_empty', __( 'Empty Star', 'beplus-advanced-reviews-for-woocommerce' ), __( 'Color for unfilled stars in the rating display.', 'beplus-advanced-reviews-for-woocommerce' ), $settings, $defaults );
+				?>
+			</fieldset>
+
+			<fieldset class="bparfw-color-group">
+				<legend class="bparfw-color-group__legend"><?php echo esc_html__( 'Error State', 'beplus-advanced-reviews-for-woocommerce' ); ?></legend>
+				<?php
+				$this->render_color_field( 'error_bg', __( 'Error Background', 'beplus-advanced-reviews-for-woocommerce' ), __( 'Background color for error messages and alerts.', 'beplus-advanced-reviews-for-woocommerce' ), $settings, $defaults );
+				$this->render_color_field( 'error_text', __( 'Error Text', 'beplus-advanced-reviews-for-woocommerce' ), __( 'Text color for error messages.', 'beplus-advanced-reviews-for-woocommerce' ), $settings, $defaults );
+				$this->render_color_field( 'error_border', __( 'Error Border', 'beplus-advanced-reviews-for-woocommerce' ), __( 'Border color for error states on inputs.', 'beplus-advanced-reviews-for-woocommerce' ), $settings, $defaults );
+				?>
+			</fieldset>
+
+			<fieldset class="bparfw-color-group">
+				<legend class="bparfw-color-group__legend"><?php echo esc_html__( 'Success State', 'beplus-advanced-reviews-for-woocommerce' ); ?></legend>
+				<?php
+				$this->render_color_field( 'success_bg', __( 'Success Background', 'beplus-advanced-reviews-for-woocommerce' ), __( 'Background color for success messages.', 'beplus-advanced-reviews-for-woocommerce' ), $settings, $defaults );
+				$this->render_color_field( 'success_text', __( 'Success Text', 'beplus-advanced-reviews-for-woocommerce' ), __( 'Text color for success messages.', 'beplus-advanced-reviews-for-woocommerce' ), $settings, $defaults );
+				$this->render_color_field( 'success_border', __( 'Success Border', 'beplus-advanced-reviews-for-woocommerce' ), __( 'Border color for success states.', 'beplus-advanced-reviews-for-woocommerce' ), $settings, $defaults );
+				?>
+			</fieldset>
+
+			<div class="bparfw-color-group__actions">
+				<button type="button" class="button button-secondary" id="bparfw-reset-colors"><?php echo esc_html__( 'Reset to Defaults', 'beplus-advanced-reviews-for-woocommerce' ); ?></button>
+			</div>
+		</div>
+		<?php
+	}
+
+	/**
 	 * Sanitize settings before save.
 	 *
 	 * @param array<string, mixed> $input Raw input.
@@ -401,6 +526,15 @@ class SettingsRegistry extends AbstractModule {
 			$clean['verified_statuses'] = 'completed_processing';
 		}
 
+		// Sanitize colors.
+		$color_defaults   = $defaults['colors'] ?? array();
+		$clean['colors']  = array();
+		foreach ( $color_defaults as $color_key => $color_default ) {
+			$raw                            = $input['colors'][ $color_key ] ?? '';
+			$sanitized                      = sanitize_hex_color( $raw );
+			$clean['colors'][ $color_key ]  = $sanitized ? $sanitized : $color_default;
+		}
+
 		return $clean;
 	}
 
@@ -452,6 +586,26 @@ class SettingsRegistry extends AbstractModule {
 			'max_video_size_mb' => 20,
 			'enable_verified'   => true,
 			'verified_statuses' => 'completed_processing',
+			'colors'            => array(
+				'primary'             => '#21652F',
+				'primary_light'       => '#e9f3eb',
+				'primary_hover'       => '#3a7a47',
+				'primary_hover_bg'    => '#f2f8f3',
+				'primary_dragover_bg' => '#e4efe6',
+				'text'                => '#101010',
+				'bg'                  => '#ffffff',
+				'muted'               => '#8e8e8e',
+				'date_muted'          => '#969696',
+				'border'              => '#e0e6e1',
+				'border_dark'         => '#bdc4be',
+				'star_empty'          => '#cccccc',
+				'error_bg'            => '#f8d7da',
+				'error_text'          => '#721c24',
+				'error_border'        => '#f5c6cb',
+				'success_bg'          => '#d4edda',
+				'success_text'        => '#155724',
+				'success_border'      => '#c3e6cb',
+			),
 		);
 	}
 }
