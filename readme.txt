@@ -4,7 +4,7 @@ Tags: woocommerce, reviews, product reviews, star rating, ajax
 Requires at least: 6.0
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 1.0.1
+Stable tag: 1.1.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -31,6 +31,7 @@ Beplus Advanced Reviews for WooCommerce replaces or enhances the default WooComm
 * **Display modes** — *Keep default* (manual block placement) or *Replace default* (auto-override WooCommerce reviews)
 * **Accessible** — WCAG 2.1 AA compliant: keyboard navigable, focus management, `aria-live` regions, `prefers-reduced-motion` support
 * **Theme-aware styling** — automatically inherits colors from the active theme's `theme.json` global styles, with graceful fallback for classic themes
+* **Admin Color Control** — customize all 18 frontend colors (primary, text, background, stars, error/success states) from the plugin settings Styling tab
 
 **For Developers:**
 
@@ -97,7 +98,11 @@ Reviews from customers who have purchased the product (order status: Completed o
 
 = Does it match my theme's colors? =
 
-Yes. The plugin automatically inherits colors from your active theme's `theme.json` global styles (primary, text, background). All colors are defined as `--bpar-*` CSS custom properties and can be overridden in custom CSS. Classic themes without `theme.json` will see the default color scheme.
+Yes. The plugin automatically inherits colors from your active theme's `theme.json` global styles (primary, text, background). All colors are defined as `--bpar-*` CSS custom properties. You can also customize every color directly from **WooCommerce → Advanced Reviews → Styling** without writing any CSS. Classic themes without `theme.json` will see the default color scheme.
+
+= Can I customize the frontend colors? =
+
+Yes. Navigate to **WooCommerce → Advanced Reviews → Styling** to find color pickers for all 18 frontend design tokens. You can customize primary color, text color, background color, star colors, border tones, and error/success states independently. Changes are saved and applied as inline CSS immediately. A "Reset to Defaults" button lets you revert all colors to the plugin defaults.
 
 == Screenshots ==
 
@@ -108,6 +113,13 @@ Yes. The plugin automatically inherits colors from your active theme's `theme.js
 5. Block gutenberg
 
 == Changelog ==
+
+= 1.1.0 =
+* New: Admin Color Control — customize all 18 frontend color tokens from the Styling settings tab
+* New: Per-color pickers with hex input, grouped into Primary, Text & Background, Derived Tones, Stars, Error, and Success sections
+* New: Inline CSS injection via `StylingModule` overrides theme defaults only when colors are customized
+* New: "Reset to Defaults" button and per-field revert buttons
+* Updated: AGENTS.md, Document Plugin.md, and readme.txt with color control documentation
 
 = 1.0.1 =
 * Updated About BePlus section with detailed company information
