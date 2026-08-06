@@ -96,7 +96,7 @@ class StylingModule extends AbstractModule {
 		$overrides = '';
 		foreach ( self::COLOR_MAP as $key => $var ) {
 			$current = isset( $colors[ $key ] ) ? strtoupper( (string) $colors[ $key ] ) : '';
-			$default = strtoupper( self::DEFAULTS[ $key ] ?? '' );
+			$default = strtoupper( self::DEFAULTS[ $key ] );
 			if ( $current !== '' && $current !== $default ) {
 				$overrides .= "  {$var}: " . esc_attr( $current ) . ";\n";
 			}
