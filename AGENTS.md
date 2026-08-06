@@ -18,7 +18,7 @@ Long-form context stays in this file and in `Document Plugin.md`; avoid duplicat
 
 ## What this plugin is
 
-- **WordPress plugin:** Advanced WooCommerce product reviews with image support, star distribution, AJAX filtering, and load more.
+- **WordPress plugin:** Advanced WooCommerce product reviews with image support, star distribution, AJAX filtering, load more, verified purchase badges, and admin-controlled frontend color customization.
 - **Primary block:** `advanced-review` — a Gutenberg block designed to be dropped into the WooCommerce single product template (FSE / Site Editor). Automatically applied to all Single Product pages on activation.
 - **Architecture:** Container-based boot via `BeplusAdvancedReviewsForWoocommerce\Core\Plugin`; modules extend `AbstractModule` and register hooks in `register()`.
 - **Stack:** PHP 7.4+ (8.0+ recommended), PSR-4 autoload under `src/`, **esbuild + JavaScript/TypeScript** for admin and blocks, procedural helpers in `includes/` when needed.
@@ -69,7 +69,7 @@ Long-form context stays in this file and in `Document Plugin.md`; avoid duplicat
 - Filtering is handled client-side via the block's TypeScript view script; for large datasets a REST endpoint supports server-side pagination with filter params.
 
 ### 5. Plugin Settings (Advanced Reviews)
-Accessible via WooCommerce > Advanced Reviews. Contains two main tabs:
+Accessible via WooCommerce > Advanced Reviews. Contains three main tabs:
 - **General:**
   - **Display Mode:** Keep default (manual block placement) vs Replace default (automatically overrides WooCommerce reviews). Logic lives in `src/Core/Placement.php`.
   - **Reviews per load:** Number of reviews shown before the "Load More" button appears.
@@ -78,6 +78,8 @@ Accessible via WooCommerce > Advanced Reviews. Contains two main tabs:
 - **Media:**
   - Toggle image uploads (`enable_images`), allow clipboard paste, and set max image size (MB).
   - Toggle video uploads (`enable_videos`), set max video size (`max_video_size_mb`).
+- **Styling:**
+  - **Frontend Colors** — color pickers for all 18 `--bpar-*` CSS custom properties, grouped into Primary Accent, Text & Background, Derived Tones, Stars, Error State, and Success State sections.
 
 ### 6. Verified Purchase Badge
 - Reviews from customers who have purchased the product display a **"Verified Purchase" badge** on their review card.
@@ -98,6 +100,14 @@ Accessible via WooCommerce > Advanced Reviews. Contains two main tabs:
 - Themes without `theme.json` get the hardcoded fallback values.
 - To override: set `--bpar-primary` (or any `--bpar-*` token) in custom CSS.
 
+### 8. Admin Color Control
+
+- All 18 `--bpar-*` CSS custom properties can be customized from **WooCommerce → Advanced Reviews → Styling**.
+- Admins can override every frontend color — primary, text, background, derived tones, star colors, error/success states — independently with a color picker.
+- Changes are saved to the `beplus_advanced_reviews_for_woocommerce_settings` option under the `colors` key and output as inline `<style>` in `<head>` via `StylingModule`.
+- When all colors match their defaults, no inline CSS is emitted — the plugin falls back to the existing theme-aware system from `style.css`.
+- Core logic lives in `src/Styling/StylingModule.php`. Admin UI lives in `src/Settings/SettingsRegistry.php` (`render_styling_card()`).
+
 ## Files you usually touch
 
 | Area | Edit (source) | Do not edit as source |
@@ -113,6 +123,7 @@ Accessible via WooCommerce > Advanced Reviews. Contains two main tabs:
 | Media handling | `src/Media/MediaHandler.php` | — |
 | Display mode / placement | `src/Core/Placement.php` | — |
 | Verified purchase | `src/Verified/VerifiedPurchaseChecker.php`, `src/Verified/VerifiedPurchaseModule.php` | — |
+| Admin color control | `src/Styling/StylingModule.php`, `admin/js/settings.js` (color section), `admin/css/admin.scss` (`.bparfw-color-*`), `src/Settings/SettingsRegistry.php` (`render_styling_card()`) | — |
 
 After changing JS/TS or block sources, run **`npm run build`** (or **`npm run watch`**) from the plugin root.
 
@@ -155,6 +166,7 @@ Outside `boot()`, the bootstrap file (`beplus-advanced-reviews-for-woocommerce.p
 | `Placement` | `src/Core/Placement.php` | Display mode logic (keep/replace) |
 | `VerifiedPurchaseChecker` | `src/Verified/VerifiedPurchaseChecker.php` | Batch check purchase status, cache, bust cache |
 | `VerifiedPurchaseModule` | `src/Verified/VerifiedPurchaseModule.php` | Hooks for cache busting on order status change |
+| `StylingModule` | `src/Styling/StylingModule.php` | Inline CSS injection for admin color overrides |
 
 ## Database schema
 
