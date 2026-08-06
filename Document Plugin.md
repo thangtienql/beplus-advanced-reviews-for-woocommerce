@@ -76,6 +76,16 @@ Reviews from customers who have actually purchased the product display a **"Veri
 - **Admin control:** Toggle on/off + choose order status option under **WooCommerce → Advanced Reviews → General → Verified Purchase** (`enable_verified`, `verified_statuses`).
 - Core logic: `src/Verified/VerifiedPurchaseChecker.php`.
 
+### 2.7 Admin Color Control
+
+Administrators can customize all 18 frontend color tokens from **WooCommerce → Advanced Reviews → Styling**.
+
+- **Per-token color pickers:** Every `--bpar-*` CSS custom property (primary, text, background, derived tones, star colors, error/success states) has its own color picker with hex input.
+- **Inline CSS injection:** `StylingModule` reads the `colors` settings array and outputs a `<style id="bparfw-custom-colors">` block at `wp_head` priority 1, overriding the default theme-aware colors.
+- **Default-aware:** When all colors match their defaults, no inline CSS is emitted — the existing `style.css` `:root` block handles styling entirely.
+- **Reset to defaults:** Individual per-field reset buttons and a global "Reset to Defaults" button allow quick reversion.
+- Core logic: `src/Styling/StylingModule.php`. Admin UI: `src/Settings/SettingsRegistry.php` (`render_styling_card()`).
+
 ### 2.6 Plugin Settings — Display Mode
 
 | Mode | Behavior |
@@ -162,6 +172,9 @@ beplus-advanced-reviews-for-woocommerce/
 │   ├── Verified/
 │   │   ├── VerifiedPurchaseChecker.php
 │   │   └── VerifiedPurchaseModule.php
+│   │
+│   ├── Styling/
+│   │   └── StylingModule.php
 │   │
 │   └── Functions/
 │       └── helpers.php
@@ -1172,6 +1185,7 @@ Target **WCAG 2.1 AA** for all plugin-owned UI: review list, filter bar, submiss
 | `ReviewSubmission` | `src/Reviews/ReviewSubmission.php` | Review creation logic |
 | `VerifiedPurchaseChecker` | `src/Verified/VerifiedPurchaseChecker.php` | Batch verified check + cache |
 | `VerifiedPurchaseModule` | `src/Verified/VerifiedPurchaseModule.php` | Cache bust on order status change |
+| `StylingModule` | `src/Styling/StylingModule.php` | Admin color control inline CSS injection |
 | REST namespace | `beplus-advanced-reviews-for-woocommerce/v1` | Public API |
 | Primary block | `blocks/advanced-review/` | Advanced Review block |
 
