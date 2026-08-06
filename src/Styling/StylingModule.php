@@ -87,34 +87,24 @@ class StylingModule extends AbstractModule {
 		$settings = beplus_advanced_reviews_for_woocommerce_get_settings();
 		$colors   = $settings['colors'] ?? array();
 
-		if ( ! is_array( $colors ) || ! $this->has_customizations( $colors ) ) {
+		if ( ! is_array( $colors ) ) {
 			return;
 		}
 
-		$css = ":root {\n";
+		// Only output tokens that differ from defaults — the rest stay in style.css.
+		$overrides = '';
 		foreach ( self::COLOR_MAP as $key => $var ) {
-			if ( ! empty( $colors[ $key ] ) ) {
-				$css .= "  {$var}: " . esc_attr( $colors[ $key ] ) . ";\n";
-			}
-		}
-		$css .= "}\n";
-
-		echo '<style id="bparfw-custom-colors">' . "\n" . $css . '</style>' . "\n";
-	}
-
-	/**
-	 * Check whether any color differs from its default.
-	 *
-	 * @param array<string, string> $colors Current color settings.
-	 * @return bool
-	 */
-	private function has_customizations( array $colors ): bool {
-		foreach ( self::DEFAULTS as $key => $default_value ) {
 			$current = $colors[ $key ] ?? '';
-			if ( $current !== '' && $current !== $default_value ) {
-				return true;
+			$default = self::DEFAULTS[ $key ] ?? '';
+			if ( $current !== '' && $current !== $default ) {
+				$overrides .= "  {$var}: " . esc_attr( $current ) . ";\n";
 			}
 		}
-		return false;
+
+		if ( '' === $overrides ) {
+			return;
+		}
+
+		echo '<style id="bparfw-custom-colors">' . "\n:root {\n" . $overrides . "}\n</style>" . "\n";
 	}
 }
