@@ -34,7 +34,6 @@
 
 	/* ── Derived neutral tones ──────────────────────────────────────── */
 	--bpar-muted: color-mix(in srgb, var(--bpar-text) 55%, var(--bpar-bg));
-	--bpar-date-muted: color-mix(in srgb, var(--bpar-text) 46%, var(--bpar-bg));
 	--bpar-border: color-mix(in srgb, var(--bpar-primary) 15%, var(--bpar-bg));
 	--bpar-border-dark: color-mix(in srgb, var(--bpar-border) 85%, black);
 

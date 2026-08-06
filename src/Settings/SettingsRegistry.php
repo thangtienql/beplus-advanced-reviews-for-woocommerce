@@ -433,7 +433,6 @@ class SettingsRegistry extends AbstractModule {
 				<legend class="bparfw-color-group__legend"><?php echo esc_html__( 'Derived Tones', 'beplus-advanced-reviews-for-woocommerce' ); ?></legend>
 				<?php
 				$this->render_color_field( 'muted', __( 'Muted Text', 'beplus-advanced-reviews-for-woocommerce' ), __( 'Secondary text for descriptions and helper copy.', 'beplus-advanced-reviews-for-woocommerce' ), $settings, $defaults );
-				$this->render_color_field( 'date_muted', __( 'Date Muted', 'beplus-advanced-reviews-for-woocommerce' ), __( 'Color for review dates and timestamps.', 'beplus-advanced-reviews-for-woocommerce' ), $settings, $defaults );
 				$this->render_color_field( 'border', __( 'Border Color', 'beplus-advanced-reviews-for-woocommerce' ), __( 'Border color for cards, inputs, and dividers.', 'beplus-advanced-reviews-for-woocommerce' ), $settings, $defaults );
 				$this->render_color_field( 'border_dark', __( 'Border Dark', 'beplus-advanced-reviews-for-woocommerce' ), __( 'Darker border for focus states and emphasis.', 'beplus-advanced-reviews-for-woocommerce' ), $settings, $defaults );
 				?>
@@ -595,7 +594,6 @@ class SettingsRegistry extends AbstractModule {
 				'text'                => '#101010',
 				'bg'                  => '#ffffff',
 				'muted'               => '#8e8e8e',
-				'date_muted'          => '#969696',
 				'border'              => '#e0e6e1',
 				'border_dark'         => '#bdc4be',
 				'star_empty'          => '#cccccc',
