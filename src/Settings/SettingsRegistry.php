@@ -426,6 +426,7 @@ class SettingsRegistry extends AbstractModule {
 				<?php
 				$this->render_color_field( 'text', __( 'Text Color', 'beplus-advanced-reviews-for-woocommerce' ), __( 'Main text color for review content and labels.', 'beplus-advanced-reviews-for-woocommerce' ), $settings, $defaults );
 				$this->render_color_field( 'bg', __( 'Background Color', 'beplus-advanced-reviews-for-woocommerce' ), __( 'Background color for cards and panels.', 'beplus-advanced-reviews-for-woocommerce' ), $settings, $defaults );
+				$this->render_color_field( 'button_text', __( 'Button Text', 'beplus-advanced-reviews-for-woocommerce' ), __( 'Text color for Submit, Load More, and action buttons.', 'beplus-advanced-reviews-for-woocommerce' ), $settings, $defaults );
 				?>
 			</fieldset>
 
@@ -593,6 +594,7 @@ class SettingsRegistry extends AbstractModule {
 				'primary_dragover_bg' => '#e4efe6',
 				'text'                => '#101010',
 				'bg'                  => '#ffffff',
+				'button_text'        => '#ffffff',
 				'muted'               => '#8e8e8e',
 				'border'              => '#e0e6e1',
 				'border_dark'         => '#bdc4be',

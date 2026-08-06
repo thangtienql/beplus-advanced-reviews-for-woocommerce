@@ -38,6 +38,8 @@
 	--bpar-border-dark: color-mix(in srgb, var(--bpar-border) 85%, black);
 
 	/* ── Semantic (not theme-dependent) ─────────────────────────────── */
+		--bpar-button-text: #fff;
+
 	--bpar-star-empty: #{v.$star-empty};
 	--bpar-error-bg: #{v.$error-bg};
 	--bpar-error-text: #{v.$error-text};

@@ -37,6 +37,7 @@ function beplus_advanced_reviews_for_woocommerce_install_defaults(): void {
 				'primary_dragover_bg' => '#e4efe6',
 				'text'                => '#101010',
 				'bg'                  => '#ffffff',
+				'button_text'        => '#ffffff',
 				'muted'               => '#8e8e8e',
 				'border'              => '#e0e6e1',
 				'border_dark'         => '#bdc4be',

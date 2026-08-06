@@ -14,7 +14,7 @@ $prefix: beplus-advanced-reviews-for-woocommerce;
 	border: 1px solid var(--bpar-primary);
 	border-radius: var(--bpar-radius-sm);
 	background: var(--bpar-primary);
-	color: #fff;
+	color: var(--bpar-button-text);
 	cursor: pointer;
 	font-size: 14px;
 	font-weight: 500;
@@ -53,7 +53,7 @@ $prefix: beplus-advanced-reviews-for-woocommerce;
 		width: 14px;
 		height: 14px;
 		border: 2px solid rgba(255, 255, 255, 0.3);
-		border-top-color: #fff;
+		border-top-color: var(--bpar-button-text);
 		border-radius: 50%;
 		animation: bpar-spin 0.6s linear infinite;
 	}
