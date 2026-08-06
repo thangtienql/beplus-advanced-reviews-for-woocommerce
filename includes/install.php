@@ -29,6 +29,26 @@ function beplus_advanced_reviews_for_woocommerce_install_defaults(): void {
 			'max_image_size_mb' => 2,
 			'enable_videos'    => false,
 			'max_video_size_mb' => 20,
+			'colors'            => array(
+				'primary'             => '#21652F',
+				'primary_light'       => '#e9f3eb',
+				'primary_hover'       => '#3a7a47',
+				'primary_hover_bg'    => '#f2f8f3',
+				'primary_dragover_bg' => '#e4efe6',
+				'text'                => '#101010',
+				'bg'                  => '#ffffff',
+				'muted'               => '#8e8e8e',
+				'date_muted'          => '#969696',
+				'border'              => '#e0e6e1',
+				'border_dark'         => '#bdc4be',
+				'star_empty'          => '#cccccc',
+				'error_bg'            => '#f8d7da',
+				'error_text'          => '#721c24',
+				'error_border'        => '#f5c6cb',
+				'success_bg'          => '#d4edda',
+				'success_text'        => '#155724',
+				'success_border'      => '#c3e6cb',
+			),
 		);
 		update_option( 'beplus_advanced_reviews_for_woocommerce_settings', $defaults, false );
 	}
