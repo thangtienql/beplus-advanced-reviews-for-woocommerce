@@ -74,11 +74,33 @@
 
 	// Restore active tab from hash on load
 	document.addEventListener('DOMContentLoaded', function () {
+		// After a save, sessionStorage takes priority (WordPress redirect strips the hash)
+		var savedTab = sessionStorage.getItem('bparfwActiveTab');
+		if (savedTab) {
+			sessionStorage.removeItem('bparfwActiveTab');
+			activateTab(savedTab);
+			return;
+		}
+
 		var hash = window.location.hash;
 		if (hash && hash.indexOf('#tab-') === 0) {
 			var tabName = hash.replace('#tab-', '');
 			if (tabName) {
 				activateTab(tabName);
+			}
+		}
+	});
+
+	// Persist active tab before form submit (Save → redirect loses the hash)
+	document.addEventListener('submit', function (e) {
+		var form = e.target.closest('.bparfw-settings__form');
+		if (!form) return;
+
+		var activeTab = document.querySelector('.bparfw-settings__tab.is-active');
+		if (activeTab) {
+			var tabName = activeTab.getAttribute('data-bparfw-tab');
+			if (tabName) {
+				sessionStorage.setItem('bparfwActiveTab', tabName);
 			}
 		}
 	});
