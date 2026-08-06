@@ -69,7 +69,7 @@ class StylingModule extends AbstractModule {
 	);
 
 	public function register(): void {
-		add_action( 'wp_head', array( $this, 'output_inline_css' ), 1 );
+		add_action( 'wp_head', array( $this, 'output_inline_css' ), 9999 );
 	}
 
 	/**

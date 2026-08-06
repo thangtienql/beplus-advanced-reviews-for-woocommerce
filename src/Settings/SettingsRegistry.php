@@ -377,9 +377,9 @@ class SettingsRegistry extends AbstractModule {
 				<p class="bparfw-color-field__desc"><?php echo esc_html( $desc ); ?></p>
 			</div>
 			<div class="bparfw-color-field__controls">
-				<button type="button" class="bparfw-color-field__swatch" data-bparfw-color-swatch="<?php echo esc_attr( $key ); ?>" style="background-color:<?php echo esc_attr( $value ); ?>" aria-label="<?php echo esc_attr( sprintf( __( 'Choose %s', 'beplus-advanced-reviews-for-woocommerce' ), $label ) ); ?>">
+				<label class="bparfw-color-field__swatch" data-bparfw-color-swatch="<?php echo esc_attr( $key ); ?>" style="background-color:<?php echo esc_attr( $value ); ?>" aria-label="<?php echo esc_attr( sprintf( __( 'Choose %s', 'beplus-advanced-reviews-for-woocommerce' ), $label ) ); ?>">
 					<input type="color" id="<?php echo $field_id; ?>" name="<?php echo $field_name; ?>" value="<?php echo esc_attr( $value ); ?>" class="bparfw-color-field__native" data-bparfw-color-input="<?php echo esc_attr( $key ); ?>" data-bparfw-color-default="<?php echo esc_attr( $default ); ?>">
-				</button>
+				</label>
 				<input type="text" class="bparfw-color-field__hex" data-bparfw-color-hex="<?php echo esc_attr( $key ); ?>" value="<?php echo esc_attr( $value ); ?>" maxlength="7" pattern="^#[0-9A-Fa-f]{6}$" aria-label="<?php echo esc_attr( sprintf( __( 'Hex value for %s', 'beplus-advanced-reviews-for-woocommerce' ), $label ) ); ?>">
 				<span class="bparfw-color-field__status" data-bparfw-color-status="<?php echo esc_attr( $key ); ?>">
 					<?php if ( $is_custom ) : ?>
