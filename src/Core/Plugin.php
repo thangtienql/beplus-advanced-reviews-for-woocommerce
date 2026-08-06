@@ -17,6 +17,7 @@ use BeplusAdvancedReviewsForWoocommerce\Media\MediaHandler;
 use BeplusAdvancedReviewsForWoocommerce\Media\LocalMediaStorage;
 use BeplusAdvancedReviewsForWoocommerce\Media\MediaStorageInterface;
 use BeplusAdvancedReviewsForWoocommerce\Verified\VerifiedPurchaseModule;
+use BeplusAdvancedReviewsForWoocommerce\Styling\StylingModule;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -71,6 +72,10 @@ class Plugin {
 		$this->container->set( VerifiedPurchaseModule::class, function ( Container $c ) {
 			return new VerifiedPurchaseModule( $c );
 		} );
+
+		$this->container->set( StylingModule::class, function ( Container $c ) {
+			return new StylingModule( $c );
+		} );
 	}
 
 	private function register_services_from_filter(): void {
@@ -87,6 +92,7 @@ class Plugin {
 			Placement::class,
 			MediaHandler::class,
 			VerifiedPurchaseModule::class,
+			StylingModule::class,
 		);
 
 		foreach ( $modules as $module_class ) {
