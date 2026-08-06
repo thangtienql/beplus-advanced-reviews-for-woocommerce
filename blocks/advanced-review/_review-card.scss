@@ -68,6 +68,7 @@ $prefix: beplus-advanced-reviews-for-woocommerce;
 .#{$prefix}__review-author {
 	font-size: 14px;
 	font-weight: 600;
+		color: var(--bpar-text);
 }
 
 .#{$prefix}__verified-badge {
@@ -98,11 +99,13 @@ $prefix: beplus-advanced-reviews-for-woocommerce;
 	font-size: 14px;
 	line-height: 1.5;
 	margin-bottom: 10px;
+		color: var(--bpar-text);
 	word-break: break-word;
 }
 
 .#{$prefix}__review-date {
 	font-size: 13px;
+		color: var(--bpar-date-muted);
 }
 
 .#{$prefix}__review-images {
