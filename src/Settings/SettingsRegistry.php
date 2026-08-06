@@ -526,13 +526,13 @@ class SettingsRegistry extends AbstractModule {
 			$clean['verified_statuses'] = 'completed_processing';
 		}
 
-		// Sanitize colors.
+		// Sanitize colors — normalize to uppercase for case-insensitive comparison.
 		$color_defaults   = $defaults['colors'] ?? array();
 		$clean['colors']  = array();
 		foreach ( $color_defaults as $color_key => $color_default ) {
 			$raw                            = $input['colors'][ $color_key ] ?? '';
 			$sanitized                      = sanitize_hex_color( $raw );
-			$clean['colors'][ $color_key ]  = $sanitized ? $sanitized : $color_default;
+			$clean['colors'][ $color_key ]  = $sanitized ? strtoupper( $sanitized ) : $color_default;
 		}
 
 		return $clean;

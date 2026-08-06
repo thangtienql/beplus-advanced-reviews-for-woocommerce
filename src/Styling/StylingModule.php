@@ -92,10 +92,11 @@ class StylingModule extends AbstractModule {
 		}
 
 		// Only output tokens that differ from defaults — the rest stay in style.css.
+		// Compare case-insensitively: native <input type="color"> always returns lowercase hex.
 		$overrides = '';
 		foreach ( self::COLOR_MAP as $key => $var ) {
-			$current = $colors[ $key ] ?? '';
-			$default = self::DEFAULTS[ $key ] ?? '';
+			$current = strtoupper( $colors[ $key ] ?? '' );
+			$default = strtoupper( self::DEFAULTS[ $key ] ?? '' );
 			if ( $current !== '' && $current !== $default ) {
 				$overrides .= "  {$var}: " . esc_attr( $current ) . ";\n";
 			}
