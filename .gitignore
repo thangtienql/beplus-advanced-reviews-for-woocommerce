@@ -33,3 +33,4 @@ wp-content/debug.log
 # Environment
 .env
 .env.*
+docs/superpowers/
