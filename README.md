@@ -135,21 +135,23 @@ Navigate to **WooCommerce → Advanced Reviews** in your WordPress admin.
 
 ---
 
-## 🎨 Theme Integration
+## 🎨 Color System
 
-The plugin automatically inherits colors from the active WordPress theme's global styles (`theme.json`). No configuration needed — it just works.
+All frontend colors use consistent hardcoded defaults, so the review display looks identical on any theme. No configuration needed — it just works.
 
 ### How It Works
 
-All frontend colors are defined as `--bpar-*` CSS custom properties that map to WordPress theme variables:
+Frontend colors are defined as `--bpar-*` CSS custom properties:
 
-| Plugin Token | Theme Variable | Fallback |
-|---|---|---|
-| `--bpar-primary` | `--wp--preset--color--primary` | `#21652F` |
-| `--bpar-text` | `--wp--preset--color--contrast` | `#101010` |
-| `--bpar-bg` | `--wp--preset--color--base` | `#fff` |
+| Plugin Token | Fallback |
+|---|---|
+| `--bpar-primary` | `#000000` |
+| `--bpar-text` | `#000000` |
+| `--bpar-bg` | `#FFFFFF` |
 
 Derived colors (hover states, muted text, borders) are automatically computed from the primary color using CSS `color-mix()`.
+
+The 11 admin-editable colors can also be customized from **WooCommerce → Advanced Reviews → Styling** — the plugin outputs an inline `<style>` override when any color differs from its default. Derived tones are not individually editable.
 
 ### Customization
 
@@ -175,7 +177,7 @@ Or in your `theme.json`:
 }
 ```
 
-> **Fallback:** Themes without `theme.json` (classic themes) will use the hardcoded fallback colors. Semantic colors (error/success) are always hardcoded.
+> **Note:** All colors are hardcoded plugin defaults (`#000000`, `#FFFFFF`, etc.) and render consistently on any theme — classic or block-based.
 
 ---
 

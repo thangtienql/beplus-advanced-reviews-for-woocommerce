@@ -7,6 +7,8 @@ Requires PHP: 7.4
 Stable tag: 1.1.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
+Text Domain: beplus-advanced-reviews-for-woocommerce
+Domain Path: /languages
 
 Modern WooCommerce product reviews with image & video support, star distribution, AJAX filtering, and load more — powered by a Gutenberg block.
 
@@ -23,15 +25,14 @@ Beplus Advanced Reviews for WooCommerce replaces or enhances the default WooComm
 * **Video uploads** — customers attach MP4, WebM, or OGG videos to their reviews
 * **Clipboard paste** — paste images directly from the clipboard into the review form
 * **Lightbox** — full-size image and video preview in an accessible overlay
-* **Smart filter bar** — filter by star rating (multi-select), show only reviews with images, or show only verified purchase reviews; no page reload
-* **Verified Purchase badge** — reviews from customers who actually bought the product are automatically marked with a "Verified Purchase" badge
+* **Smart filter bar** — filter by star rating, show only reviews with images, or show only verified purchase reviews; no page reload
+* **Verified Purchase badge** — premium shield icon with glossy shine animation; reviews from customers who actually bought the product are automatically marked
 * **Sort controls** — sort by date (newest/oldest) or rating (highest/lowest)
 * **Load More (AJAX)** — paginated review list with a Load More button powered by the REST API
 * **Gutenberg block** — drag-and-drop `Advanced Reviews` block, automatically applied to all Single Product pages on activation
 * **Display modes** — *Keep default* (manual block placement) or *Replace default* (auto-override WooCommerce reviews)
 * **Accessible** — WCAG 2.1 AA compliant: keyboard navigable, focus management, `aria-live` regions, `prefers-reduced-motion` support
-* **Theme-aware styling** — automatically inherits colors from the active theme's `theme.json` global styles, with graceful fallback for classic themes
-* **Admin Color Control** — customize all 18 frontend colors (primary, text, background, stars, error/success states) from the plugin settings Styling tab
+* **Admin Color Control** — customize the 11 frontend colors (primary, text, background, button text, stars, error/success states) from the plugin settings Styling tab, with consistent hardcoded defaults that render on any theme
 
 **For Developers:**
 
@@ -98,11 +99,11 @@ Reviews from customers who have purchased the product (order status: Completed o
 
 = Does it match my theme's colors? =
 
-Yes. The plugin automatically inherits colors from your active theme's `theme.json` global styles (primary, text, background). All colors are defined as `--bpar-*` CSS custom properties. You can also customize every color directly from **WooCommerce → Advanced Reviews → Styling** without writing any CSS. Classic themes without `theme.json` will see the default color scheme.
+The plugin uses consistent hardcoded defaults for every color (primary `#000000`, text `#000000`, background `#FFFFFF`, stars `#CFCFCF`), so the review display looks identical on any theme. All colors are defined as `--bpar-*` CSS custom properties. You can customize every color directly from **WooCommerce → Advanced Reviews → Styling** without writing any CSS — saved colors apply to the front end immediately.
 
 = Can I customize the frontend colors? =
 
-Yes. Navigate to **WooCommerce → Advanced Reviews → Styling** to find color pickers for all 18 frontend design tokens. You can customize primary color, text color, background color, star colors, border tones, and error/success states independently. Changes are saved and applied as inline CSS immediately. A "Reset to Defaults" button lets you revert all colors to the plugin defaults.
+Yes. Navigate to **WooCommerce → Advanced Reviews → Styling** to find color pickers for the 11 frontend colors (primary, text, background, button text, star empty, error/success states). Changes are saved and applied as inline CSS immediately. A "Reset to Defaults" button lets you revert all colors to the plugin defaults.
 
 == Screenshots ==
 
@@ -110,16 +111,17 @@ Yes. Navigate to **WooCommerce → Advanced Reviews → Styling** to find color 
 2. Plugin settings — Media tab (image/video upload toggles, max sizes)
 3. Plugin settings — Media tab (image/video upload toggles, max sizes)
 4. Review card with image attachments and lightbox preview
-5. Block gutenberg
+5. Advanced Reviews Gutenberg block on a single product page
 
 == Changelog ==
 
 = 1.1.0 =
-* New: Admin Color Control — customize all 18 frontend color tokens from the Styling settings tab
-* New: Per-color pickers with hex input, grouped into Primary, Text & Background, Derived Tones, Stars, Error, and Success sections
-* New: Inline CSS injection via `StylingModule` overrides theme defaults only when colors are customized
-* New: "Reset to Defaults" button and per-field revert buttons
-* Updated: AGENTS.md, Document Plugin.md, and readme.txt with color control documentation
+* New: Verified Purchase badge — premium shield icon with glossy shine animation, auto-marked for customers who bought the product
+* New: Admin Color Control — customize frontend colors (primary, text, background, stars, error/success states) from the plugin settings Styling tab
+* Enhanced: Mobile responsive — filter bar and review cards adapt gracefully on small screens (375px+)
+* Fix: Verified badge renders consistently across all views (server-side, AJAX load, and newly submitted reviews)
+* Fix: color defaults now render consistently (hardcoded, theme-independent) — no theme color bleed-through
+* Fix: minor bug fixes and improvements
 
 = 1.0.1 =
 * Updated About BePlus section with detailed company information
@@ -140,5 +142,5 @@ Yes. Navigate to **WooCommerce → Advanced Reviews → Styling** to find color 
 * REST API for reviews, distribution, and settings
 * Plugin settings page under WooCommerce menu
 * WCAG 2.1 AA accessibility
-* Theme-aware color system — inherits from active theme's `theme.json` global styles
+* Color system — consistent hardcoded defaults for all frontend colors, customizable from the admin Styling tab
 * i18n ready with `beplus-advanced-reviews-for-woocommerce` text domain

@@ -72,6 +72,7 @@ $prefix: beplus-advanced-reviews-for-woocommerce;
 }
 
 .#{$prefix}__verified-badge {
+	position: relative;
 	display: inline-flex;
 	align-items: center;
 	gap: 4px;
@@ -84,9 +85,50 @@ $prefix: beplus-advanced-reviews-for-woocommerce;
 	line-height: 1.5;
 	white-space: nowrap;
 	flex-shrink: 0;
+	overflow: hidden;
+
+	// Glossy shine sweep across the entire badge.
+	&::after {
+		content: '';
+		position: absolute;
+		top: 0;
+		left: -100%;
+		width: 100%;
+		height: 100%;
+		background: linear-gradient(
+			105deg,
+			transparent 40%,
+			rgba(255, 255, 255, 0.4) 45%,
+			rgba(255, 255, 255, 0.55) 50%,
+			rgba(255, 255, 255, 0.4) 55%,
+			transparent 60%
+		);
+		animation: bpar-verified-shine 3.5s ease-in-out infinite;
+		pointer-events: none;
+		border-radius: var(--bpar-radius-pill, 9999px);
+	}
+}
+
+.#{$prefix}__verified-badge-icon {
+	display: inline-flex;
+	align-items: center;
+	flex-shrink: 0;
 
 	svg {
+		display: block;
 		flex-shrink: 0;
+	}
+}
+
+@keyframes bpar-verified-shine {
+	0% {
+		left: -100%;
+	}
+	20% {
+		left: 100%;
+	}
+	100% {
+		left: 100%;
 	}
 }
 
@@ -367,5 +409,51 @@ $prefix: beplus-advanced-reviews-for-woocommerce;
 				transition: none;
 			}
 		}
+	}
+
+	.#{$prefix}__verified-badge::after {
+		animation: none;
+	}
+}
+
+// ── Mobile ──────────────────────────────────────────
+
+@media (max-width: 768px) {
+	.#{$prefix}__review-card {
+		padding: 14px;
+		gap: 10px;
+	}
+
+	.#{$prefix}__review-header {
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 6px;
+	}
+
+	.#{$prefix}__review-rating {
+		align-self: flex-start;
+	}
+}
+
+@media (max-width: 480px) {
+	.#{$prefix}__review-avatar {
+		img {
+			width: 36px;
+			height: 36px;
+		}
+
+		&--fallback {
+			width: 36px;
+			height: 36px;
+			font-size: 14px;
+		}
+	}
+
+	.#{$prefix}__verified-badge {
+		white-space: normal;
+	}
+
+	.#{$prefix}__review-content {
+		font-size: 13px;
 	}
 }

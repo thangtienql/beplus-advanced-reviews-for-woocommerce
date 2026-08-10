@@ -175,7 +175,9 @@
 				html += '<span class="beplus-advanced-reviews-for-woocommerce__review-author">' + escHtml( review.author ) + '</span>';
 				if ( review.is_verified ) {
 					html += '<span class="beplus-advanced-reviews-for-woocommerce__verified-badge" aria-label="' + escAttr( bparfwData.i18n.verifiedPurchase || 'Verified Purchase' ) + '">';
-					html += '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg> ';
+					html += '<span class="beplus-advanced-reviews-for-woocommerce__verified-badge-icon" aria-hidden="true">';
+					html += '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>';
+					html += '</span> ';
 					html += escHtml( bparfwData.i18n.verifiedPurchase || 'Verified Purchase' );
 					html += '</span>';
 				}
@@ -779,6 +781,14 @@
 		html += '<div class="beplus-advanced-reviews-for-woocommerce__review-header">';
 		html += '<div class="beplus-advanced-reviews-for-woocommerce__review-author-group">';
 		html += '<span class="beplus-advanced-reviews-for-woocommerce__review-author">' + escHtml( review.author ) + '</span>';
+		if ( review.is_verified ) {
+			html += '<span class="beplus-advanced-reviews-for-woocommerce__verified-badge" aria-label="' + escAttr( bparfwData.i18n.verifiedPurchase || 'Verified Purchase' ) + '">';
+			html += '<span class="beplus-advanced-reviews-for-woocommerce__verified-badge-icon" aria-hidden="true">';
+			html += '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>';
+			html += '</span> ';
+			html += escHtml( bparfwData.i18n.verifiedPurchase || 'Verified Purchase' );
+			html += '</span>';
+		}
 		html += '</div>';
 		html += '<span class="beplus-advanced-reviews-for-woocommerce__review-rating">' + renderStars( review.rating ) + '</span>';
 		html += '</div>';

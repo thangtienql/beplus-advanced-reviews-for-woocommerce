@@ -194,3 +194,59 @@ $prefix: beplus-advanced-reviews-for-woocommerce;
 		outline-offset: 2px;
 	}
 }
+
+// ── Mobile ──────────────────────────────────────────
+
+@media (max-width: 768px) {
+	.#{$prefix}__filter-controls {
+		justify-content: flex-start;
+		gap: 8px;
+	}
+
+	.#{$prefix}__filter-controls-left {
+		gap: 10px;
+	}
+
+	.#{$prefix}__filter-controls-right {
+		gap: 6px;
+	}
+}
+
+@media (max-width: 480px) {
+	.#{$prefix}__filter-controls {
+		flex-direction: column;
+		align-items: stretch;
+	}
+
+	.#{$prefix}__filter-controls-left {
+		flex-direction: column;
+		align-items: stretch;
+		gap: 10px;
+	}
+
+	.#{$prefix}__filter-controls-right {
+		justify-content: flex-start;
+	}
+
+	.#{$prefix}__filter-stars,
+	.#{$prefix}__filter-sort {
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 4px;
+	}
+
+	.#{$prefix}__sort-wrapper,
+	.#{$prefix}__filter-rating-select,
+	.#{$prefix}__sort-select {
+		width: 100%;
+	}
+
+	.#{$prefix}__filter-chip {
+		flex: 1;
+		justify-content: center;
+	}
+
+	.#{$prefix}__filter-label {
+		font-size: 13px;
+	}
+}

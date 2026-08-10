@@ -22,24 +22,17 @@ class StylingModule extends AbstractModule {
 	 * @var array<string, string>
 	 */
 	private const COLOR_MAP = array(
-		'primary'             => '--bpar-primary',
-		'primary_light'       => '--bpar-primary-light',
-		'primary_hover'       => '--bpar-primary-hover',
-		'primary_hover_bg'    => '--bpar-primary-hover-bg',
-		'primary_dragover_bg' => '--bpar-primary-dragover-bg',
-		'text'                => '--bpar-text',
-		'bg'                  => '--bpar-bg',
-		'button_text'        => '--bpar-button-text',
-		'muted'               => '--bpar-muted',
-		'border'              => '--bpar-border',
-		'border_dark'         => '--bpar-border-dark',
-		'star_empty'          => '--bpar-star-empty',
-		'error_bg'            => '--bpar-error-bg',
-		'error_text'          => '--bpar-error-text',
-		'error_border'        => '--bpar-error-border',
-		'success_bg'          => '--bpar-success-bg',
-		'success_text'        => '--bpar-success-text',
-		'success_border'      => '--bpar-success-border',
+		'primary'        => '--bpar-primary',
+		'text'           => '--bpar-text',
+		'bg'             => '--bpar-bg',
+		'button_text'    => '--bpar-button-text',
+		'star_empty'     => '--bpar-star-empty',
+		'error_bg'       => '--bpar-error-bg',
+		'error_text'     => '--bpar-error-text',
+		'error_border'   => '--bpar-error-border',
+		'success_bg'     => '--bpar-success-bg',
+		'success_text'   => '--bpar-success-text',
+		'success_border' => '--bpar-success-border',
 	);
 
 	/**
@@ -48,24 +41,17 @@ class StylingModule extends AbstractModule {
 	 * @var array<string, string>
 	 */
 	private const DEFAULTS = array(
-		'primary'             => '#21652F',
-		'primary_light'       => '#e9f3eb',
-		'primary_hover'       => '#3a7a47',
-		'primary_hover_bg'    => '#f2f8f3',
-		'primary_dragover_bg' => '#e4efe6',
-		'text'                => '#101010',
-		'bg'                  => '#ffffff',
-		'button_text'        => '#ffffff',
-		'muted'               => '#8e8e8e',
-		'border'              => '#e0e6e1',
-		'border_dark'         => '#bdc4be',
-		'star_empty'          => '#cccccc',
-		'error_bg'            => '#f8d7da',
-		'error_text'          => '#721c24',
-		'error_border'        => '#f5c6cb',
-		'success_bg'          => '#d4edda',
-		'success_text'        => '#155724',
-		'success_border'      => '#c3e6cb',
+		'primary'        => '#000000',
+		'text'           => '#000000',
+		'bg'             => '#FFFFFF',
+		'button_text'    => '#ffffff',
+		'star_empty'     => '#CFCFCF',
+		'error_bg'       => '#f8d7da',
+		'error_text'     => '#721c24',
+		'error_border'   => '#f5c6cb',
+		'success_bg'     => '#d4edda',
+		'success_text'   => '#155724',
+		'success_border' => '#c3e6cb',
 	);
 
 	public function register(): void {

@@ -79,7 +79,7 @@ Accessible via WooCommerce > Advanced Reviews. Contains three main tabs:
   - Toggle image uploads (`enable_images`), allow clipboard paste, and set max image size (MB).
   - Toggle video uploads (`enable_videos`), set max video size (`max_video_size_mb`).
 - **Styling:**
-  - **Frontend Colors** — color pickers for all 18 `--bpar-*` CSS custom properties, grouped into Primary Accent, Text & Background, Derived Tones, Stars, Error State, and Success State sections.
+  - **Frontend Colors** — color pickers for the 11 admin-controllable `--bpar-*` CSS custom properties (primary, text, background, button text, star empty, error/success states), arranged in a compact 2-column grid grouped into Primary Accent, Text & Background, Stars, Error State, and Success State sections. Derived tones (hover, light, muted, border) are computed via CSS `color-mix()` and are not individually editable.
 
 ### 6. Verified Purchase Badge
 - Reviews from customers who have purchased the product display a **"Verified Purchase" badge** on their review card.
@@ -89,23 +89,23 @@ Accessible via WooCommerce > Advanced Reviews. Contains three main tabs:
 - **Admin control:** Toggle the feature on/off and select which order statuses count via **WooCommerce → Advanced Reviews → General → Verified Purchase**.
 - Core logic lives in `src/Verified/VerifiedPurchaseChecker.php` and `src/Verified/VerifiedPurchaseModule.php`.
 
-### 7. Theme-Aware Color System
-- All frontend colors inherit from the active WordPress theme's global styles (`theme.json`).
-- The plugin defines `--bpar-*` CSS custom properties in `:root` (see `style.scss`) that map to WP theme variables:
-  - `--bpar-primary` → `var(--wp--preset--color--primary, #21652F)`
-  - `--bpar-text` → `var(--wp--preset--color--contrast, #101010)`
-  - `--bpar-bg` → `var(--wp--preset--color--base, #fff)`
+### 7. Color System
+- **All colors are hardcoded plugin defaults** (not theme-dependent), so the front end always matches what the admin saves in the Styling tab.
+- The plugin defines `--bpar-*` CSS custom properties in `:root` (see `style.scss`):
+  - `--bpar-primary` → `#000000`
+  - `--bpar-text` → `#000000`
+  - `--bpar-bg` → `#FFFFFF`
+  - `--bpar-star-empty` → `#CFCFCF`
 - Derived tones (hover, light, muted, border) use CSS `color-mix()` from the primary color.
-- Semantic colors (error/success) are hardcoded and not theme-dependent.
-- Themes without `theme.json` get the hardcoded fallback values.
-- To override: set `--bpar-primary` (or any `--bpar-*` token) in custom CSS.
+- Semantic colors (star empty, button text, error/success) are hardcoded and not theme-dependent.
+- To override: set any `--bpar-*` token in custom CSS, or edit colors from the admin Styling tab.
 
 ### 8. Admin Color Control
 
-- All 18 `--bpar-*` CSS custom properties can be customized from **WooCommerce → Advanced Reviews → Styling**.
-- Admins can override every frontend color — primary, text, background, derived tones, star colors, error/success states — independently with a color picker.
+- The 11 admin-controllable colors can be customized from **WooCommerce → Advanced Reviews → Styling**: primary, text, background, button text, empty star, and error/success states.
+- Derived tones (primary-light/hover/hover-bg/dragover-bg, muted, border, border-dark) are **not** individually editable — they derive from primary/text/bg via CSS `color-mix()`.
 - Changes are saved to the `beplus_advanced_reviews_for_woocommerce_settings` option under the `colors` key and output as inline `<style>` in `<head>` via `StylingModule`.
-- When all colors match their defaults, no inline CSS is emitted — the plugin falls back to the existing theme-aware system from `style.css`.
+- When all colors match their defaults, no inline CSS is emitted — the plugin falls back to the defaults declared in `style.css` `:root`.
 - Core logic lives in `src/Styling/StylingModule.php`. Admin UI lives in `src/Settings/SettingsRegistry.php` (`render_styling_card()`).
 
 ## Files you usually touch

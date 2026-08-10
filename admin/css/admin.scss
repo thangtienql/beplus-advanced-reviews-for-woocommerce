@@ -302,36 +302,51 @@
 // =============================================
 // Color picker fields — Styling tab
 // =============================================
+
+// 2-column grid for color groups
+.bparfw-color-grid {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 1.25rem;
+	align-items: start;
+}
+
 .bparfw-color-group {
 	border: 1px solid #e0e0e0;
 	border-radius: 8px;
-	padding: 1.25rem 1.5rem;
-	margin-bottom: 1.25rem;
+	padding: 1rem 1.25rem;
+	margin-bottom: 0; // gap handles spacing in grid
 	background: #fafafa;
+
+	// Full-width group spanning both grid columns
+	&--wide {
+		grid-column: 1 / -1;
+	}
 }
 
 .bparfw-color-group__legend {
-	font-size: 14px;
+	font-size: 13px;
 	font-weight: 600;
 	color: #1d2327;
 	padding: 0 8px;
 }
 
 .bparfw-color-group__actions {
-	margin-top: 0.5rem;
+	margin-top: 1.25rem;
 	padding-top: 1rem;
 	border-top: 1px solid #e0e0e0;
 }
 
+// Compact single-row layout: label + controls on one line
 .bparfw-color-field {
 	display: flex;
-	align-items: flex-start;
-	gap: 1.5rem;
-	padding: 1rem 0 0.75rem;
+	align-items: center;
+	gap: 10px;
+	padding: 5px 0;
 	border-bottom: 1px solid #f0f0f1;
 
 	&:first-of-type {
-		padding-top: 0.5rem;
+		padding-top: 2px;
 	}
 
 	&:last-of-type {
@@ -342,28 +357,23 @@
 
 .bparfw-color-field__info {
 	flex: 1;
-	min-width: 180px;
+	min-width: 0;
 }
 
 .bparfw-color-field__label {
-	display: block;
-	font-size: 13px;
+	font-size: 12px;
 	font-weight: 600;
 	color: #1d2327;
-	margin-bottom: 2px;
 }
 
 .bparfw-color-field__desc {
-	margin: 0;
-	font-size: 12px;
-	color: #646970;
-	line-height: 1.4;
+	display: none; // hidden in compact layout
 }
 
 .bparfw-color-field__controls {
 	display: flex;
 	align-items: center;
-	gap: 10px;
+	gap: 8px;
 	flex-shrink: 0;
 }
 
@@ -381,9 +391,9 @@
 .bparfw-color-field__swatch {
 	position: relative;
 	display: inline-block;
-	width: 32px;
-	height: 32px;
-	border-radius: 8px;
+	width: 28px;
+	height: 28px;
+	border-radius: 6px;
 	border: 1px solid #c3c4c7;
 	background: #fff;
 	flex-shrink: 0;
@@ -403,13 +413,13 @@
 }
 
 .bparfw-color-field__hex {
-	width: 90px;
-	height: 32px;
-	padding: 4px 8px;
+	width: 82px;
+	height: 28px;
+	padding: 2px 6px;
 	border: 1px solid #8c8f94;
 	border-radius: 4px;
 	font-family: monospace;
-	font-size: 13px;
+	font-size: 12px;
 	text-align: center;
 	color: #1d2327;
 	text-transform: uppercase;
@@ -429,15 +439,15 @@
 }
 
 .bparfw-color-field__status {
-	min-width: 58px;
+	min-width: 54px;
 	text-align: center;
 }
 
 .bparfw-color-field__chip {
 	display: inline-block;
-	padding: 2px 8px;
+	padding: 1px 7px;
 	border-radius: 999px;
-	font-size: 11px;
+	font-size: 10px;
 	font-weight: 600;
 	text-transform: uppercase;
 	letter-spacing: 0.3px;
@@ -458,11 +468,11 @@
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
-	width: 28px;
-	height: 28px;
+	width: 26px;
+	height: 26px;
 	padding: 0;
 	border: 1px solid #c3c4c7;
-	border-radius: 6px;
+	border-radius: 5px;
 	background: #fff;
 	color: #50575e;
 	cursor: pointer;
@@ -481,15 +491,17 @@
 	}
 
 	&[hidden] {
-		display: none;
+		// Keep the button's layout slot so the controls column stays
+		// aligned across rows (visibility keeps space; display:none collapses it).
+		visibility: hidden;
+		pointer-events: none;
 	}
 }
 
 .bparfw-color-field__error {
-	margin: 4px 0 0;
-	font-size: 12px;
+	margin: 2px 0 0;
+	font-size: 11px;
 	color: #d63638;
-	grid-column: 2;
 
 	&[hidden] {
 		display: none;
@@ -497,19 +509,23 @@
 }
 
 // =============================================
-// Responsive adjustments for color fields
+// Responsive: single-column on small screens
 // =============================================
 @media (max-width: 782px) {
+	.bparfw-color-grid {
+		grid-template-columns: 1fr;
+	}
+
 	.bparfw-color-field {
-		flex-direction: column;
-		gap: 0.5rem;
+		flex-wrap: wrap;
+		gap: 6px;
 	}
 
 	.bparfw-color-field__info {
-		min-width: auto;
+		flex: 1 1 100%;
 	}
 
 	.bparfw-color-group {
-		padding: 1rem;
+		padding: 0.75rem 1rem;
 	}
 }

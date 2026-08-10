@@ -78,9 +78,9 @@ Reviews from customers who have actually purchased the product display a **"Veri
 
 ### 2.7 Admin Color Control
 
-Administrators can customize all 18 frontend color tokens from **WooCommerce → Advanced Reviews → Styling**.
+Administrators can customize the 11 admin-controllable frontend color tokens from **WooCommerce → Advanced Reviews → Styling**.
 
-- **Per-token color pickers:** Every `--bpar-*` CSS custom property (primary, text, background, derived tones, star colors, error/success states) has its own color picker with hex input.
+- **Per-token color pickers:** Each of the 11 editable colors (primary, text, background, button text, empty star, error/success states) has its own color picker with hex input. Derived tones (hover, light, muted, border) are computed via CSS `color-mix()` from the primary/text/bg colors and are **not** individually editable.
 - **Inline CSS injection:** `StylingModule` reads the `colors` settings array and outputs a `<style id="bparfw-custom-colors">` block at `wp_head` priority 1, overriding the default theme-aware colors.
 - **Default-aware:** When all colors match their defaults, no inline CSS is emitted — the existing `style.css` `:root` block handles styling entirely.
 - **Reset to defaults:** Individual per-field reset buttons and a global "Reset to Defaults" button allow quick reversion.
@@ -231,16 +231,16 @@ beplus-advanced-reviews-for-woocommerce/
 
 ### 4.1 CSS Theming Architecture
 
-The plugin uses a **theme-aware color system** — all frontend colors inherit from the active WordPress theme's global styles (`theme.json`). No hardcoded brand colors appear in the compiled CSS at runtime.
+The plugin uses **all-hardcoded default colors** — no theme-dependent tokens — so the front end always matches what the admin saves in the Styling tab.
 
 **How it works:**
 
-1. `_variables.scss` defines **fallback values only** (e.g., `$primary-fallback: #21652F`).
-2. `style.scss` declares `--bpar-*` CSS custom properties in `:root`, mapping each to a WP theme variable with the SCSS fallback:
+1. `_variables.scss` defines the plugin's **default colors** (e.g., `$primary-fallback: #000000`, `$text-fallback: #000000`).
+2. `style.scss` declares `--bpar-*` CSS custom properties in `:root`, all hardcoded:
    ```css
-   --bpar-primary: var(--wp--preset--color--primary, #21652F);
-   --bpar-text:    var(--wp--preset--color--contrast, #101010);
-   --bpar-bg:      var(--wp--preset--color--base, #fff);
+   --bpar-primary: #000000;
+   --bpar-text:    #000000;
+   --bpar-bg:      #FFFFFF;
    ```
 3. Derived tones (hover, light, muted, border) are computed via CSS `color-mix()`:
    ```css
@@ -249,20 +249,31 @@ The plugin uses a **theme-aware color system** — all frontend colors inherit f
    --bpar-border:        color-mix(in srgb, var(--bpar-primary) 15%, var(--bpar-bg));
    ```
 4. All SCSS partials (`_layout.scss`, `_review-card.scss`, etc.) reference only `var(--bpar-*)` — never raw SCSS color variables.
-5. **Semantic colors** (error/success) are hardcoded and not theme-dependent.
+5. **Semantic colors** (star empty, error/success, button text) are hardcoded and not theme-dependent.
 
-**Token reference:**
+**Token reference — admin-editable colors (11):**
 
 | Token | Maps to | Fallback |
 |-------|---------|----------|
-| `--bpar-primary` | `--wp--preset--color--primary` | `#21652F` |
-| `--bpar-text` | `--wp--preset--color--contrast` | `#101010` |
-| `--bpar-bg` | `--wp--preset--color--base` | `#fff` |
-| `--bpar-primary-light` | `color-mix(primary 12%, white)` | — |
-| `--bpar-primary-hover` | `color-mix(primary 90%, white)` | — |
-| `--bpar-muted` | `color-mix(text 55%, bg)` | — |
-| `--bpar-date-muted` | `color-mix(text 46%, bg)` | — |
-| `--bpar-border` | `color-mix(primary 15%, bg)` | — |
+| `--bpar-primary` | (hardcoded) | `#000000` |
+| `--bpar-text` | (hardcoded) | `#000000` |
+| `--bpar-bg` | (hardcoded) | `#FFFFFF` |
+| `--bpar-button-text` | (hardcoded) | `#ffffff` |
+| `--bpar-star-empty` | (hardcoded) | `#CFCFCF` |
+| `--bpar-error-bg` / `--bpar-error-text` / `--bpar-error-border` | (hardcoded) | `#f8d7da` / `#721c24` / `#f5c6cb` |
+| `--bpar-success-bg` / `--bpar-success-text` / `--bpar-success-border` | (hardcoded) | `#d4edda` / `#155724` / `#c3e6cb` |
+
+**Derived tones (not admin-editable, computed via `color-mix()`):**
+
+| Token | Computed from |
+|-------|---------------|
+| `--bpar-primary-light` | `color-mix(primary 12%, white)` |
+| `--bpar-primary-hover` | `color-mix(primary 90%, white)` |
+| `--bpar-primary-hover-bg` | `color-mix(primary 5%, white)` |
+| `--bpar-primary-dragover-bg` | `color-mix(primary 8%, white)` |
+| `--bpar-muted` | `color-mix(text 55%, bg)` |
+| `--bpar-border` | `color-mix(primary 15%, bg)` |
+| `--bpar-border-dark` | `color-mix(border 85%, black)` |
 
 **To customize:** override any `--bpar-*` token in your theme's custom CSS or `theme.json`:
 ```css

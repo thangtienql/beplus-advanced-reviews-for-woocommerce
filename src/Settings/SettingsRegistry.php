@@ -367,7 +367,9 @@ class SettingsRegistry extends AbstractModule {
 		$colors    = $settings['colors'] ?? array();
 		$value     = $colors[ $key ] ?? $defaults[ $key ] ?? '#000000';
 		$default   = $defaults[ $key ] ?? '#000000';
-		$is_custom = ( $value !== $default );
+		// Compare case-insensitively: sanitize_settings() uppercases stored
+		// colors, while get_defaults() uses mixed case for some keys.
+		$is_custom = ( strtoupper( $value ) !== strtoupper( $default ) );
 		$field_name = esc_attr( self::OPTION_KEY . '[colors][' . $key . ']' );
 		$field_id   = 'bparfw-color-' . esc_attr( $key );
 		?>
@@ -410,32 +412,12 @@ class SettingsRegistry extends AbstractModule {
 			<h2 class="bparfw-settings__card-title"><?php echo esc_html__( 'Frontend Colors', 'beplus-advanced-reviews-for-woocommerce' ); ?></h2>
 			<p class="description" style="margin-bottom:1.25rem;"><?php echo esc_html__( 'Customize every color used on the front-end review display. Leave a color at its default to keep the theme-aware styling.', 'beplus-advanced-reviews-for-woocommerce' ); ?></p>
 
+			<div class="bparfw-color-grid">
+
 			<fieldset class="bparfw-color-group">
 				<legend class="bparfw-color-group__legend"><?php echo esc_html__( 'Primary Accent', 'beplus-advanced-reviews-for-woocommerce' ); ?></legend>
 				<?php
-				$this->render_color_field( 'primary', __( 'Primary Color', 'beplus-advanced-reviews-for-woocommerce' ), __( 'Main accent color used for stars, buttons, and links.', 'beplus-advanced-reviews-for-woocommerce' ), $settings, $defaults );
-				$this->render_color_field( 'primary_light', __( 'Primary Light', 'beplus-advanced-reviews-for-woocommerce' ), __( 'Light tint of the primary color, used for subtle backgrounds.', 'beplus-advanced-reviews-for-woocommerce' ), $settings, $defaults );
-				$this->render_color_field( 'primary_hover', __( 'Primary Hover', 'beplus-advanced-reviews-for-woocommerce' ), __( 'Slightly lighter primary for hover states on buttons and links.', 'beplus-advanced-reviews-for-woocommerce' ), $settings, $defaults );
-				$this->render_color_field( 'primary_hover_bg', __( 'Primary Hover Background', 'beplus-advanced-reviews-for-woocommerce' ), __( 'Very light primary tint for hover backgrounds on cards.', 'beplus-advanced-reviews-for-woocommerce' ), $settings, $defaults );
-				$this->render_color_field( 'primary_dragover_bg', __( 'Primary Dragover Background', 'beplus-advanced-reviews-for-woocommerce' ), __( 'Background color shown during drag-and-drop file uploads.', 'beplus-advanced-reviews-for-woocommerce' ), $settings, $defaults );
-				?>
-			</fieldset>
-
-			<fieldset class="bparfw-color-group">
-				<legend class="bparfw-color-group__legend"><?php echo esc_html__( 'Text & Background', 'beplus-advanced-reviews-for-woocommerce' ); ?></legend>
-				<?php
-				$this->render_color_field( 'text', __( 'Text Color', 'beplus-advanced-reviews-for-woocommerce' ), __( 'Main text color for review content and labels.', 'beplus-advanced-reviews-for-woocommerce' ), $settings, $defaults );
-				$this->render_color_field( 'bg', __( 'Background Color', 'beplus-advanced-reviews-for-woocommerce' ), __( 'Background color for cards and panels.', 'beplus-advanced-reviews-for-woocommerce' ), $settings, $defaults );
-				$this->render_color_field( 'button_text', __( 'Button Text', 'beplus-advanced-reviews-for-woocommerce' ), __( 'Text color for Submit, Load More, and action buttons.', 'beplus-advanced-reviews-for-woocommerce' ), $settings, $defaults );
-				?>
-			</fieldset>
-
-			<fieldset class="bparfw-color-group">
-				<legend class="bparfw-color-group__legend"><?php echo esc_html__( 'Derived Tones', 'beplus-advanced-reviews-for-woocommerce' ); ?></legend>
-				<?php
-				$this->render_color_field( 'muted', __( 'Muted Text', 'beplus-advanced-reviews-for-woocommerce' ), __( 'Secondary text for descriptions and helper copy.', 'beplus-advanced-reviews-for-woocommerce' ), $settings, $defaults );
-				$this->render_color_field( 'border', __( 'Border Color', 'beplus-advanced-reviews-for-woocommerce' ), __( 'Border color for cards, inputs, and dividers.', 'beplus-advanced-reviews-for-woocommerce' ), $settings, $defaults );
-				$this->render_color_field( 'border_dark', __( 'Border Dark', 'beplus-advanced-reviews-for-woocommerce' ), __( 'Darker border for focus states and emphasis.', 'beplus-advanced-reviews-for-woocommerce' ), $settings, $defaults );
+				$this->render_color_field( 'primary', __( 'Primary Color', 'beplus-advanced-reviews-for-woocommerce' ), __( 'Main accent color used for stars, buttons, links, borders and derived tones.', 'beplus-advanced-reviews-for-woocommerce' ), $settings, $defaults );
 				?>
 			</fieldset>
 
@@ -443,6 +425,15 @@ class SettingsRegistry extends AbstractModule {
 				<legend class="bparfw-color-group__legend"><?php echo esc_html__( 'Stars', 'beplus-advanced-reviews-for-woocommerce' ); ?></legend>
 				<?php
 				$this->render_color_field( 'star_empty', __( 'Empty Star', 'beplus-advanced-reviews-for-woocommerce' ), __( 'Color for unfilled stars in the rating display.', 'beplus-advanced-reviews-for-woocommerce' ), $settings, $defaults );
+				?>
+			</fieldset>
+
+			<fieldset class="bparfw-color-group">
+				<legend class="bparfw-color-group__legend"><?php echo esc_html__( 'Text & Background', 'beplus-advanced-reviews-for-woocommerce' ); ?></legend>
+				<?php
+				$this->render_color_field( 'text', __( 'Text Color', 'beplus-advanced-reviews-for-woocommerce' ), __( 'Main text color for review content, labels, dates, and select dropdowns.', 'beplus-advanced-reviews-for-woocommerce' ), $settings, $defaults );
+				$this->render_color_field( 'bg', __( 'Background Color', 'beplus-advanced-reviews-for-woocommerce' ), __( 'Background color for cards, panels, and inputs.', 'beplus-advanced-reviews-for-woocommerce' ), $settings, $defaults );
+				$this->render_color_field( 'button_text', __( 'Button Text', 'beplus-advanced-reviews-for-woocommerce' ), __( 'Text color for Submit, Load More, and Write a Review buttons.', 'beplus-advanced-reviews-for-woocommerce' ), $settings, $defaults );
 				?>
 			</fieldset>
 
@@ -455,7 +446,7 @@ class SettingsRegistry extends AbstractModule {
 				?>
 			</fieldset>
 
-			<fieldset class="bparfw-color-group">
+			<fieldset class="bparfw-color-group bparfw-color-group--wide">
 				<legend class="bparfw-color-group__legend"><?php echo esc_html__( 'Success State', 'beplus-advanced-reviews-for-woocommerce' ); ?></legend>
 				<?php
 				$this->render_color_field( 'success_bg', __( 'Success Background', 'beplus-advanced-reviews-for-woocommerce' ), __( 'Background color for success messages.', 'beplus-advanced-reviews-for-woocommerce' ), $settings, $defaults );
@@ -463,6 +454,7 @@ class SettingsRegistry extends AbstractModule {
 				$this->render_color_field( 'success_border', __( 'Success Border', 'beplus-advanced-reviews-for-woocommerce' ), __( 'Border color for success states.', 'beplus-advanced-reviews-for-woocommerce' ), $settings, $defaults );
 				?>
 			</fieldset>
+			</div>
 
 			<div class="bparfw-color-group__actions">
 				<button type="button" class="button button-secondary" id="bparfw-reset-colors"><?php echo esc_html__( 'Reset to Defaults', 'beplus-advanced-reviews-for-woocommerce' ); ?></button>
@@ -587,18 +579,11 @@ class SettingsRegistry extends AbstractModule {
 			'enable_verified'   => true,
 			'verified_statuses' => 'completed_processing',
 			'colors'            => array(
-				'primary'             => '#21652F',
-				'primary_light'       => '#e9f3eb',
-				'primary_hover'       => '#3a7a47',
-				'primary_hover_bg'    => '#f2f8f3',
-				'primary_dragover_bg' => '#e4efe6',
-				'text'                => '#101010',
-				'bg'                  => '#ffffff',
+				'primary'             => '#000000',
+				'text'                => '#000000',
+				'bg'                  => '#FFFFFF',
 				'button_text'        => '#ffffff',
-				'muted'               => '#8e8e8e',
-				'border'              => '#e0e6e1',
-				'border_dark'         => '#bdc4be',
-				'star_empty'          => '#cccccc',
+				'star_empty'          => '#CFCFCF',
 				'error_bg'            => '#f8d7da',
 				'error_text'          => '#721c24',
 				'error_border'        => '#f5c6cb',

@@ -34,6 +34,7 @@ function beplus_advanced_reviews_for_woocommerce_get_settings(): array {
 		'max_video_size_mb' => 20,
 		'enable_verified'   => true,
 		'verified_statuses' => 'completed_processing',
+		'colors'            => array(),
 	);
 
 	$saved = get_option( 'beplus_advanced_reviews_for_woocommerce_settings', array() );

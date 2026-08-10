@@ -1,18 +1,18 @@
 // ==========================================================================
-// Fallback defaults — used ONLY as fallback values in style.scss :root.
-// Actual runtime colors are resolved via CSS custom properties that
-// inherit from the active WordPress theme's global styles (theme.json).
+// Default colors — used in style.scss :root.
+// All colors are hardcoded plugin defaults (not theme-dependent), so the
+// front-end always matches what the admin saves in the Styling tab.
 // ==========================================================================
 
-// --- Primary accent ---
-$primary-fallback: #21652F;
+// --- Primary accent (hardcoded default) ---
+$primary-fallback: #000000;
 
-// --- Text & background ---
-$text-fallback: #101010;
-$bg-fallback: #fff;
+// --- Text & background (hardcoded) ---
+$text-fallback: #000000;
+$bg-fallback: #FFFFFF;
 
 // --- Semantic (not theme-dependent, hardcoded) ---
-$star-empty: #ccc;
+$star-empty: #CFCFCF;
 $error-bg: #f8d7da;
 $error-text: #721c24;
 $error-border: #f5c6cb;
