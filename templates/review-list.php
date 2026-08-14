@@ -12,7 +12,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 // phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Template file; variables are local to the included scope.
 $product_id  = $args['product_id'] ?? 0;
 $show_avatar = ! empty( $args['show_avatar'] );
-$show_images = ! empty( $args['show_images'] );
+$show_media  = ! empty( $args['show_media'] );
+if ( ! $show_media && isset( $args['show_images'] ) ) {
+	$show_media = ! empty( $args['show_images'] );
+}
+$rating_threshold = absint( $args['rating_threshold'] ?? 0 );
 
 if ( ! $product_id ) {
 	return;
@@ -20,7 +24,10 @@ if ( ! $product_id ) {
 
 $repository = new \BeplusAdvancedReviewsForWoocommerce\Reviews\ReviewRepository();
 $per_page   = ! empty( $args['per_page'] ) ? absint( $args['per_page'] ) : beplus_advanced_reviews_for_woocommerce_get_load_more_count();
-$result     = $repository->get_reviews( $product_id, array( 'per_page' => $per_page ) );
+$result     = $repository->get_reviews( $product_id, array(
+	'per_page'         => $per_page,
+	'rating_threshold' => $rating_threshold,
+) );
 $reviews    = $result['reviews'] ?? array();
 
 if ( empty( $reviews ) ) {
@@ -36,6 +43,6 @@ foreach ( $formatted as $review ) {
 	beplus_advanced_reviews_for_woocommerce_get_template( 'review-card.php', array(
 		'review'      => $review,
 		'show_avatar' => $show_avatar,
-		'show_images' => $show_images,
+		'show_media'  => $show_media,
 	) );
 }

@@ -161,9 +161,8 @@ function beplus_advanced_reviews_for_woocommerce_get_block_instance(): ?string {
 	$settings = beplus_advanced_reviews_for_woocommerce_get_settings();
 
 	$attrs = wp_json_encode( array(
-		'reviewsPerLoad' => absint( $settings['load_more_count'] ?? 10 ),
-		'showFilterBar'  => ! empty( $settings['enable_filter'] ),
-		'showImages'     => ! empty( $settings['enable_images'] ),
+		'showFilterBar' => ! empty( $settings['enable_filter'] ),
+		'showMedia'     => ! empty( $settings['enable_images'] ) || ! empty( $settings['enable_videos'] ),
 	) );
 
 	$block_content = sprintf(

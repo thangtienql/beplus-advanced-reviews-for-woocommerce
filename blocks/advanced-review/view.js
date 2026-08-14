@@ -186,7 +186,7 @@
 				html += '</div>';
 				html += '<div class="beplus-advanced-reviews-for-woocommerce__review-content">' + review.content + '</div>';
 
-				if ( block.dataset.showImages !== '0' && review.has_images && review.images.length ) {
+				if ( block.dataset.showMedia !== '0' && review.has_images && review.images.length ) {
 					var mediaData = review.images.map( function ( m ) {
 						return { url: m.url, thumbnail: m.thumbnail || m.url, mime_type: m.mime_type || '' };
 					} );
@@ -794,7 +794,7 @@
 		html += '</div>';
 		html += '<div class="beplus-advanced-reviews-for-woocommerce__review-content">' + review.content + '</div>';
 
-		if ( block.dataset.showImages !== '0' && review.has_images && review.images.length ) {
+		if ( block.dataset.showMedia !== '0' && review.has_images && review.images.length ) {
 			var mediaData = review.images.map( function ( m ) {
 				return { url: m.url, thumbnail: m.thumbnail || m.url, mime_type: m.mime_type || '' };
 			} );

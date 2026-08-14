@@ -29,13 +29,24 @@ if ( ! $product_id ) {
 $show_distribution = ! empty( $attributes['showDistribution'] );
 $show_filter_bar   = ! empty( $attributes['showFilterBar'] ) && beplus_advanced_reviews_for_woocommerce_is_filter_enabled();
 $show_submit_form  = ! empty( $attributes['showSubmitForm'] );
-$show_images       = ! empty( $attributes['showImages'] );
 $show_avatar       = ! empty( $attributes['showAvatar'] );
-$show_verified_filter = ! empty( $attributes['showVerifiedFilter'] ) && beplus_advanced_reviews_for_woocommerce_is_verified_enabled();
+$images_enabled    = beplus_advanced_reviews_for_woocommerce_is_images_enabled();
+$videos_enabled    = beplus_advanced_reviews_for_woocommerce_is_videos_enabled();
+$media_enabled     = $images_enabled || $videos_enabled;
+
+// Resolve media visibility: new `showMedia` attribute, with backward-compat
+// fallback to the deprecated `showImages` attribute for previously-saved blocks.
+$show_media = ! empty( $attributes['showMedia'] );
+if ( isset( $attributes['showImages'] ) && ! $attributes['showImages'] ) {
+	$show_media = false;
+}
+
+$show_verified_filter = $show_filter_bar
+	&& ! empty( $attributes['showVerifiedFilter'] )
+	&& beplus_advanced_reviews_for_woocommerce_is_verified_enabled();
 $show_sort         = beplus_advanced_reviews_for_woocommerce_is_sort_enabled();
-$reviews_per_load  = isset( $attributes['reviewsPerLoad'] ) && $attributes['reviewsPerLoad'] > 0
-	? absint( $attributes['reviewsPerLoad'] )
-	: beplus_advanced_reviews_for_woocommerce_get_load_more_count();
+$reviews_per_load  = beplus_advanced_reviews_for_woocommerce_get_load_more_count();
+$rating_threshold  = (int) ( beplus_advanced_reviews_for_woocommerce_get_settings()['rating_threshold'] ?? 0 );
 $enable_lazy_load  = ! empty( $attributes['enableLazyLoad'] );
 
 $wrapper_attrs = get_block_wrapper_attributes(
@@ -44,7 +55,7 @@ $wrapper_attrs = get_block_wrapper_attributes(
 		'data-product-id'  => (string) $product_id,
 		'data-per-page'    => (string) $reviews_per_load,
 		'data-show-avatar' => $show_avatar ? '1' : '0',
-		'data-show-images' => $show_images ? '1' : '0',
+		'data-show-media'  => $show_media ? '1' : '0',
 		'data-enable-lazy' => $enable_lazy_load ? '1' : '0',
 	)
 );
@@ -97,7 +108,7 @@ $wrapper_attrs = get_block_wrapper_attributes(
 				</div>
 			<?php endif; ?>
 
-			<?php if ( $show_sort ) : ?>
+			<?php if ( $show_sort && $show_filter_bar ) : ?>
 				<div class="beplus-advanced-reviews-for-woocommerce__filter-sort">
 					<label for="bpar-sort-select" class="beplus-advanced-reviews-for-woocommerce__filter-label">
 						<?php esc_html_e( 'Sort by:', 'beplus-advanced-reviews-for-woocommerce' ); ?>
@@ -117,15 +128,24 @@ $wrapper_attrs = get_block_wrapper_attributes(
 			<?php endif; ?>
 			</div>
 
-			<?php if ( ( $show_filter_bar && $show_images ) || $show_verified_filter ) : ?>
+			<?php if ( ( $show_filter_bar && $show_media && $media_enabled ) || $show_verified_filter ) : ?>
 			<div class="beplus-advanced-reviews-for-woocommerce__filter-controls-right">
-			<?php if ( $show_filter_bar && $show_images ) : ?>
+			<?php if ( $show_media && $media_enabled ) : ?>
+				<?php
+				if ( $images_enabled && $videos_enabled ) {
+					$media_filter_label = __( 'With media attached only', 'beplus-advanced-reviews-for-woocommerce' );
+				} elseif ( $videos_enabled ) {
+					$media_filter_label = __( 'With videos only', 'beplus-advanced-reviews-for-woocommerce' );
+				} else {
+					$media_filter_label = __( 'With images only', 'beplus-advanced-reviews-for-woocommerce' );
+				}
+				?>
 				<button type="button"
 					class="beplus-advanced-reviews-for-woocommerce__filter-chip"
 					data-filter="images"
 					aria-pressed="false">
 					<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-					<span><?php esc_html_e( 'With images', 'beplus-advanced-reviews-for-woocommerce' ); ?></span>
+					<span><?php echo esc_html( $media_filter_label ); ?></span>
 				</button>
 			<?php endif; ?>
 
@@ -144,7 +164,7 @@ $wrapper_attrs = get_block_wrapper_attributes(
 
 			<div class="beplus-advanced-reviews-for-woocommerce__list-container" aria-live="polite">
 				<div class="beplus-advanced-reviews-for-woocommerce__list">
-					<?php beplus_advanced_reviews_for_woocommerce_get_template( 'review-list.php', array( 'product_id' => $product_id, 'show_avatar' => $show_avatar, 'show_images' => $show_images, 'per_page' => $reviews_per_load ) ); ?>
+					<?php beplus_advanced_reviews_for_woocommerce_get_template( 'review-list.php', array( 'product_id' => $product_id, 'show_avatar' => $show_avatar, 'show_media' => $show_media, 'per_page' => $reviews_per_load, 'rating_threshold' => $rating_threshold ) ); ?>
 				</div>
 
 				<div class="beplus-advanced-reviews-for-woocommerce__load-more-wrapper">
@@ -156,7 +176,7 @@ $wrapper_attrs = get_block_wrapper_attributes(
 			</div>
 
 			<?php if ( $show_submit_form ) : ?>
-				<?php beplus_advanced_reviews_for_woocommerce_get_template( 'review-form.php', array( 'product_id' => $product_id, 'show_images' => $show_images ) ); ?>
+				<?php beplus_advanced_reviews_for_woocommerce_get_template( 'review-form.php', array( 'product_id' => $product_id, 'show_media' => $show_media ) ); ?>
 			<?php endif; ?>
 		</div>
 	</div>

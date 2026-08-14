@@ -40,7 +40,7 @@
 | 🔃 **Sort Controls** | Sort reviews by date (newest/oldest) or rating (highest/lowest) |
 | ♾️ **Load More (AJAX)** | Paginated review list with a Load More button, powered by REST API |
 | 🖼️ **Lightbox** | Full-size image & video preview in an accessible lightbox overlay |
-| 🧩 **Gutenberg Block** | Drag-and-drop `Advanced Reviews` block, auto-applied to Single Product pages on activation |
+| 🧩 **Gutenberg Block** | Drag-and-drop `Advanced Reviews` block for Single Product templates (FSE / Site Editor) |
 | ⚙️ **Display Modes** | *Keep default* (manual placement) or *Replace default* (auto-override WooCommerce reviews) |
 | ♿ **Accessible** | WCAG 2.1 AA — keyboard navigable, focus management, `aria-live` regions, `prefers-reduced-motion` support |
 
@@ -84,7 +84,7 @@ npm run build
 
 Then activate the plugin from **Plugins** in the WordPress admin.
 
-> **Note:** The `Advanced Reviews` block is automatically applied to all Single Product pages upon activation. You can also place it manually in the Site Editor.
+> **Note:** To show the `Advanced Reviews` block on Single Product pages, either place it manually in the Site Editor or set the display mode to *Replace default reviews* under **WooCommerce → Advanced Reviews → General → Display Settings**.
 
 ---
 

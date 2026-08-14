@@ -11,7 +11,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 // phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Template file; variables are local to the included scope.
 $product_id  = $args['product_id'] ?? 0;
-$show_images = ! empty( $args['show_images'] );
+$show_media  = ! empty( $args['show_media'] );
+if ( ! $show_media && isset( $args['show_images'] ) ) {
+	$show_media = ! empty( $args['show_images'] );
+}
 $paste_enabled = beplus_advanced_reviews_for_woocommerce_is_paste_enabled();
 $images_enabled = beplus_advanced_reviews_for_woocommerce_is_images_enabled();
 $videos_enabled = beplus_advanced_reviews_for_woocommerce_is_videos_enabled();
@@ -73,7 +76,7 @@ $user = wp_get_current_user();
 			aria-label="<?php esc_attr_e( 'Review content', 'beplus-advanced-reviews-for-woocommerce' ); ?>"
 		></textarea>
 
-		<?php if ( $show_images && ( $images_enabled || $videos_enabled ) ) : ?>
+		<?php if ( $show_media && ( $images_enabled || $videos_enabled ) ) : ?>
 			<div class="beplus-advanced-reviews-for-woocommerce__media-preview" style="display:none;"></div>
 
 			<?php

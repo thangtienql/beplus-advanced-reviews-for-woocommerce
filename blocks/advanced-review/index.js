@@ -11,7 +11,6 @@
 	var useBlockProps = wp.blockEditor.useBlockProps;
 	var PanelBody = wp.components.PanelBody;
 	var ToggleControl = wp.components.ToggleControl;
-	var RangeControl = wp.components.RangeControl;
 	var el = wp.element.createElement;
 	var __ = wp.i18n.__;
 
@@ -27,10 +26,10 @@
 			showDistribution: { type: 'boolean', default: true },
 			showFilterBar: { type: 'boolean', default: true },
 			showSubmitForm: { type: 'boolean', default: true },
-			showImages: { type: 'boolean', default: true },
+			showMedia: { type: 'boolean', default: true },
 			showAvatar: { type: 'boolean', default: true },
-			reviewsPerLoad: { type: 'number', default: 10 },
-			enableLazyLoad: { type: 'boolean', default: true }
+			enableLazyLoad: { type: 'boolean', default: true },
+			showVerifiedFilter: { type: 'boolean', default: true }
 		},
 		supports: { html: false, align: ['wide', 'full'] }
 	};
@@ -73,21 +72,19 @@
 							onChange: function ( val ) { setAttributes( { showSubmitForm: val } ); }
 						} ),
 						el( ToggleControl, {
-							label: __( 'Show images in reviews', 'beplus-advanced-reviews-for-woocommerce' ),
-							checked: attributes.showImages,
-							onChange: function ( val ) { setAttributes( { showImages: val } ); }
+							label: __( 'Show media in reviews', 'beplus-advanced-reviews-for-woocommerce' ),
+							checked: attributes.showMedia,
+							onChange: function ( val ) { setAttributes( { showMedia: val } ); }
 						} ),
 						el( ToggleControl, {
 							label: __( 'Show reviewer avatar', 'beplus-advanced-reviews-for-woocommerce' ),
 							checked: attributes.showAvatar,
 							onChange: function ( val ) { setAttributes( { showAvatar: val } ); }
 						} ),
-						el( RangeControl, {
-							label: __( 'Reviews per load', 'beplus-advanced-reviews-for-woocommerce' ),
-							value: attributes.reviewsPerLoad,
-							onChange: function ( val ) { setAttributes( { reviewsPerLoad: val } ); },
-							min: 1,
-							max: 50
+						el( ToggleControl, {
+							label: __( 'Show verified purchase filter', 'beplus-advanced-reviews-for-woocommerce' ),
+							checked: attributes.showVerifiedFilter,
+							onChange: function ( val ) { setAttributes( { showVerifiedFilter: val } ); }
 						} ),
 						el( ToggleControl, {
 							label: __( 'Enable lazy load', 'beplus-advanced-reviews-for-woocommerce' ),

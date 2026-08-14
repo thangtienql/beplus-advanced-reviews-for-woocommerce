@@ -74,7 +74,8 @@ class Placement extends AbstractModule {
 	/**
 	 * Check if the Advanced Reviews block is already present on the page.
 	 *
-	 * Checks both already-rendered instances (static flag) and raw post content.
+	 * Checks already-rendered instances (static flag), raw post content, and the
+	 * active Single Product block template (FSE / Site Editor).
 	 */
 	private function is_block_already_present(): bool {
 		if ( self::$rendered ) {
@@ -84,6 +85,16 @@ class Placement extends AbstractModule {
 		$post = get_post();
 		if ( $post instanceof \WP_Post && has_block( self::BLOCK_NAME, $post->post_content ) ) {
 			return true;
+		}
+
+		if ( function_exists( 'get_block_template' ) ) {
+			$template = get_block_template( get_stylesheet() . '//single-product' );
+			if ( ! $template ) {
+				$template = get_block_template( get_stylesheet() . '//single' );
+			}
+			if ( $template && has_block( self::BLOCK_NAME, $template->content ) ) {
+				return true;
+			}
 		}
 
 		return false;

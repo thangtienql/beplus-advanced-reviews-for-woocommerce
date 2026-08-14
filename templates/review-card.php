@@ -12,7 +12,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 // phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Template file; variables are local to the included scope.
 $review        = $args['review'] ?? array();
 $show_avatar   = ! empty( $args['show_avatar'] );
-$show_images   = ! empty( $args['show_images'] );
+$show_media    = ! empty( $args['show_media'] );
+if ( ! $show_media && isset( $args['show_images'] ) ) {
+	$show_media = ! empty( $args['show_images'] );
+}
 $rating        = (int) ( $review['rating'] ?? 0 );
 $author        = esc_html( $review['author'] ?? '' );
 $author_init   = mb_substr( $author, 0, 1 );
@@ -50,7 +53,7 @@ $is_verified   = ! empty( $review['is_verified'] );
 			</span>
 		</div>
 		<div class="beplus-advanced-reviews-for-woocommerce__review-content"><?php echo $content; // phpcs:ignore ?></div>
-		<?php if ( $show_images && $images ) : ?>
+		<?php if ( $show_media && $images ) : ?>
 			<?php
 			$media_json = wp_json_encode(
 				array_map(

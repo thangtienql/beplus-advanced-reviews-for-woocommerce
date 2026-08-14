@@ -11,9 +11,9 @@
 		"showDistribution": { "type": "boolean", "default": true },
 		"showFilterBar":    { "type": "boolean", "default": true },
 		"showSubmitForm":   { "type": "boolean", "default": true },
-		"showImages":       { "type": "boolean", "default": true },
+		"showMedia":        { "type": "boolean", "default": true },
+		"showImages":       { "type": "boolean" },
 		"showAvatar":       { "type": "boolean", "default": true },
-		"reviewsPerLoad":   { "type": "number",  "default": 10 },
 		"enableLazyLoad":   { "type": "boolean", "default": true },
 		"showVerifiedFilter": { "type": "boolean", "default": true }
 	},

@@ -9,7 +9,6 @@ import { InspectorControls, useBlockProps } from '@wordpress/block-editor';
 import {
 	PanelBody,
 	ToggleControl,
-	RangeControl,
 } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import blockJson from './block.json';
@@ -21,9 +20,8 @@ registerBlockType( blockJson.name, {
 			showDistribution,
 			showFilterBar,
 			showSubmitForm,
-			showImages,
+			showMedia,
 			showAvatar,
-			reviewsPerLoad,
 			enableLazyLoad,
 			showVerifiedFilter,
 		} = attributes;
@@ -52,9 +50,9 @@ registerBlockType( blockJson.name, {
 							onChange={ ( val ) => setAttributes( { showSubmitForm: val } ) }
 						/>
 						<ToggleControl
-							label={ __( 'Show images in reviews', 'beplus-advanced-reviews-for-woocommerce' ) }
-							checked={ showImages }
-							onChange={ ( val ) => setAttributes( { showImages: val } ) }
+							label={ __( 'Show media in reviews', 'beplus-advanced-reviews-for-woocommerce' ) }
+							checked={ showMedia }
+							onChange={ ( val ) => setAttributes( { showMedia: val } ) }
 						/>
 						<ToggleControl
 							label={ __( 'Show reviewer avatar', 'beplus-advanced-reviews-for-woocommerce' ) }
@@ -65,13 +63,6 @@ registerBlockType( blockJson.name, {
 							label={ __( 'Show verified purchase filter', 'beplus-advanced-reviews-for-woocommerce' ) }
 							checked={ showVerifiedFilter }
 							onChange={ ( val ) => setAttributes( { showVerifiedFilter: val } ) }
-						/>
-						<RangeControl
-							label={ __( 'Reviews per load', 'beplus-advanced-reviews-for-woocommerce' ) }
-							value={ reviewsPerLoad }
-							onChange={ ( val ) => setAttributes( { reviewsPerLoad: val } ) }
-							min={ 1 }
-							max={ 50 }
 						/>
 						<ToggleControl
 							label={ __( 'Enable lazy load', 'beplus-advanced-reviews-for-woocommerce' ) }

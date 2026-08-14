@@ -31,7 +31,7 @@ The plugin upgrades WooCommerce product reviews with a modern, AJAX-driven inter
 
 ### 2.1 Primary Block — `advanced-review`
 
-A drag-and-drop Gutenberg block that renders the full review experience. **Automatically applied to all Single Product pages** on activation. Users can also manually place the block in any template.
+A drag-and-drop Gutenberg block that renders the full review experience. The **Replace default reviews** display mode auto-overrides WooCommerce reviews via `src/Core/Placement.php`. Users can also manually place the block in any template.
 
 ### 2.2 Block Output (Frontend)
 

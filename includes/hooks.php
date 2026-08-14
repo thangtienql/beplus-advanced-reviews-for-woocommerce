@@ -9,41 +9,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-add_action( 'init', 'beplus_advanced_reviews_for_woocommerce_register_block_template' );
-
-/**
- * Register block template for Single Product pages.
- *
- * @return void
- */
-function beplus_advanced_reviews_for_woocommerce_register_block_template(): void {
-	if ( ! function_exists( 'register_block_template' ) ) {
-		return;
-	}
-
-	$post_type = get_post_type_object( 'product' );
-	if ( ! $post_type ) {
-		return;
-	}
-
-	$template_content = array(
-		array(
-			'beplus-advanced-reviews/advanced-review',
-			array(
-				'showDistribution' => true,
-				'showFilterBar'    => true,
-				'showSubmitForm'   => true,
-				'showImages'       => true,
-				'showAvatar'       => true,
-				'reviewsPerLoad'   => beplus_advanced_reviews_for_woocommerce_get_load_more_count(),
-				'enableLazyLoad'   => true,
-			),
-		),
-	);
-
-	$post_type->template = $template_content;
-}
-
 /**
  * Return SVG star icon markup.
  *

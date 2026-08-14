@@ -19,7 +19,7 @@ Long-form context stays in this file and in `Document Plugin.md`; avoid duplicat
 ## What this plugin is
 
 - **WordPress plugin:** Advanced WooCommerce product reviews with image support, star distribution, AJAX filtering, load more, verified purchase badges, and admin-controlled frontend color customization.
-- **Primary block:** `advanced-review` — a Gutenberg block designed to be dropped into the WooCommerce single product template (FSE / Site Editor). Automatically applied to all Single Product pages on activation.
+- **Primary block:** `advanced-review` — a Gutenberg block designed to be dropped into the WooCommerce single product template (FSE / Site Editor). The "Replace default reviews" display mode auto-overrides WooCommerce reviews via `src/Core/Placement.php`.
 - **Architecture:** Container-based boot via `BeplusAdvancedReviewsForWoocommerce\Core\Plugin`; modules extend `AbstractModule` and register hooks in `register()`.
 - **Stack:** PHP 7.4+ (8.0+ recommended), PSR-4 autoload under `src/`, **esbuild + JavaScript/TypeScript** for admin and blocks, procedural helpers in `includes/` when needed.
 - **Target:** WordPress 6.0+, WooCommerce 7.0+.
