@@ -43,7 +43,39 @@ class MediaHandler extends AbstractModule {
 	 * @return array<int, int> Attachment IDs.
 	 */
 	public function upload_files( int $comment_id, array $files ): array {
-		if ( ! beplus_advanced_reviews_for_woocommerce_is_images_enabled() && ! beplus_advanced_reviews_for_woocommerce_is_videos_enabled() ) {
+		return $this->upload_review_media( $comment_id, $this->normalize_request_files( array( $files ) ) );
+	}
+
+	/**
+	 * Flatten multipart file fields while preserving their submitted order.
+	 *
+	 * @param array<string|int, array<string, mixed>> $file_params Multipart fields.
+	 * @return array<int, array<string, mixed>>
+	 */
+	public function normalize_request_files( array $file_params ): array {
+		$files = array();
+		foreach ( $file_params as $field ) {
+			if ( ! empty( $field['name'] ) ) {
+				$files = array_merge( $files, $this->normalize_files_array( $field ) );
+			}
+		}
+		return $files;
+	}
+
+	/**
+	 * Append media in preview order. Return only successfully linked IDs.
+	 *
+	 * @param int                             $comment_id Review ID.
+	 * @param array<int, array<string, mixed>> $files Normalized files.
+	 * @param string                          $paste_image Optional pasted image.
+	 * @param int|null                        $paste_position Position in the combined list.
+	 * @return array<int, int>
+	 */
+	public function upload_review_media( int $comment_id, array $files, string $paste_image = '', ?int $paste_position = null ): array {
+		if ( '' !== $paste_image ) {
+			array_splice( $files, $paste_position ?? count( $files ), 0, array( null ) );
+		}
+		if ( empty( $files ) ) {
 			return array();
 		}
 
@@ -53,26 +85,33 @@ class MediaHandler extends AbstractModule {
 			require_once ABSPATH . 'wp-admin/includes/media.php';
 		}
 
+		$start = $this->next_sort_order( $comment_id );
 		$attachment_ids = array();
-
-		if ( empty( $files['name'] ) ) {
-			return $attachment_ids;
-		}
-
-		$files = $this->normalize_files_array( $files );
-
-		foreach ( $files as $file ) {
-			if ( ! empty( $file['error'] ) ) {
+		foreach ( $files as $index => $file ) {
+			$sort_order = $start + $index;
+			if ( null === $file ) {
+				$attachment_id = $this->upload_pasted_image( $comment_id, $paste_image, $sort_order );
+			} elseif ( empty( $file['error'] ) && is_string( $file['name'] ?? null ) && is_string( $file['tmp_name'] ?? null ) ) {
+				$attachment_id = $this->process_upload( $comment_id, $file, $sort_order );
+			} else {
 				continue;
 			}
-
-			$attachment_id = $this->process_upload( $comment_id, $file );
 			if ( $attachment_id ) {
 				$attachment_ids[] = $attachment_id;
 			}
 		}
-
 		return $attachment_ids;
+	}
+
+	private function next_sort_order( int $comment_id ): int {
+		global $wpdb;
+
+		return (int) $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+			$wpdb->prepare(
+				"SELECT COALESCE(MAX(sort_order) + 1, 0) FROM {$wpdb->prefix}bparfw_review_media WHERE comment_id = %d",
+				$comment_id
+			)
+		);
 	}
 
 	/**
@@ -80,10 +119,11 @@ class MediaHandler extends AbstractModule {
 	 *
 	 * @param int    $comment_id Comment ID.
 	 * @param string $base64_data Data URL from clipboard paste.
+	 * @param int|null $sort_order Position, or null to append.
 	 * @return int|null Attachment ID or null on failure.
 	 */
-	public function upload_pasted_image( int $comment_id, string $base64_data ): ?int {
-		if ( ! beplus_advanced_reviews_for_woocommerce_is_paste_enabled() ) {
+	public function upload_pasted_image( int $comment_id, string $base64_data, ?int $sort_order = null ): ?int {
+		if ( ! beplus_advanced_reviews_for_woocommerce_is_paste_enabled() || ! beplus_advanced_reviews_for_woocommerce_is_images_enabled() ) {
 			return null;
 		}
 
@@ -144,7 +184,7 @@ class MediaHandler extends AbstractModule {
 			return null;
 		}
 
-		$attachment_id = $this->store_attachment( $comment_id, $file_array, $file_path );
+		$attachment_id = $this->store_attachment( $comment_id, $file_array, $file_path, $sort_order ?? $this->next_sort_order( $comment_id ) );
 		return $attachment_id;
 	}
 
@@ -166,7 +206,7 @@ class MediaHandler extends AbstractModule {
 
 		$rows = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
 			$wpdb->prepare(
-				"SELECT attachment_id FROM {$wpdb->prefix}bparfw_review_media WHERE comment_id = %d ORDER BY sort_order ASC",
+				"SELECT attachment_id FROM {$wpdb->prefix}bparfw_review_media WHERE comment_id = %d ORDER BY sort_order ASC, id ASC",
 				$comment_id
 			)
 		);
@@ -240,13 +280,8 @@ class MediaHandler extends AbstractModule {
 			wp_send_json_error( array( 'message' => __( 'No files uploaded.', 'beplus-advanced-reviews-for-woocommerce' ) ) );
 		}
 
-		$attachment_ids = array();
-		foreach ( $_FILES as $input_name => $file_data ) {
-			if ( ! empty( $file_data['name'] ) ) {
-				$result = $this->upload_files( $comment_id, $file_data );
-				$attachment_ids = array_merge( $attachment_ids, $result );
-			}
-		}
+		$files = $this->normalize_request_files( $_FILES );
+		$attachment_ids = $this->upload_review_media( $comment_id, $files );
 
 		if ( empty( $attachment_ids ) ) {
 			wp_send_json_error( array( 'message' => __( 'Upload failed.', 'beplus-advanced-reviews-for-woocommerce' ) ) );
@@ -263,9 +298,10 @@ class MediaHandler extends AbstractModule {
 	 *
 	 * @param int                 $comment_id Comment ID.
 	 * @param array<string, mixed> $file       Single file array.
+	 * @param int                 $sort_order Position in the review gallery.
 	 * @return int|null Attachment ID.
 	 */
-	private function process_upload( int $comment_id, array $file ): ?int {
+	private function process_upload( int $comment_id, array $file, int $sort_order ): ?int {
 		$file_type_check = wp_check_filetype_and_ext( $file['tmp_name'], $file['name'] );
 		$mime_type       = $file_type_check['type'] ?? '';
 
@@ -317,7 +353,7 @@ class MediaHandler extends AbstractModule {
 			return null;
 		}
 
-		return $this->store_attachment( $comment_id, $file, $result['file'] ?? '' );
+		return $this->store_attachment( $comment_id, $file, $result['file'] ?? '', $sort_order );
 	}
 
 	/**
@@ -326,9 +362,10 @@ class MediaHandler extends AbstractModule {
 	 * @param int                 $comment_id Comment ID.
 	 * @param array<string, mixed> $file       File data array.
 	 * @param string              $file_path  Actual file path on disk.
+	 * @param int                 $sort_order Position in the review gallery.
 	 * @return int|null Attachment ID.
 	 */
-	private function store_attachment( int $comment_id, array $file, string $file_path ): ?int {
+	private function store_attachment( int $comment_id, array $file, string $file_path, int $sort_order ): ?int {
 		global $wpdb;
 
 		$result = $this->storage->store( $file_path, $file['name'] );
@@ -349,7 +386,7 @@ class MediaHandler extends AbstractModule {
 			array(
 				'comment_id'    => $comment_id,
 				'attachment_id' => $attachment_id,
-				'sort_order'    => 0,
+				'sort_order'    => min( 255, $sort_order ),
 				'created_at'    => current_time( 'mysql' ),
 			),
 			array( '%d', '%d', '%d', '%s' )
@@ -359,7 +396,12 @@ class MediaHandler extends AbstractModule {
 			if ( function_exists( 'wc_get_logger' ) ) {
 				wc_get_logger()->error( 'Failed to insert review media link. comment_id=' . $comment_id . ' attachment_id=' . $attachment_id . ' error=' . $wpdb->last_error, array( 'source' => 'beplus-advanced-reviews-for-woocommerce' ) );
 			}
+			$this->storage->delete( $attachment_id );
+			return null;
 		}
+
+		wp_cache_delete( 'review_media_' . $comment_id, 'bparfw_reviews' );
+		wp_cache_delete( 'attachment_ids_' . $comment_id, 'bparfw_reviews' );
 
 		do_action( HookManager::MEDIA_UPLOADED, $comment_id, $attachment_id ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.DynamicHooknameFound -- Constant resolves to 'beplus_advanced_reviews.media_uploaded'.
 

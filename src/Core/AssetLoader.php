@@ -55,8 +55,29 @@ class AssetLoader extends AbstractModule {
 			'i18n'            => array(
 				'noReviews'       => __( 'No reviews yet.', 'beplus-advanced-reviews-for-woocommerce' ),
 				'loadMore'        => __( 'Load More', 'beplus-advanced-reviews-for-woocommerce' ),
+				'updatingReviews' => __( 'Updating reviews…', 'beplus-advanced-reviews-for-woocommerce' ),
+				'loadingMoreReviews' => __( 'Loading more reviews…', 'beplus-advanced-reviews-for-woocommerce' ),
+				'reviewsLoadError' => __( 'Could not load reviews.', 'beplus-advanced-reviews-for-woocommerce' ),
+				'updatingDistribution' => __( 'Updating rating summary…', 'beplus-advanced-reviews-for-woocommerce' ),
+				'distributionLoadError' => __( 'Could not update the rating summary.', 'beplus-advanced-reviews-for-woocommerce' ),
+				'retryRequest' => __( 'Try again', 'beplus-advanced-reviews-for-woocommerce' ),
+				'submittingReview' => __( 'Submitting review…', 'beplus-advanced-reviews-for-woocommerce' ),
 				'submitSuccess'   => __( 'Review submitted!', 'beplus-advanced-reviews-for-woocommerce' ),
 				'submitError'     => __( 'Something went wrong.', 'beplus-advanced-reviews-for-woocommerce' ),
+				'pastedImage'    => __( 'Pasted image', 'beplus-advanced-reviews-for-woocommerce' ),
+				/* translators: %s: attachment name. */
+				'moveMediaEarlier' => __( 'Move %s earlier', 'beplus-advanced-reviews-for-woocommerce' ),
+				/* translators: %s: attachment name. */
+				'moveMediaLater' => __( 'Move %s later', 'beplus-advanced-reviews-for-woocommerce' ),
+				/* translators: %s: video name. */
+				'playVideoPreview' => __( 'Play preview of %s', 'beplus-advanced-reviews-for-woocommerce' ),
+				/* translators: %s: video name. */
+				'pauseVideoPreview' => __( 'Pause preview of %s', 'beplus-advanced-reviews-for-woocommerce' ),
+				/* translators: %s: attachment name. */
+				'removeMedia'    => __( 'Remove %s', 'beplus-advanced-reviews-for-woocommerce' ),
+				/* translators: 1: attachment name, 2: new position, 3: total attachments. */
+				'mediaMoved'     => __( '%1$s moved to position %2$d of %3$d.', 'beplus-advanced-reviews-for-woocommerce' ),
+				'mediaTypeNotAllowed' => __( 'This attachment format is not supported.', 'beplus-advanced-reviews-for-woocommerce' ),
 				'ratingRequired'  => __( 'Please select a rating.', 'beplus-advanced-reviews-for-woocommerce' ),
 				'contentRequired' => __( 'Please write a review.', 'beplus-advanced-reviews-for-woocommerce' ),
 				'imageTooLarge'   => sprintf(

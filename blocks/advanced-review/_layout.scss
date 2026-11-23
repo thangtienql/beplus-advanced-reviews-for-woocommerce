@@ -6,34 +6,6 @@ $prefix: beplus-advanced-reviews-for-woocommerce;
 	font-family: inherit;
 	color: var(--bpar-text);
 
-	&--loading {
-		min-height: 200px;
-		position: relative;
-
-		&::after {
-			content: '';
-			position: absolute;
-			top: 50%;
-			left: 50%;
-			width: 40px;
-			height: 40px;
-			margin: -20px 0 0 -20px;
-			border: 3px solid rgba(0, 0, 0, 0.08);
-			border-top-color: var(--bpar-primary);
-			border-radius: 50%;
-			animation: bpar-spin 0.8s linear infinite;
-		}
-	}
-
-	&--ready {
-		min-height: auto;
-		max-width: 100%;
-
-		&::after {
-			display: none;
-		}
-	}
-
 	&__header {
 		font-family: inherit;
 		font-size: 22px;

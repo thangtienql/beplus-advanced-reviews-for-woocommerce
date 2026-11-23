@@ -26,12 +26,9 @@
 		if ( ! productId ) return;
 
 		let currentPage = 1;
-		let currentRating = 0;
-		let currentHasImages = false;
-		let currentVerifiedOnly = false;
-		let currentSort = 'newest';
 		let totalPages = 1;
-		block._bparExcludeIds = [];
+		let listRequest;
+		let distributionRequest;
 
 		const listContainer = block.querySelector( '.beplus-advanced-reviews-for-woocommerce__list' );
 		const loadMoreBtn = block.querySelector( '.beplus-advanced-reviews-for-woocommerce__load-more' );
@@ -41,32 +38,113 @@
 		const sortSelect = block.querySelector( '.beplus-advanced-reviews-for-woocommerce__sort-select' );
 		const verifiedChip = block.querySelector( '.beplus-advanced-reviews-for-woocommerce__filter-chip[data-filter="verified"]' );
 		const distributionArea = block.querySelector( '.beplus-advanced-reviews-for-woocommerce__distribution' );
+		const labels = bparfwData.i18n;
+		const listStatus = createRequestStatus( listContainer );
+		const distributionStatus = createRequestStatus( distributionArea );
+		let appliedFilters = readFilters();
 
-		loadInitialReviews();
+		refreshReviews();
 		loadDistribution();
 
-		/**
-		 * Load initial reviews and star distribution.
-		 */
-		function loadInitialReviews() {
-			currentPage = 1;
-			block._bparExcludeIds = [];
+		function readFilters() {
+			return {
+				rating: filterRatingSelect?.value || '0',
+				images: filterImagesChip?.getAttribute( 'aria-pressed' ) === 'true',
+				verified: verifiedChip?.getAttribute( 'aria-pressed' ) === 'true',
+				sort: sortSelect?.value || 'newest',
+			};
+		}
 
-			if ( listContainer ) {
-				showSkeletonCards();
+		function showFilters( filters ) {
+			if ( filterRatingSelect ) filterRatingSelect.value = filters.rating;
+			if ( sortSelect ) sortSelect.value = filters.sort;
+			filterImagesChip?.setAttribute( 'aria-pressed', String( filters.images ) );
+			verifiedChip?.setAttribute( 'aria-pressed', String( filters.verified ) );
+		}
+
+		function reviewUrl( endpoint ) {
+			const url = new URL( bparfwData.restUrl + endpoint );
+			url.searchParams.set( 'product_id', productId );
+			return url;
+		}
+
+		async function loadDistribution() {
+			if ( ! distributionArea ) return;
+			distributionRequest?.abort();
+			const request = new AbortController();
+			distributionRequest = request;
+			distributionStatus( true, labels.updatingDistribution );
+			try {
+				const data = await getReviewData( reviewUrl( 'reviews/distribution' ), request.signal );
+				if ( distributionRequest !== request ) return;
+				if ( ! Number.isFinite( data.total ) || ! data.stars ) throw new Error();
+				distributionArea.innerHTML = buildDistribution( data );
+				distributionStatus( false );
+			} catch ( error ) {
+				if ( distributionRequest !== request ) return;
+				distributionStatus( false, labels.distributionLoadError, loadDistribution );
+			} finally {
+				if ( distributionRequest === request ) distributionRequest = null;
+			}
+		}
+
+		function refreshReviews( filters = readFilters() ) {
+			return requestReviews( filters, 1, false );
+		}
+
+		async function requestReviews( filters, page, append ) {
+			if ( ! listContainer ) return;
+			listRequest?.abort();
+			const request = new AbortController();
+			listRequest = request;
+
+			showFilters( filters );
+			listStatus( true, append ? labels.loadingMoreReviews : labels.updatingReviews, null, append );
+			let skeleton = listContainer.querySelector( '.beplus-advanced-reviews-for-woocommerce__skeleton' );
+			if ( ! listContainer.children.length ) skeleton = showSkeletonCards();
+			if ( loadMoreBtn ) {
+				loadMoreBtn.disabled = true;
+				setButtonLoading( loadMoreBtn, append, labels.loadingMoreReviews );
 			}
 
-			fetchReviews().then( function ( data ) {
-				if ( data && listContainer ) {
-					listContainer.innerHTML = buildReviewList( data.reviews );
-					totalPages = data.pages;
-					block.dataset.totalPages = data.pages;
-					updateLoadMoreButton();
-				}
-			} );
+			const url = reviewUrl( 'reviews' );
+			url.searchParams.set( 'page', page );
+			url.searchParams.set( 'per_page', parseInt( block.dataset.perPage, 10 ) || 10 );
+			url.searchParams.set( 'sort', filters.sort );
+			if ( Number( filters.rating ) > 0 ) url.searchParams.set( 'rating', filters.rating );
+			if ( filters.images ) url.searchParams.set( 'has_images', '1' );
+			if ( filters.verified ) url.searchParams.set( 'verified_only', '1' );
 
-			block.classList.remove( 'beplus-advanced-reviews-for-woocommerce--loading' );
-			block.classList.add( 'beplus-advanced-reviews-for-woocommerce--ready' );
+			try {
+				const data = await getReviewData( url, request.signal );
+				if ( listRequest !== request ) return;
+				if ( ! Array.isArray( data.reviews ) || ! Number.isInteger( data.pages ) ) throw new Error();
+
+				if ( ! append ) {
+					listContainer.innerHTML = buildReviewList( data.reviews );
+				} else if ( data.reviews.length ) {
+					listContainer.insertAdjacentHTML( 'beforeend', buildReviewList( data.reviews ) );
+				}
+				appliedFilters = filters;
+				currentPage = page;
+				totalPages = data.pages;
+				block.dataset.totalPages = totalPages;
+				listStatus( false );
+			} catch ( error ) {
+				if ( listRequest !== request ) return;
+				skeleton?.remove();
+				showFilters( appliedFilters );
+				listStatus( false, labels.reviewsLoadError, () => requestReviews( filters, page, append ) );
+			} finally {
+				if ( listRequest === request ) {
+					listRequest = null;
+					if ( loadMoreBtn ) {
+						loadMoreBtn.disabled = false;
+						setButtonLoading( loadMoreBtn, false );
+					}
+					if ( loadMoreWrapper ) loadMoreWrapper.hidden = currentPage >= totalPages;
+				}
+			}
 		}
 
 		/**
@@ -75,7 +153,7 @@
 		function showSkeletonCards() {
 			var perPage = parseInt( block.dataset.perPage, 10 ) || 5;
 			var skeletonCount = Math.min( perPage, 3 );
-			var html = '<div class="beplus-advanced-reviews-for-woocommerce__skeleton">';
+			var html = '<div class="beplus-advanced-reviews-for-woocommerce__skeleton" aria-hidden="true">';
 			for ( var i = 0; i < skeletonCount; i++ ) {
 				html += '<div class="beplus-advanced-reviews-for-woocommerce__skeleton-card">';
 				html += '<div class="beplus-advanced-reviews-for-woocommerce__skeleton-avatar"></div>';
@@ -87,61 +165,7 @@
 			}
 			html += '</div>';
 			listContainer.innerHTML = html;
-		}
-
-		/**
-		 * Fetch star distribution.
-		 */
-		function loadDistribution() {
-			const url = new URL( bparfwData.restUrl + 'reviews/distribution' );
-			url.searchParams.set( 'product_id', productId );
-			url.searchParams.set( '_t', Date.now() );
-
-			fetch( url.toString(), { cache: 'no-store' } )
-				.then( function ( res ) { return res.json(); } )
-				.then( function ( data ) {
-					if ( distributionArea ) {
-						distributionArea.innerHTML = buildDistribution( data );
-					}
-				} )
-				.catch( function () {} );
-		}
-
-		/**
-		 * Fetch reviews from the REST API.
-		 *
-		 * @return {Promise<Object>} Review data.
-		 */
-		function fetchReviews() {
-			var url = new URL( bparfwData.restUrl + 'reviews' );
-			var perPage = parseInt( block.dataset.perPage, 10 ) || 10;
-
-			url.searchParams.set( 'product_id', productId );
-			url.searchParams.set( 'page', currentPage );
-			url.searchParams.set( 'per_page', perPage );
-			url.searchParams.set( 'sort', currentSort );
-
-			if ( currentRating > 0 ) {
-				url.searchParams.set( 'rating', currentRating );
-			}
-
-			if ( currentHasImages ) {
-				url.searchParams.set( 'has_images', '1' );
-			}
-
-			if ( currentVerifiedOnly ) {
-				url.searchParams.set( 'verified_only', '1' );
-			}
-
-			if ( block._bparExcludeIds && block._bparExcludeIds.length > 0 ) {
-				url.searchParams.set( 'exclude', block._bparExcludeIds.join( ',' ) );
-			}
-
-			url.searchParams.set( '_t', Date.now() );
-
-			return fetch( url.toString(), { cache: 'no-store' } )
-				.then( function ( res ) { return res.json(); } )
-				.catch( function () { return null; } );
+			return listContainer.firstElementChild;
 		}
 
 		/**
@@ -235,87 +259,72 @@
 			return ( str || '' ).replace( /"/g, '&quot;' ).replace( /'/g, '&#39;' );
 		}
 
-		/**
-		 * Update the Load More button visibility.
-		 */
-		function updateLoadMoreButton() {
-			if ( loadMoreWrapper ) {
-				loadMoreWrapper.style.display = currentPage < totalPages ? '' : 'none';
+		loadMoreBtn?.addEventListener( 'click', function () {
+			if ( ! listRequest && currentPage < totalPages ) {
+				requestReviews( appliedFilters, currentPage + 1, true );
 			}
-		}
-
-		/**
-		 * Load more reviews and append them.
-		 */
-		function loadMore() {
-			currentPage++;
-			fetchReviews().then( function ( data ) {
-				if ( data && listContainer ) {
-					if ( data.reviews && data.reviews.length > 0 ) {
-						listContainer.insertAdjacentHTML( 'beforeend', buildReviewList( data.reviews ) );
-					}
-					totalPages = data.pages;
-					block.dataset.totalPages = data.pages;
-					updateLoadMoreButton();
-				}
+		} );
+		filterRatingSelect?.addEventListener( 'change', () => refreshReviews() );
+		sortSelect?.addEventListener( 'change', () => refreshReviews() );
+		[ filterImagesChip, verifiedChip ].forEach( function ( chip ) {
+			chip?.addEventListener( 'click', function () {
+				chip.setAttribute( 'aria-pressed', String( chip.getAttribute( 'aria-pressed' ) !== 'true' ) );
+				refreshReviews();
 			} );
-		}
+		} );
 
-		/**
-		 * Apply filter and replace the review list.
-		 */
-		function applyFilter() {
-			currentPage = 1;
-			block._bparExcludeIds = [];
-			fetchReviews().then( function ( data ) {
-				if ( data && listContainer ) {
-					listContainer.innerHTML = buildReviewList( data.reviews );
-					totalPages = data.pages;
-					block.dataset.totalPages = data.pages;
-					updateLoadMoreButton();
-				}
-			} );
-		}
-
-		if ( loadMoreBtn ) {
-			loadMoreBtn.addEventListener( 'click', loadMore );
-		}
-
-		if ( filterRatingSelect ) {
-			filterRatingSelect.addEventListener( 'change', function () {
-				currentRating = parseInt( filterRatingSelect.value, 10 );
-				applyFilter();
-			} );
-		}
-
-		if ( filterImagesChip ) {
-			filterImagesChip.addEventListener( 'click', function () {
-				currentHasImages = ! currentHasImages;
-				filterImagesChip.setAttribute( 'aria-pressed', currentHasImages ? 'true' : 'false' );
-				applyFilter();
-			} );
-		}
-
-		if ( verifiedChip ) {
-			verifiedChip.addEventListener( 'click', function () {
-				currentVerifiedOnly = ! currentVerifiedOnly;
-				verifiedChip.setAttribute( 'aria-pressed', currentVerifiedOnly ? 'true' : 'false' );
-				applyFilter();
-			} );
-		}
-
-		if ( sortSelect ) {
-			sortSelect.addEventListener( 'change', function () {
-				currentSort = sortSelect.value;
-				applyFilter();
-			} );
-		}
-
-		initReviewForm( block );
+		initReviewForm( block, function () {
+			refreshReviews();
+			loadDistribution();
+		} );
 		initMediaUpload( block );
-		initPasteSupport( block );
 		initLightbox( block );
 		initHashRedirect( block );
+	}
+
+	async function getReviewData( url, signal ) {
+		const response = await fetch( url.toString(), { cache: 'no-store', signal } );
+		if ( ! response.ok ) throw new Error();
+		return response.json();
+	}
+
+	function createRequestStatus( region ) {
+		if ( ! region ) return () => {};
+
+		const prefix = 'beplus-advanced-reviews-for-woocommerce__';
+		const container = document.createElement( 'div' );
+		const message = document.createElement( 'span' );
+		const spinner = document.createElement( 'span' );
+		const retry = document.createElement( 'button' );
+		container.className = prefix + 'request-status';
+		message.setAttribute( 'role', 'status' );
+		message.tabIndex = -1;
+		spinner.className = prefix + 'request-spinner';
+		spinner.setAttribute( 'aria-hidden', 'true' );
+		spinner.hidden = true;
+		retry.type = 'button';
+		retry.className = prefix + 'request-retry';
+		retry.textContent = bparfwData.i18n.retryRequest;
+		retry.hidden = true;
+		container.append( spinner, message, retry );
+		region.before( container );
+
+		return function ( busy, text = '', retryRequest = null, announceOnly = false ) {
+			region.setAttribute( 'aria-busy', String( busy ) );
+			container.classList.toggle( 'screen-reader-text', announceOnly );
+			spinner.hidden = ! busy || announceOnly;
+			message.textContent = text;
+			if ( busy && document.activeElement === retry ) message.focus();
+			retry.hidden = ! retryRequest;
+			retry.onclick = retryRequest;
+		};
+	}
+
+	function setButtonLoading( button, busy, loadingLabel ) {
+		const label = button.querySelector( '[data-request-label]' );
+		if ( label ) label.textContent = busy ? loadingLabel : label.dataset.requestLabel;
+		button.classList.toggle( 'is-loading', busy );
+		button.setAttribute( 'aria-busy', String( busy ) );
 	}
 
 	/**
@@ -323,9 +332,10 @@
 	 *
 	 * @param {HTMLElement} block The block container element.
 	 */
-	function initReviewForm( block ) {
+	function initReviewForm( block, refresh ) {
 		var form = block.querySelector( '.beplus-advanced-reviews-for-woocommerce__submit-form' );
 		if ( ! form ) return;
+		var submissionStatus = createRequestStatus( form );
 
 		var ratingInputs = form.querySelectorAll( '.beplus-advanced-reviews-for-woocommerce__star-input' );
 		var starLabels = form.querySelectorAll( '.beplus-advanced-reviews-for-woocommerce__star-label' );
@@ -377,7 +387,7 @@
 				email: email,
 			};
 
-			submitReview( block, data, form );
+			submitReview( block, data, form, refresh, submissionStatus );
 		} );
 	}
 
@@ -390,154 +400,248 @@
 		var form = block.querySelector( '.beplus-advanced-reviews-for-woocommerce__submit-form' );
 		if ( ! form ) return;
 
-		var previewContainer = form.querySelector( '.beplus-advanced-reviews-for-woocommerce__media-preview' );
-		var mediaFiles = [];
-		block._bparMediaFiles = mediaFiles;
+		var prefix = 'beplus-advanced-reviews-for-woocommerce__';
+		var preview = form.querySelector( '.' + prefix + 'media-preview' );
+		var zone = form.querySelector( '.' + prefix + 'upload-zone' );
+		var input = form.querySelector( '.' + prefix + 'upload-zone-input' );
+		if ( ! preview || ! zone || ! input ) return;
 
-		var uploadZone = form.querySelector( '.beplus-advanced-reviews-for-woocommerce__upload-zone' );
-		var fileInput = form.querySelector( '.beplus-advanced-reviews-for-woocommerce__upload-zone-input' );
+		var attachments = form.querySelector( '.' + prefix + 'attachments' );
+		var count = form.querySelector( '.' + prefix + 'attachments-count' );
+		var status = document.createElement( 'p' );
+		status.className = 'screen-reader-text';
+		status.setAttribute( 'aria-live', 'polite' );
+		status.setAttribute( 'aria-atomic', 'true' );
+		( attachments || preview.parentNode ).append( status );
+		preview.hidden = true;
+		preview.style.removeProperty( 'display' );
+		var labels = bparfwData.i18n;
+		var items = [];
+		var dragged = null;
+		var dropTarget = null;
+		var rtl = getComputedStyle( preview ).direction === 'rtl';
+		block._bparMediaFiles = items;
+		block._bparClearMedia = function () {
+			items.forEach( function ( item ) { URL.revokeObjectURL( item.url ); } );
+			items.length = 0;
+			preview.replaceChildren();
+			status.textContent = '';
+			updateControls();
+		};
 
-		if ( fileInput ) {
-			fileInput.addEventListener( 'change', function () {
-				if ( ! fileInput.files ) return;
-				for ( var i = 0; i < fileInput.files.length; i++ ) {
-					var file = fileInput.files[ i ];
-					var isImage = file.type && file.type.indexOf( 'image/' ) === 0;
-					var isVideo = file.type && file.type.indexOf( 'video/' ) === 0;
-					
-					if ( isImage && ! bparfwData.imagesEnabled ) {
-						showFormMessage( block, bparfwData.i18n.imageNotAllowed || 'Image uploads are disabled.', 'error' );
-						continue;
-					}
-
-					if ( isVideo && ! bparfwData.videosEnabled ) {
-						showFormMessage( block, bparfwData.i18n.videoNotAllowed || 'Video uploads are disabled.', 'error' );
-						continue;
-					}
-
-					if ( isImage || isVideo ) {
-						mediaFiles.push( { file: file, removed: false } );
-					}
-				}
-				fileInput.value = '';
-				updatePreviews();
-			} );
-		}
-
-		if ( uploadZone && fileInput ) {
-			uploadZone.addEventListener( 'click', function ( e ) {
-				if ( e.target === fileInput ) return;
-				fileInput.click();
-			} );
-		}
-
-		if ( uploadZone ) {
-			uploadZone.addEventListener( 'dragover', function ( e ) {
-				e.preventDefault();
-				e.stopPropagation();
-				uploadZone.classList.add( 'beplus-advanced-reviews-for-woocommerce__upload-zone--dragover' );
-			} );
-
-			uploadZone.addEventListener( 'dragleave', function ( e ) {
-				e.preventDefault();
-				e.stopPropagation();
-				uploadZone.classList.remove( 'beplus-advanced-reviews-for-woocommerce__upload-zone--dragover' );
-			} );
-
-			uploadZone.addEventListener( 'drop', function ( e ) {
-				e.preventDefault();
-				e.stopPropagation();
-				uploadZone.classList.remove( 'beplus-advanced-reviews-for-woocommerce__upload-zone--dragover' );
-
-				var files = e.dataTransfer.files;
-				if ( ! files || ! files.length ) return;
-
-				for ( var i = 0; i < files.length; i++ ) {
-					var file = files[ i ];
-					var isImage = file.type && file.type.indexOf( 'image/' ) === 0;
-					var isVideo = file.type && file.type.indexOf( 'video/' ) === 0;
-
-					if ( isImage && ! bparfwData.imagesEnabled ) {
-						showFormMessage( block, bparfwData.i18n.imageNotAllowed || 'Image uploads are disabled.', 'error' );
-						continue;
-					}
-
-					if ( isVideo && ! bparfwData.videosEnabled ) {
-						showFormMessage( block, bparfwData.i18n.videoNotAllowed || 'Video uploads are disabled.', 'error' );
-						continue;
-					}
-
-					if ( isImage || isVideo ) {
-						mediaFiles.push( { file: file, removed: false } );
-					}
-				}
-				updatePreviews();
-			} );
-		}
-
-		function removeFile( index ) {
-			if ( mediaFiles[ index ] ) {
-				mediaFiles[ index ].removed = true;
-				updatePreviews();
+		function updateControls() {
+			preview.hidden = items.length === 0;
+			if ( attachments ) attachments.classList.toggle( 'has-attachments', items.length > 0 );
+			if ( count ) {
+				count.hidden = items.length === 0;
+				count.textContent = items.length;
 			}
+			items.forEach( function ( item, index ) {
+				item.up.disabled = index === 0;
+				item.down.disabled = index === items.length - 1;
+			} );
 		}
 
-		function updatePreviews() {
-			if ( ! previewContainer ) return;
+		function setDropTarget( node, edge ) {
+			if ( dropTarget && dropTarget !== node ) delete dropTarget.dataset.dropEdge;
+			dropTarget = node;
+			if ( node ) node.dataset.dropEdge = edge;
+		}
 
-			var activeFiles = mediaFiles.filter( function ( m ) {
-				return ! m.removed;
+		function clearDrag() {
+			if ( dragged ) dragged.node.classList.remove( 'is-dragging' );
+			dragged = null;
+			setDropTarget( null );
+		}
+
+		function dropEdge( event, node ) {
+			var rect = node.getBoundingClientRect();
+			var leftHalf = event.clientX < rect.left + rect.width / 2;
+			return leftHalf !== rtl ? 'before' : 'after';
+		}
+
+		function move( item, index, control ) {
+			var previous = items.indexOf( item );
+			if ( block._bparSubmitting || previous < 0 || previous === index || index < 0 || index >= items.length ) return;
+
+			items.splice( previous, 1 );
+			items.splice( index, 0, item );
+			preview.insertBefore( item.node, items[ index + 1 ]?.node || null );
+			updateControls();
+			control = control && ! control.disabled ? control : ( item.up.disabled ? item.down : item.up );
+			control.focus();
+			status.textContent = labels.mediaMoved.replace( /%([123])\$[sd]/g, function ( match, position ) {
+				return [ item.name, index + 1, items.length ][ Number( position ) - 1 ];
 			} );
+		}
 
-			if ( ! activeFiles.length ) {
-				previewContainer.style.display = 'none';
-				previewContainer.innerHTML = '';
+		function add( file, pasted ) {
+			if ( block._bparSubmitting ) return;
+			var video = file.type.indexOf( 'video/' ) === 0;
+			if ( ! file.type.startsWith( 'image/' ) && ! video ) return;
+			if ( video ? ! bparfwData.videosEnabled : ! bparfwData.imagesEnabled ) {
+				showFormMessage( block, video ? labels.videoNotAllowed : labels.imageNotAllowed, 'error' );
+				return;
+			}
+			if ( ! ( video ? bparfwData.videoTypes : bparfwData.allowedTypes ).includes( file.type ) ) {
+				showFormMessage( block, labels.mediaTypeNotAllowed, 'error' );
+				return;
+			}
+			if ( file.size > Number( video ? bparfwData.maxVideoSize : bparfwData.maxUploadSize ) ) {
+				showFormMessage( block, video ? labels.videoTooLarge : labels.imageTooLarge, 'error' );
 				return;
 			}
 
-			previewContainer.style.display = '';
-			var html = '';
-			var actualIndex = 0;
+			var item = {
+				file: file,
+				pasted: pasted,
+				name: pasted ? labels.pastedImage : file.name,
+				url: URL.createObjectURL( file ),
+				node: document.createElement( preview.tagName === 'OL' ? 'li' : 'div' ),
+			};
+			item.node.className = prefix + 'media-preview-item';
+			var frame = document.createElement( 'div' );
+			frame.className = prefix + 'media-preview-frame';
+			var media = document.createElement( video ? 'video' : 'img' );
+			media.className = prefix + ( video ? 'media-preview-video' : 'media-preview-img' );
+			media.src = item.url;
+			if ( video ) {
+				media.preload = 'auto';
+				media.playsInline = true;
+			} else {
+				media.alt = item.name;
+				media.draggable = false;
+			}
 
-			mediaFiles.forEach( function ( item, idx ) {
-				if ( item.removed ) return;
-
-				var file = item.file;
-				var isVideo = file.type && file.type.indexOf( 'video/' ) === 0;
-				html += '<div class="beplus-advanced-reviews-for-woocommerce__media-preview-item">';
-
-				if ( isVideo ) {
-					var videoUrl = URL.createObjectURL( file );
-					html += '<video src="' + videoUrl + '" width="120" height="68" controls class="beplus-advanced-reviews-for-woocommerce__media-preview-video"></video>';
-				} else {
-					var imgUrl = URL.createObjectURL( file );
-					html += '<img src="' + imgUrl + '" alt="' + escapeAttr( file.name ) + '" width="80" height="80" class="beplus-advanced-reviews-for-woocommerce__media-preview-img">';
+			var name = document.createElement( 'span' );
+			name.className = prefix + 'media-preview-name';
+			name.textContent = item.name;
+			name.title = item.name;
+			var controls = document.createElement( 'div' );
+			controls.className = prefix + 'media-preview-controls';
+			var handle = document.createElement( 'span' );
+			handle.className = prefix + 'media-preview-handle';
+			handle.draggable = true;
+			handle.setAttribute( 'aria-hidden', 'true' );
+			handle.textContent = '⠿';
+			handle.addEventListener( 'dragstart', function ( event ) {
+				if ( block._bparSubmitting ) {
+					event.preventDefault();
+					return;
 				}
-
-				html += '<span class="beplus-advanced-reviews-for-woocommerce__media-preview-name">' + escapeHtml( file.name ) + '</span>';
-				html += '<button type="button" class="beplus-advanced-reviews-for-woocommerce__media-preview-remove" data-index="' + idx + '" aria-label="Remove">&#10005;</button>';
-				html += '</div>';
+				dragged = item;
+				item.node.classList.add( 'is-dragging' );
+				event.dataTransfer.effectAllowed = 'move';
+				event.dataTransfer.setData( 'text/plain', item.name );
+			} );
+			handle.addEventListener( 'dragend', clearDrag );
+			item.node.addEventListener( 'dragover', function ( event ) {
+				if ( ! dragged || dragged === item ) return;
+				event.preventDefault();
+				event.dataTransfer.dropEffect = 'move';
+				setDropTarget( item.node, dropEdge( event, item.node ) );
+			} );
+			item.node.addEventListener( 'dragleave', function ( event ) {
+				if ( dropTarget === item.node && ! item.node.contains( event.relatedTarget ) ) setDropTarget( null );
+			} );
+			item.node.addEventListener( 'drop', function ( event ) {
+				if ( ! dragged || dragged === item ) return;
+				event.preventDefault();
+				var insertion = items.indexOf( item ) + ( dropEdge( event, item.node ) === 'after' ? 1 : 0 );
+				var previous = items.indexOf( dragged );
+				move( dragged, insertion - ( previous < insertion ? 1 : 0 ) );
+				clearDrag();
 			} );
 
-			previewContainer.innerHTML = html;
+			function button( kind, symbol, label, action ) {
+				var element = document.createElement( 'button' );
+				element.type = 'button';
+				element.className = prefix + 'media-preview-' + kind;
+				element.textContent = symbol;
+				element.setAttribute( 'aria-label', label.replace( '%s', function () { return item.name; } ) );
+				element.addEventListener( 'click', action );
+				return element;
+			}
 
-			var removeButtons = previewContainer.querySelectorAll( '.beplus-advanced-reviews-for-woocommerce__media-preview-remove' );
-			removeButtons.forEach( function ( btn ) {
-				btn.addEventListener( 'click', function () {
-					var idx = parseInt( btn.dataset.index, 10 );
-					removeFile( idx );
+			item.up = button( 'move', rtl ? '→' : '←', labels.moveMediaEarlier, function () {
+				move( item, items.indexOf( item ) - 1, item.up );
+			} );
+			item.down = button( 'move', rtl ? '←' : '→', labels.moveMediaLater, function () {
+				move( item, items.indexOf( item ) + 1, item.down );
+			} );
+			item.remove = button( 'remove', '×', labels.removeMedia, function () {
+				if ( block._bparSubmitting ) return;
+				var index = items.indexOf( item );
+				items.splice( index, 1 );
+				item.node.remove();
+				URL.revokeObjectURL( item.url );
+				updateControls();
+				var neighbor = items[ index ] || items[ index - 1 ];
+				( neighbor ? neighbor.remove : zone ).focus();
+			} );
+
+			frame.append( media );
+			if ( video ) {
+				var play = button( 'play', '▶', labels.playVideoPreview, function () {
+					if ( media.paused ) {
+						media.play().catch( function () {} );
+					} else {
+						media.pause();
+					}
 				} );
+				function updatePlayer() {
+					play.textContent = media.paused ? '▶' : 'Ⅱ';
+					play.setAttribute( 'aria-label', ( media.paused ? labels.playVideoPreview : labels.pauseVideoPreview ).replace( '%s', function () { return item.name; } ) );
+				}
+				media.addEventListener( 'play', updatePlayer );
+				media.addEventListener( 'pause', updatePlayer );
+				media.addEventListener( 'ended', updatePlayer );
+				frame.append( play );
+			}
+			frame.append( item.remove );
+			controls.append( handle, item.up, item.down );
+			item.node.append( frame, name, controls );
+			var existing = pasted ? items.findIndex( function ( entry ) { return entry.pasted; } ) : -1;
+			if ( existing >= 0 ) {
+				URL.revokeObjectURL( items[ existing ].url );
+				items[ existing ].node.replaceWith( item.node );
+				items[ existing ] = item;
+			} else {
+				items.push( item );
+				preview.append( item.node );
+			}
+			updateControls();
+		}
+
+		input.addEventListener( 'change', function () {
+			Array.from( input.files ).forEach( function ( file ) { add( file, false ); } );
+			input.value = '';
+		} );
+		zone.addEventListener( 'click', function ( event ) {
+			if ( event.target !== input && ! block._bparSubmitting ) input.click();
+		} );
+		zone.addEventListener( 'dragover', function ( event ) {
+			if ( ! event.dataTransfer.types.includes( 'Files' ) ) return;
+			event.preventDefault();
+			zone.classList.add( prefix + 'upload-zone--dragover' );
+		} );
+		zone.addEventListener( 'dragleave', function () {
+			zone.classList.remove( prefix + 'upload-zone--dragover' );
+		} );
+		zone.addEventListener( 'drop', function ( event ) {
+			event.preventDefault();
+			zone.classList.remove( prefix + 'upload-zone--dragover' );
+			Array.from( event.dataTransfer.files ).forEach( function ( file ) { add( file, false ); } );
+		} );
+		if ( bparfwData.pasteEnabled ) {
+			zone.addEventListener( 'paste', function ( event ) {
+				var image = Array.from( event.clipboardData.items ).find( function ( entry ) {
+					return entry.kind === 'file' && entry.type.startsWith( 'image/' );
+				} )?.getAsFile();
+				if ( ! image ) return;
+				event.preventDefault();
+				add( image, true );
 			} );
-		}
-
-		function escapeHtml( str ) {
-			var div = document.createElement( 'div' );
-			div.appendChild( document.createTextNode( str || '' ) );
-			return div.innerHTML;
-		}
-
-		function escapeAttr( str ) {
-			return ( str || '' ).replace( /"/g, '&quot;' ).replace( /'/g, '&#39;' );
 		}
 	}
 
@@ -548,7 +652,8 @@
 	 * @param {Object}      data  Review data.
 	 * @param {HTMLFormElement} form The form element.
 	 */
-	function submitReview( block, data, form ) {
+	async function submitReview( block, data, form, refresh, submissionStatus ) {
+		if ( block._bparSubmitting ) return;
 		var productId = parseInt( block.dataset.productId, 10 );
 		var formData = new FormData();
 
@@ -564,99 +669,57 @@
 		}
 
 		var mediaFiles = block._bparMediaFiles || [];
-		var hasSizeError = false;
+		var pastePosition = mediaFiles.findIndex( function ( item ) { return item.pasted; } );
 		mediaFiles.forEach( function ( item ) {
-			if ( item.removed ) return;
-			var file = item.file;
-			var isVideo = file.type && file.type.indexOf( 'video/' ) === 0;
-			var maxSize = isVideo
-				? ( bparfwData.maxVideoSize || 20971520 )
-				: ( bparfwData.maxUploadSize || 2097152 );
-			if ( file.size > maxSize ) {
-				showFormMessage( block, isVideo
-					? ( bparfwData.i18n.videoTooLarge || 'Video too large.' )
-					: ( bparfwData.i18n.imageTooLarge || 'Image too large.' ),
-					'error'
-				);
-				hasSizeError = true;
-				return;
-			}
-			formData.append( 'media[]', file );
+			if ( ! item.pasted ) formData.append( 'media[]', item.file );
 		} );
-		if ( hasSizeError ) return;
 
-		var pasteInput = form.querySelector( '.beplus-advanced-reviews-for-woocommerce__paste-input' );
-		if ( pasteInput && pasteInput.value ) {
-			formData.append( 'paste_image', pasteInput.value );
-		}
+		var submit = form.querySelector( '[type="submit"]' );
+		block._bparSubmitting = true;
+		submit.disabled = true;
+		submissionStatus( true, bparfwData.i18n.submittingReview, null, true );
+		setButtonLoading( submit, true, bparfwData.i18n.submittingReview );
+		try {
+			if ( pastePosition >= 0 ) {
+				var pasteImage = await new Promise( function ( resolve, reject ) {
+					var reader = new FileReader();
+					reader.onload = function () { resolve( reader.result ); };
+					reader.onerror = reject;
+					reader.readAsDataURL( mediaFiles[ pastePosition ].file );
+				} );
+				formData.append( 'paste_image', pasteImage );
+				formData.append( 'paste_position', pastePosition );
+			}
 
-		fetch( bparfwData.restUrl + 'reviews', {
-			method: 'POST',
-			headers: {
-				'X-WP-Nonce': bparfwData.nonce,
-			},
-			body: formData,
-		} )
-			.then( function ( res ) { return res.json(); } )
-			.then( function ( result ) {
-				if ( result.success ) {
-					showFormMessage( block, result.message || bparfwData.i18n.submitSuccess, 'success' );
-					form.reset();
-
-					var starLabels = form.querySelectorAll( '.beplus-advanced-reviews-for-woocommerce__star-label' );
-					starLabels.forEach( function ( label ) {
-						label.classList.remove( 'beplus-advanced-reviews-for-woocommerce__star-label--active' );
-					} );
-
-					block._bparMediaFiles.length = 0;
-					var mediaPreview = form.querySelector( '.beplus-advanced-reviews-for-woocommerce__media-preview' );
-					if ( mediaPreview ) {
-						mediaPreview.style.display = 'none';
-						mediaPreview.innerHTML = '';
-					}
-
-					var pasteInput = form.querySelector( '.beplus-advanced-reviews-for-woocommerce__paste-input' );
-					if ( pasteInput ) {
-						pasteInput.value = '';
-					}
-
-					setTimeout( function () {
-						var list = block.querySelector( '.beplus-advanced-reviews-for-woocommerce__list' );
-						if ( list && result.review ) {
-							var noReviewsEl = list.querySelector( '.beplus-advanced-reviews-for-woocommerce__no-reviews' );
-							if ( noReviewsEl ) {
-								noReviewsEl.remove();
-							}
-							list.insertAdjacentHTML( 'afterbegin', buildReviewCard( result.review, block ) );
-							if ( result.review.id ) {
-								if ( ! block._bparExcludeIds ) block._bparExcludeIds = [];
-								block._bparExcludeIds.push( result.review.id );
-							}
-						}
-
-						var productId = parseInt( block.dataset.productId, 10 );
-						if ( productId ) {
-							var distUrl = new URL( bparfwData.restUrl + 'reviews/distribution' );
-							distUrl.searchParams.set( 'product_id', productId );
-							distUrl.searchParams.set( '_t', Date.now() );
-							fetch( distUrl.toString(), { cache: 'no-store' } )
-								.then( function ( res ) { return res.json(); } )
-								.then( function ( data ) {
-									var distArea = block.querySelector( '.beplus-advanced-reviews-for-woocommerce__distribution' );
-									if ( distArea ) {
-										distArea.innerHTML = buildDistribution( data );
-									}
-								} )
-								.catch( function () {} );
-						}
-					}, 500 );
-				} else {
-					showFormMessage( block, result.message || bparfwData.i18n.submitError, 'error' );
-				}
-			} )
-			.catch( function () {
-				showFormMessage( block, bparfwData.i18n.submitError, 'error' );
+			var response = await fetch( bparfwData.restUrl + 'reviews', {
+				method: 'POST',
+				headers: { 'X-WP-Nonce': bparfwData.nonce },
+				body: formData,
 			} );
+			var result = await response.json();
+			if ( response.ok && result.success ) {
+				showFormMessage( block, result.message || bparfwData.i18n.submitSuccess, result.media_failed_count ? 'warning' : 'success' );
+				form.reset();
+
+				var starLabels = form.querySelectorAll( '.beplus-advanced-reviews-for-woocommerce__star-label' );
+				starLabels.forEach( function ( label ) {
+					label.classList.remove( 'beplus-advanced-reviews-for-woocommerce__star-label--active' );
+				} );
+
+				if ( block._bparClearMedia ) block._bparClearMedia();
+
+				refresh();
+			} else {
+				showFormMessage( block, result.message || bparfwData.i18n.submitError, 'error' );
+			}
+		} catch ( error ) {
+			showFormMessage( block, bparfwData.i18n.submitError, 'error' );
+		} finally {
+			block._bparSubmitting = false;
+			submit.disabled = false;
+			submissionStatus( false );
+			setButtonLoading( submit, false );
+		}
 	}
 
 	/**
@@ -748,147 +811,6 @@
 		html += '</div></div>';
 
 		return html;
-	}
-
-	/**
-	 * Build a single review card HTML (used by submit flow).
-	 *
-	 * @param {Object}      review Review object.
-	 * @param {HTMLElement} block  Block container.
-	 * @return {string} HTML string.
-	 */
-	function buildReviewCard( review, block ) {
-		function escHtml( str ) {
-			var div = document.createElement( 'div' );
-			div.appendChild( document.createTextNode( str || '' ) );
-			return div.innerHTML;
-		}
-		function escAttr( str ) {
-			return ( str || '' ).replace( /"/g, '&quot;' ).replace( /'/g, '&#39;' );
-		}
-
-		var html = '<article class="beplus-advanced-reviews-for-woocommerce__review-card">';
-		if ( block.dataset.showAvatar !== '0' ) {
-			html += '<div class="beplus-advanced-reviews-for-woocommerce__review-avatar">';
-			if ( review.avatar ) {
-				html += '<img src="' + escAttr( review.avatar ) + '" alt="' + escAttr( review.author ) + '" width="40" height="40" loading="lazy">';
-			} else {
-				html += '<div class="beplus-advanced-reviews-for-woocommerce__review-avatar--fallback">' + escHtml( ( review.author || '' ).charAt(0).toUpperCase() ) + '</div>';
-			}
-			html += '</div>';
-		}
-		html += '<div class="beplus-advanced-reviews-for-woocommerce__review-body">';
-		html += '<div class="beplus-advanced-reviews-for-woocommerce__review-header">';
-		html += '<div class="beplus-advanced-reviews-for-woocommerce__review-author-group">';
-		html += '<span class="beplus-advanced-reviews-for-woocommerce__review-author">' + escHtml( review.author ) + '</span>';
-		if ( review.is_verified ) {
-			html += '<span class="beplus-advanced-reviews-for-woocommerce__verified-badge" aria-label="' + escAttr( bparfwData.i18n.verifiedPurchase || 'Verified Purchase' ) + '">';
-			html += '<span class="beplus-advanced-reviews-for-woocommerce__verified-badge-icon" aria-hidden="true">';
-			html += '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>';
-			html += '</span> ';
-			html += escHtml( bparfwData.i18n.verifiedPurchase || 'Verified Purchase' );
-			html += '</span>';
-		}
-		html += '</div>';
-		html += '<span class="beplus-advanced-reviews-for-woocommerce__review-rating">' + renderStars( review.rating ) + '</span>';
-		html += '</div>';
-		html += '<div class="beplus-advanced-reviews-for-woocommerce__review-content">' + review.content + '</div>';
-
-		if ( block.dataset.showMedia !== '0' && review.has_images && review.images.length ) {
-			var mediaData = review.images.map( function ( m ) {
-				return { url: m.url, thumbnail: m.thumbnail || m.url, mime_type: m.mime_type || '' };
-			} );
-			html += '<div class="beplus-advanced-reviews-for-woocommerce__review-images" data-review-media="' + escAttr( JSON.stringify( mediaData ) ) + '">';
-			review.images.forEach( function ( img, idx ) {
-				if ( img.mime_type && img.mime_type.indexOf( 'video/' ) === 0 ) {
-					html += '<button type="button" class="beplus-advanced-reviews-for-woocommerce__review-media-btn beplus-advanced-reviews-for-woocommerce__review-media-btn--video" data-media-index="' + idx + '" data-media-type="video" aria-label="' + escAttr( bparfwData.i18n.viewMedia || 'View media' ) + '">';
-					html += '<video src="' + escAttr( img.url ) + '" width="80" height="80" class="beplus-advanced-reviews-for-woocommerce__review-video" muted preload="metadata"></video>';
-					html += '</button>';
-				} else {
-					html += '<button type="button" class="beplus-advanced-reviews-for-woocommerce__review-media-btn" data-media-index="' + idx + '" data-media-type="image" aria-label="' + escAttr( bparfwData.i18n.viewMedia || 'View media' ) + '">';
-					html += '<img src="' + escAttr( img.thumbnail ) + '" alt="" width="80" height="80" loading="lazy" class="beplus-advanced-reviews-for-woocommerce__review-image-thumb">';
-					html += '</button>';
-				}
-			} );
-			html += '</div>';
-		}
-
-		html += '<div class="beplus-advanced-reviews-for-woocommerce__review-date">' + escHtml( review.date_human ) + '</div>';
-		html += '</div></article>';
-		return html;
-	}
-
-	/**
-	 * Initialize clipboard paste support.
-	 *
-	 * @param {HTMLElement} block The block container element.
-	 */
-	function initPasteSupport( block ) {
-		if ( ! bparfwData.pasteEnabled ) return;
-
-		var uploadZone = block.querySelector( '.beplus-advanced-reviews-for-woocommerce__upload-zone' );
-		if ( ! uploadZone ) return;
-
-		var pasteInput = uploadZone.querySelector( '.beplus-advanced-reviews-for-woocommerce__paste-input' );
-
-		uploadZone.addEventListener( 'paste', function ( e ) {
-			var items = e.clipboardData && e.clipboardData.items;
-			if ( ! items ) return;
-
-			for ( var i = 0; i < items.length; i++ ) {
-				if ( items[ i ].type.indexOf( 'image' ) === 0 ) {
-					e.preventDefault();
-					var blob = items[ i ].getAsFile();
-					var maxSize = bparfwData.maxUploadSize || 2097152;
-					if ( blob.size > maxSize ) {
-						showFormMessage( block, bparfwData.i18n.imageTooLarge || 'Image too large.', 'error' );
-						break;
-					}
-					var reader = new FileReader();
-					reader.onload = function ( event ) {
-						if ( pasteInput ) {
-							pasteInput.value = event.target.result;
-						}
-						showPastePreview( block, event.target.result );
-					};
-					reader.readAsDataURL( blob );
-					break;
-				}
-			}
-		} );
-
-		function showPastePreview( block, dataUrl ) {
-			var form = block.querySelector( '.beplus-advanced-reviews-for-woocommerce__submit-form' );
-			if ( ! form ) return;
-
-			var previewContainer = form.querySelector( '.beplus-advanced-reviews-for-woocommerce__media-preview' );
-			if ( ! previewContainer ) return;
-
-			var existing = previewContainer.querySelector( '.beplus-advanced-reviews-for-woocommerce__media-preview-item--paste' );
-			if ( existing ) {
-				existing.remove();
-			}
-
-			previewContainer.style.display = '';
-
-			var item = document.createElement( 'div' );
-			item.className = 'beplus-advanced-reviews-for-woocommerce__media-preview-item beplus-advanced-reviews-for-woocommerce__media-preview-item--paste';
-			item.innerHTML =
-				'<img src="' + dataUrl + '" alt="Pasted image" width="80" height="80" class="beplus-advanced-reviews-for-woocommerce__media-preview-img">' +
-				'<span class="beplus-advanced-reviews-for-woocommerce__media-preview-name">Pasted image</span>' +
-				'<button type="button" class="beplus-advanced-reviews-for-woocommerce__media-preview-remove" aria-label="Remove">&#10005;</button>';
-
-			var removeBtn = item.querySelector( '.beplus-advanced-reviews-for-woocommerce__media-preview-remove' );
-			removeBtn.addEventListener( 'click', function () {
-				item.remove();
-				pasteInput.value = '';
-				if ( ! previewContainer.querySelector( '.beplus-advanced-reviews-for-woocommerce__media-preview-item' ) ) {
-					previewContainer.style.display = 'none';
-				}
-			} );
-
-			previewContainer.appendChild( item );
-		}
 	}
 
 	/**
@@ -1002,7 +924,7 @@
 				lightbox.classList.add( 'beplus-advanced-reviews-for-woocommerce__lightbox--open' );
 			} );
 
-			renderCurrentMedia();
+			renderCurrentMedia( true );
 			trapFocus();
 		}
 
@@ -1039,7 +961,7 @@
 			}
 		}
 
-		function renderCurrentMedia() {
+		function renderCurrentMedia( playOnOpen ) {
 			if ( ! lightbox ) return;
 
 			var content = lightbox.querySelector( '.beplus-advanced-reviews-for-woocommerce__lightbox-content' );
@@ -1061,10 +983,13 @@
 				video.className = 'beplus-advanced-reviews-for-woocommerce__lightbox-media beplus-advanced-reviews-for-woocommerce__lightbox-media--video';
 				video.controls = true;
 				video.setAttribute( 'playsinline', '' );
-				video.style.width = 'min( 90vw, 1280px )';
-				video.style.height = 'auto';
 				content.appendChild( video );
 				currentVideoEl = video;
+				if ( playOnOpen ) {
+					video.play().catch( function () {
+						// Native controls remain available if playback is blocked.
+					} );
+				}
 			} else {
 				var img = document.createElement( 'img' );
 				img.src = media.url;
@@ -1184,9 +1109,9 @@
 		msg.setAttribute( 'role', 'alert' );
 		formWrapper.insertBefore( msg, formWrapper.firstChild );
 
-		setTimeout( function () {
-			msg.remove();
-		}, 5000 );
+		if ( type !== 'warning' ) {
+			setTimeout( function () { msg.remove(); }, 5000 );
+		}
 	}
 
 	/**

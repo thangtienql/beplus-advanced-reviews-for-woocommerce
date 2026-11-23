@@ -99,9 +99,12 @@ $prefix: beplus-advanced-reviews-for-woocommerce;
 		transition: opacity 0.2s ease;
 	}
 
-	&:hover {
+	&:hover,
+	&:focus-visible {
+		background: var(--bpar-primary-hover-bg);
 		border-color: var(--bpar-primary);
 		color: var(--bpar-primary);
+		box-shadow: none;
 
 		svg {
 			opacity: 1;

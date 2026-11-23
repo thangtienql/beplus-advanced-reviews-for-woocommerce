@@ -51,7 +51,7 @@ $enable_lazy_load  = ! empty( $attributes['enableLazyLoad'] );
 
 $wrapper_attrs = get_block_wrapper_attributes(
 	array(
-		'class'            => 'beplus-advanced-reviews-for-woocommerce beplus-advanced-reviews-for-woocommerce--loading',
+		'class'            => 'beplus-advanced-reviews-for-woocommerce',
 		'data-product-id'  => (string) $product_id,
 		'data-per-page'    => (string) $reviews_per_load,
 		'data-show-avatar' => $show_avatar ? '1' : '0',
@@ -167,9 +167,9 @@ $wrapper_attrs = get_block_wrapper_attributes(
 					<?php beplus_advanced_reviews_for_woocommerce_get_template( 'review-list.php', array( 'product_id' => $product_id, 'show_avatar' => $show_avatar, 'show_media' => $show_media, 'per_page' => $reviews_per_load, 'rating_threshold' => $rating_threshold ) ); ?>
 				</div>
 
-				<div class="beplus-advanced-reviews-for-woocommerce__load-more-wrapper">
-					<button type="button" class="beplus-advanced-reviews-for-woocommerce__load-more button" aria-label="<?php esc_attr_e( 'Load more reviews', 'beplus-advanced-reviews-for-woocommerce' ); ?>">
-						<?php esc_html_e( 'Load More', 'beplus-advanced-reviews-for-woocommerce' ); ?>
+				<div class="beplus-advanced-reviews-for-woocommerce__load-more-wrapper" hidden>
+					<button type="button" class="beplus-advanced-reviews-for-woocommerce__load-more">
+						<span data-request-label="<?php esc_attr_e( 'Load More', 'beplus-advanced-reviews-for-woocommerce' ); ?>"><?php esc_html_e( 'Load More', 'beplus-advanced-reviews-for-woocommerce' ); ?></span>
 						<span class="beplus-advanced-reviews-for-woocommerce__load-more-spinner" aria-hidden="true"></span>
 					</button>
 				</div>

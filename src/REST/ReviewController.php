@@ -160,7 +160,7 @@ class ReviewController extends \WP_REST_Controller {
 	public function create_item( $request ) {
 		try {
 			ob_start();
-			
+
 			$params = array(
 				'product_id' => absint( $request->get_param( 'product_id' ) ),
 				'rating'     => absint( $request->get_param( 'rating' ) ),
@@ -175,26 +175,32 @@ class ReviewController extends \WP_REST_Controller {
 				return $valid;
 			}
 
+			$files          = $this->media_handler->normalize_request_files( $request->get_file_params() );
+			$paste_image    = $request->get_param( 'paste_image' );
+			$paste_image    = is_string( $paste_image ) ? $paste_image : '';
+			$paste_position = null;
+			if ( $request->has_param( 'paste_position' ) ) {
+				$position = $request->get_param( 'paste_position' );
+				$is_integer = is_int( $position ) || ( is_string( $position ) && ctype_digit( $position ) );
+				if ( '' === $paste_image || ! $is_integer || (int) $position < 0 || (int) $position > count( $files ) ) {
+					ob_end_clean();
+					return new \WP_Error(
+						'invalid_paste_position',
+						__( 'The pasted image position is invalid.', 'beplus-advanced-reviews-for-woocommerce' ),
+						array( 'status' => 400 )
+					);
+				}
+				$paste_position = (int) $position;
+			}
+
 			$comment_id = $this->submission->create_review( $params['product_id'], $params );
 			if ( is_wp_error( $comment_id ) ) {
 				ob_end_clean();
 				return $comment_id;
 			}
 
-		$file_params = $request->get_file_params();
-		$base64_data = $request->get_param( 'paste_image' );
-
-		if ( ! empty( $file_params ) ) {
-			foreach ( $file_params as $input_name => $file_data ) {
-				if ( ! empty( $file_data['name'] ) ) {
-					$this->media_handler->upload_files( $comment_id, $file_data );
-				}
-			}
-		}
-
-		if ( ! empty( $base64_data ) ) {
-			$this->media_handler->upload_pasted_image( $comment_id, $base64_data );
-		}
+			$uploaded     = $this->media_handler->upload_review_media( $comment_id, $files, $paste_image, $paste_position );
+			$failed_count = count( $files ) + ( '' !== $paste_image ? 1 : 0 ) - count( $uploaded );
 
 			do_action( HookManager::REVIEW_SUBMITTED, $comment_id, $params['product_id'] ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.DynamicHooknameFound -- Constant resolves to 'beplus_advanced_reviews.review_submitted'.
 
@@ -202,12 +208,17 @@ class ReviewController extends \WP_REST_Controller {
 			$data   = $review ? $this->formatter->format( $review ) : null;
 
 			ob_end_clean();
-			
-			return rest_ensure_response( array(
-				'success'   => true,
-				'message'   => __( 'Review submitted successfully!', 'beplus-advanced-reviews-for-woocommerce' ),
-				'review'    => $data,
-			) );
+
+			$response = array(
+				'success' => true,
+				'message' => __( 'Review submitted successfully!', 'beplus-advanced-reviews-for-woocommerce' ),
+				'review'  => $data,
+			);
+			if ( $failed_count > 0 ) {
+				$response['media_failed_count'] = $failed_count;
+				$response['message']            = __( 'Your review was saved, but some attachments could not be uploaded.', 'beplus-advanced-reviews-for-woocommerce' );
+			}
+			return rest_ensure_response( $response );
 		} catch ( \Throwable $e ) {
 			ob_end_clean();
 			if ( function_exists( 'wc_get_logger' ) ) {

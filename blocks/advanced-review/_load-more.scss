@@ -44,22 +44,73 @@ $prefix: beplus-advanced-reviews-for-woocommerce;
 		}
 	}
 
-	&--loading &-spinner {
+	&.is-loading &-spinner {
 		display: inline-block;
 	}
 
 	&-spinner {
 		display: none;
-		width: 14px;
-		height: 14px;
-		border: 2px solid rgba(255, 255, 255, 0.3);
-		border-top-color: var(--bpar-button-text);
-		border-radius: 50%;
-		animation: bpar-spin 0.6s linear infinite;
+	}
+}
+
+.#{$prefix}__submit-spinner {
+	display: none;
+}
+
+.#{$prefix}__submit-btn.is-loading .#{$prefix}__submit-spinner {
+	display: inline-block;
+}
+
+.#{$prefix}__request-spinner,
+.#{$prefix}__submit-spinner,
+.#{$prefix}__load-more-spinner {
+	width: 14px;
+	height: 14px;
+	flex: 0 0 14px;
+	border: 2px solid currentColor;
+	border-inline-end-color: transparent;
+	border-radius: 50%;
+	animation: bpar-spin 0.6s linear infinite;
+}
+
+.#{$prefix}__request-status {
+	display: flex;
+	align-items: center;
+	flex-wrap: wrap;
+	gap: 8px;
+	color: var(--bpar-text);
+	font-size: 13px;
+
+	&:has([role="status"]:not(:empty)):not(.screen-reader-text) {
+		margin-block: 8px;
+	}
+}
+
+.#{$prefix}__request-retry:not([hidden]) {
+	padding: 4px 8px;
+	border: 1px solid var(--bpar-border);
+	border-radius: var(--bpar-radius-sm);
+	background: var(--bpar-bg);
+	color: var(--bpar-primary);
+	font: inherit;
+	cursor: pointer;
+
+	&:hover,
+	&:focus-visible {
+		background: var(--bpar-primary-hover-bg);
+		color: var(--bpar-primary);
+		box-shadow: none;
+	}
+
+	&:focus-visible {
+		outline: 2px solid var(--bpar-primary);
+		outline-offset: 2px;
 	}
 }
 
 @media (prefers-reduced-motion: reduce) {
+	.#{$prefix}__request-spinner,
+	.#{$prefix}__submit-spinner,
 	.#{$prefix}__load-more-spinner {
 		animation: none;
 	}

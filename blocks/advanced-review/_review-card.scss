@@ -142,6 +142,7 @@ $prefix: beplus-advanced-reviews-for-woocommerce;
 	line-height: 1.5;
 	margin-bottom: 10px;
 		color: var(--bpar-text);
+	white-space: pre-line;
 	word-break: break-word;
 }
 
@@ -318,10 +319,8 @@ $prefix: beplus-advanced-reviews-for-woocommerce;
 		box-shadow: 0 4px 40px rgba(0, 0, 0, 0.4);
 
 		&--video {
-			max-width: none;
-			max-height: none;
-			width: min(90vw, 1280px);
-			height: auto;
+			min-width: min(320px, 90vw);
+			max-width: min(90vw, 1280px);
 			border-radius: var(--bpar-radius);
 		}
 	}
