@@ -1,6 +1,6 @@
 ---
 name: bparfw-blocks
-description: Use when creating or editing Gutenberg blocks under blocks/, including block.json, render.php, edit.tsx, view.ts, style.css, and BlockRegistry. Covers registration, attributes, render callbacks, accessibility, and build workflow for beplus-advanced-reviews-for-woocommerce blocks.
+description: Use when creating or editing Gutenberg blocks under blocks/, including block.json, render.php, edit.tsx, view.js, style.css, and BlockRegistry. Covers registration, attributes, render callbacks, accessibility, and build workflow for beplus-advanced-reviews-for-woocommerce blocks.
 ---
 
 # Beplus Advanced Reviews For Woocommerce — blocks
@@ -16,11 +16,11 @@ Standards: [`Document Plugin.md`](../../../Document%20Plugin.md). Keep block str
 
 ## block.json conventions
 
-- `textdomain`: `beplus-advanced-reviews`
+- `textdomain`: `beplus-advanced-reviews-for-woocommerce`
 - `category`: use the plugin's custom block category if one is registered
 - `name`: `beplus-advanced-reviews/{slug}`
 - Prefer dynamic rendering for review-related blocks when the content depends on product context or live review data.
-- Keep attributes descriptive and camelCase, such as `showDistribution`, `showFilterBar`, `showSubmitForm`, `showImages`, `showAvatar`, `reviewsPerLoad`, `enableLazyLoad`.
+- Keep attributes descriptive and camelCase, such as `showDistribution`, `showFilterBar`, `showSubmitForm`, `showMedia`, and `showAvatar`.
 
 ## Planned / primary blocks
 
@@ -32,7 +32,7 @@ Standards: [`Document Plugin.md`](../../../Document%20Plugin.md). Keep block str
 
 - In `render.php`, escape all output and use `get_block_wrapper_attributes()` when rendering block markup.
 - Use `edit.tsx` for Inspector controls and preview states; keep labels and help text aligned with review terminology.
-- Use `view.ts` for client-side enhancements such as filter interactivity, image lightboxes, load more pagination, and paste-to-upload support.
+- Use `view.js` for client-side enhancements such as filter interactivity, media lightboxes, load more pagination, and paste-to-upload support.
 - Do not embed large amounts of review logic in `render.php` if the same behavior belongs in the view script or REST layer.
 
 ## Styling
@@ -57,7 +57,7 @@ Standards: [`Document Plugin.md`](../../../Document%20Plugin.md). Keep block str
 ✅ beplus-advanced-reviews/advanced-review
 
 ❌ Inline script blobs in render.php for filtering reviews
-✅ view.ts + REST + localized data from the asset loader
+✅ view.js + REST + localized data from the asset loader
 
 ❌ <div onclick="openImage()">Review image</div>
 ✅ <button type="button">View review image</button>

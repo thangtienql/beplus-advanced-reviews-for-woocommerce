@@ -36,7 +36,7 @@ Long-form context stays in this file and in `Document Plugin.md`; avoid duplicat
 | REST namespace | `beplus-advanced-reviews-for-woocommerce/v1` |
 | Block prefix | `beplus-advanced-reviews/` |
 | CSS prefix | `beplus-advanced-reviews-for-woocommerce` (BEM) |
-| CSS design tokens | `--bpar-*` (mapped to WP theme.json `--wp--preset--color--*` with fallbacks) |
+| CSS design tokens | `--bpar-*` (plugin defaults and Styling overrides) |
 | DB table prefix | `{wpdb->prefix}bparfw_` |
 
 ## Core features
@@ -46,27 +46,28 @@ Long-form context stays in this file and in `Document Plugin.md`; avoid duplicat
 - **Total review count** — number of approved reviews.
 - **Star distribution chart** — bar chart showing count per star rating (1★–5★).
 - **Review list** — paginated list of review cards rendered via a Gutenberg block.
-- **Review card** — avatar, reviewer name, rating score, content, date, and images.
+- **Review card** — avatar, reviewer name, rating score, content with preserved line breaks, date, and attachments.
 
 ### 2. Reviews with Media (Image & Video) Attachments
 - Customers can upload **images and videos** alongside their written review.
 - **Copy/paste from clipboard** into the review form is supported for images.
 - Accepted formats: JPEG, PNG, WebP for images; MP4, WebM, OGG for videos.
 - Media files are stored in the standard WordPress media library via a swappable `MediaStorageInterface`, and linked to the review via a custom meta table (`{wpdb->prefix}bparfw_review_media`).
-- A lightbox renders both images and videos within the review card on the front end, with live preview during upload.
+- The upload preview supports reordering picked files and a pasted image. The gallery and lightbox use the order stored in `sort_order`, with the link `id` breaking ties.
 
 ### 3. Review Submission Form
-- Inline form to write and submit a review with a star rating and optional images.
+- Inline form to write and submit a review with a star rating and optional media.
 - Supports file input (multi-select) and clipboard paste.
-- Load More button for AJAX pagination.
+- The form shows progress while sending and keeps the draft and attachments if the request fails.
 
 ### 4. Smart Review Filter & Sort
 - A front-end filter bar lets visitors narrow the review list without a page reload.
 - **Filter options:**
-  - By star rating (1 ★ through 5 ★, multi-select)
-  - **Images only** — show only reviews that include at least one image
+  - By a single star rating (1 ★ through 5 ★)
+  - **With media attached only** — show reviews with an image or video attached
+  - **Verified** — show reviews from verified purchasers
   - Sort by date (newest/oldest) or rating (highest/lowest)
-- Filtering is handled client-side via the block's TypeScript view script; for large datasets a REST endpoint supports server-side pagination with filter params.
+- On each filter or sort change, `view.js` requests page 1 from REST and ignores superseded responses. Load More appends the next page and advances pagination after a successful response.
 
 ### 5. Plugin Settings (Advanced Reviews)
 Accessible via WooCommerce > Advanced Reviews. Contains three main tabs:
@@ -127,7 +128,7 @@ Accessible via WooCommerce > Advanced Reviews. Contains three main tabs:
 
 After changing JS/TS or block sources, run **`npm run build`** (or **`npm run watch`**) from the plugin root.
 
-PHP dev tools: **`npm run composer:install`** (no global Composer required — see [`README.md`](./README.md)).
+Use **`npm run ensure:composer`** to install PHP dev tools such as PHPStan. The **`npm run composer:install`** script installs runtime dependencies.
 
 ## PHP load map
 
@@ -147,7 +148,7 @@ beplus-advanced-reviews-for-woocommerce.php
 1. `register_core_services()` — container bindings
 2. `register_services_from_filter()` — `beplus_advanced_reviews.services`
 3. `boot_registered_modules()` — call `register()` on each `AbstractModule`
-4. Hook `rest_api_init` for REST controllers, `init` for textdomain, `block_categories_all` for block category
+4. Hook `rest_api_init` for REST controllers and `block_categories_all` for the block category
 
 Outside `boot()`, the bootstrap file (`beplus-advanced-reviews-for-woocommerce.php`) runs on `plugins_loaded`, requires `includes/common.php` and `includes/hooks.php`, and gates on WooCommerce being active.
 
@@ -188,34 +189,16 @@ CREATE TABLE {prefix}bparfw_review_media (
 
 - **Registration:** `BlockRegistry` scans `blocks/*/block.json` and calls `register_block_type_from_metadata()`.
 - **Category:** `beplus-advanced-reviews-for-woocommerce` (registered in `Plugin::register_block_category()`).
-- **Build:** esbuild → `blocks/*/index.js`, `admin/js/settings.js` (see [`README.md`](./README.md)).
+- **Build:** Sass generates the block and admin CSS. esbuild writes the view script output to `build/`. WordPress loads the checked-in block and admin scripts directly (see [`README.md`](./README.md)).
 - **Blocks:**
   - `advanced-review` — primary block; full review list with image gallery, star distribution, filter bar, sort controls, and submit form. Intended for WooCommerce single product templates.
 - **Extension filter:** `beplus_advanced_reviews.blocks`.
 
 ### `advanced-review` block — front-end data flow
 
-```
-Page load
-  └── REST GET /reviews?product_id=…  →  ReviewController::get_reviews()
-  ├── REST GET /reviews/distribution?product_id=… → ReviewController::get_star_distribution()
-  │     Returns paginated review list + star distribution
-  │
-  └── view.js hydrates the block DOM:
-        ├── Renders star distribution bar chart
-        ├── Renders review list cards with **image lightboxes**
-        └── Binds filter bar + sort controls
-
-User applies filter (star / images-only / verified-only)
-  └── Client-side filter in view.js (no reload for first page)
-        └── If next page needed → REST GET /reviews?product_id=…&rating=…&has_images=1&verified_only=1&page=…
-
-User submits review
-  └── REST POST /reviews  →  ReviewController::create_review()
-        ├── Validates nonce
-        ├── Creates wp_comment via wp_insert_comment()
-        └── Handles image uploads → MediaHandler → bparfw_review_media
-```
+- PHP renders the initial review list and star distribution. The block fetches both via REST and keeps the rendered content while updating.
+- Filtering and sorting request page 1 with the selected options. Load More requests the next page with the same options. Failed requests leave existing results in place and can be retried.
+- The form submits `POST /reviews` through `ReviewController::create_item()`. `ReviewSubmission` uses `wp_new_comment()`, so WordPress handles moderation. `MediaHandler` saves attachments in the preview order. A successful submission refreshes both the list and distribution.
 
 ## REST API
 
@@ -225,7 +208,7 @@ User submits review
 |--------|-------|------|-------------|
 | `GET` | `/reviews` | public | List reviews; supports `product_id`, `rating`, `has_images`, `verified_only`, `page`, `per_page`, `sort` |
 | `GET` | `/reviews/distribution` | public | Star distribution counts for a product |
-| `POST` | `/reviews` | logged-in or nonce | Submit a new review with rating and optional images |
+| `POST` | `/reviews` | logged-in or nonce | Submit a new review with rating and optional media |
 | `DELETE` | `/reviews/(?P<id>\d+)` | `manage_woocommerce` | Remove a review |
 | `GET` | `/settings` | `manage_options` | Retrieve plugin settings |
 | `POST` | `/settings` | `manage_options` | Save plugin settings |
@@ -253,7 +236,7 @@ Document all hooks in `src/Core/HookManager.php`:
 
 ```bash
 npm install
-npm run composer:install   # NOT `composer install`
+npm run ensure:composer
 ```
 
 **Before commit / push:**
@@ -262,12 +245,12 @@ npm run composer:install   # NOT `composer install`
 |---------|------|
 | `npm run precommit` | Dry-run pre-commit |
 | `npm run prepush` | Dry-run pre-push (Composer + CI) |
-| `npm run git:push` | Push with prepush checks |
+| `git push` | Push with the Husky pre-push hook |
 
 Husky **pre-push** runs: `ensure:composer` → `typecheck` → `lint:php:all` → `build`.
 
 - `npm run build` — compile assets
-- `npm run lint:php:all` — PHPStan (needs `vendor/` from composer:install)
+- `npm run lint:php:all` — PHPStan (needs Composer dev dependencies)
 - Manual: activate plugin, drop `advanced-review` block into a single product template, submit a test review with images, verify filter bar, check REST endpoints, confirm admin settings save.
 
 ## Security baseline

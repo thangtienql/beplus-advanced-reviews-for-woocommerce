@@ -33,12 +33,13 @@
 |---------|-------------|
 | ⭐ **Average Rating & Count** | Aggregated star rating score and total review count for each product |
 | 📊 **Star Distribution Chart** | Visual bar chart showing review count per star rating (1★–5★) |
-| 📝 **Rich Review Cards** | Avatar, reviewer name, star rating, written content, date, and attached media |
+| 📝 **Rich Review Cards** | Avatar, reviewer name, star rating, written content with preserved line breaks, date, and attached media |
 | 📸 **Image & Video Uploads** | Customers upload JPEG, PNG, WebP images and MP4, WebM, OGG videos with their reviews |
 | 📋 **Clipboard Paste** | Paste images directly from clipboard into the review form |
-| 🔍 **Smart Filter Bar** | Filter by star rating (multi-select), images-only toggle — no page reload |
+| ↔️ **Attachment Order** | Reorder selected and pasted media before submitting. The gallery and lightbox follow the saved order. |
+| 🔍 **Smart Filter Bar** | Filter by one star rating, attached media, or verified purchase without reloading the page |
 | 🔃 **Sort Controls** | Sort reviews by date (newest/oldest) or rating (highest/lowest) |
-| ♾️ **Load More (AJAX)** | Paginated review list with a Load More button, powered by REST API |
+| ♾️ **Load More (AJAX)** | Paginated reviews with loading feedback and retry. Filtering, sorting, and review submission also show progress. |
 | 🖼️ **Lightbox** | Full-size image & video preview in an accessible lightbox overlay |
 | 🧩 **Gutenberg Block** | Drag-and-drop `Advanced Reviews` block for Single Product templates (FSE / Site Editor) |
 | ⚙️ **Display Modes** | *Keep default* (manual placement) or *Replace default* (auto-override WooCommerce reviews) |
@@ -128,16 +129,19 @@ Navigate to **WooCommerce → Advanced Reviews** in your WordPress admin.
 | `showDistribution` | `boolean` | `true` | Show/hide the star distribution chart |
 | `showFilterBar` | `boolean` | `true` | Show/hide the filter bar |
 | `showSubmitForm` | `boolean` | `true` | Show/hide the review submission form |
-| `showImages` | `boolean` | `true` | Show/hide image attachments on review cards |
+| `showMedia` | `boolean` | `true` | Show attachments on review cards and enable the upload area when media uploads are allowed |
+| `showImages` | `boolean` | Unset | Legacy attribute. An explicitly saved `false` hides media. |
 | `showAvatar` | `boolean` | `true` | Show/hide reviewer avatars |
-| `reviewsPerLoad` | `number` | `10` | Number of reviews per page/load |
-| `enableLazyLoad` | `boolean` | `true` | Enable lazy loading for the review list |
+| `showVerifiedFilter` | `boolean` | `true` | Show the Verified filter when verified purchases are enabled in settings |
+| `enableLazyLoad` | `boolean` | `true` | Saved editor option. The current frontend requests reviews when the block initializes. |
+
+Set the number of reviews per page in **WooCommerce → Advanced Reviews → General → Reviews per load**.
 
 ---
 
 ## 🎨 Color System
 
-All frontend colors use consistent hardcoded defaults, so the review display looks identical on any theme. No configuration needed — it just works.
+Plugin styles define the default frontend colors. Use the **Styling** tab or custom CSS to change them.
 
 ### How It Works
 
@@ -149,7 +153,7 @@ Frontend colors are defined as `--bpar-*` CSS custom properties:
 | `--bpar-text` | `#000000` |
 | `--bpar-bg` | `#FFFFFF` |
 
-Derived colors (hover states, muted text, borders) are automatically computed from the primary color using CSS `color-mix()`.
+Derived colors (hover states, muted text, borders) are computed from the primary, text, and background tokens using CSS `color-mix()`.
 
 The 11 admin-editable colors can also be customized from **WooCommerce → Advanced Reviews → Styling** — the plugin outputs an inline `<style>` override when any color differs from its default. Derived tones are not individually editable.
 
@@ -162,22 +166,6 @@ Override any token in your theme's custom CSS:
   --bpar-primary: #0073aa;  /* Use a custom accent color */
 }
 ```
-
-Or in your `theme.json`:
-
-```json
-{
-  "settings": {
-    "color": {
-      "palette": [
-        { "slug": "primary", "color": "#0073aa", "name": "Primary" }
-      ]
-    }
-  }
-}
-```
-
-> **Note:** All colors are hardcoded plugin defaults (`#000000`, `#FFFFFF`, etc.) and render consistently on any theme — classic or block-based.
 
 ---
 
@@ -214,9 +202,9 @@ curl "https://yoursite.com/wp-json/beplus-advanced-reviews-for-woocommerce/v1/re
 
 ### Prerequisites
 
-- **Node.js** 16+ and **npm**
+- **Node.js** 22+ and **npm**
 - **PHP** 7.4+ (for linting & static analysis)
-- No global Composer required — `npm run composer:install` handles it
+- **Composer** for installing the PHP development dependencies used by the quality checks
 
 ### Setup
 
@@ -224,18 +212,18 @@ curl "https://yoursite.com/wp-json/beplus-advanced-reviews-for-woocommerce/v1/re
 git clone https://github.com/thangtienql/beplus-advanced-reviews-for-woocommerce.git
 cd beplus-advanced-reviews-for-woocommerce
 npm install
-npm run composer:install
+npm run ensure:composer
 ```
 
 ### Build Commands
 
 | Command | Description |
 |---------|-------------|
-| `npm run build` | Compile SCSS + bundle JS via esbuild (production) |
+| `npm run build` | Compile the block and admin SCSS, then build the view script into `build/` with esbuild |
 | `npm run build:css` | Compile SCSS only (compressed, no source maps) |
 | `npm run watch` | Watch JS files for changes (esbuild) |
 | `npm run watch:css` | Watch SCSS files for changes (sass) |
-| `npm run build:package` | Create distributable ZIP for release |
+| `npm run build:package` | Package runtime files into an installable ZIP after running `npm run build` |
 
 ### Quality Checks
 
@@ -246,7 +234,9 @@ npm run composer:install
 | `npm run precommit` | Dry-run pre-commit checks (CSS build + typecheck + PHPStan) |
 | `npm run prepush` | Full pre-push checks (Composer + typecheck + PHPStan + build) |
 
-> **Husky** is configured to run pre-push checks automatically via `npm run prepush`.
+WordPress loads the checked-in `blocks/advanced-review/view.js`, editor entry `index.js`, and `admin/js/settings.js` directly. The release ZIP uses those runtime files and the compiled CSS.
+
+> Husky runs `npm run precommit` before commits and `npm run prepush` before pushes. Install Composer dev dependencies with `npm run ensure:composer` before running PHPStan in a fresh checkout.
 
 ---
 
@@ -371,7 +361,7 @@ Contributions are welcome! Here's how to get started:
 
 1. **Fork** the repository.
 2. **Create** a feature branch: `git checkout -b feature/my-new-feature`.
-3. **Install** dependencies: `npm install && npm run composer:install`.
+3. **Install** dependencies: `npm install && npm run ensure:composer`.
 4. **Make** your changes.
 5. **Run checks**: `npm run precommit` to ensure code quality.
 6. **Commit** with a descriptive message.

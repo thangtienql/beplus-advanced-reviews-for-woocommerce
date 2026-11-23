@@ -1,6 +1,6 @@
 ---
 name: bparfw-add-plugin-block
-description: Adds or extends a Beplus Advanced Reviews For Woocommerce Gutenberg block under blocks/ using block.json, TypeScript, esbuild, render.php. Use when creating blocks, editing BlockRegistry, block.json, render.php, index.tsx, edit.tsx, view.ts, or build scripts for beplus-advanced-reviews.
+description: Adds or extends a Beplus Advanced Reviews For Woocommerce Gutenberg block under blocks/ using block.json, TypeScript, esbuild, render.php. Use when creating blocks, editing BlockRegistry, block.json, render.php, index.js, edit.tsx, view.js, or build scripts for beplus-advanced-reviews.
 ---
 
 # Beplus Advanced Reviews For Woocommerce — add or change a plugin block
@@ -8,32 +8,31 @@ description: Adds or extends a Beplus Advanced Reviews For Woocommerce Gutenberg
 ## Before you edit
 
 - Read [`AGENTS.md`](../../../AGENTS.md) § **Gutenberg blocks** and [`Document Plugin.md`](../../../Document%20Plugin.md) § **Gutenberg Block — advanced-review**.
-- Read `docs/advanced-review-block.md` when building or changing the primary `advanced-review` block.
-- Read `docs/review-filter-ux.md` and `docs/review-media.md` for block behavior, accessibility, image handling, and filter UX.
+- Read [the frontend data flow](../../../Document%20Plugin.md#10-front-end-data-flow) and use [the current view script](../../../blocks/advanced-review/view.js) as the reference for filter, upload, and lightbox behavior.
 - Registration: `src/Blocks/BlockRegistry.php` — auto-discovers `blocks/*/block.json`.
 
 ## Scaffold
 
-1. Create `blocks/{slug}/` with `block.json`, `index.tsx`, `edit.tsx`, `view.ts`, `render.php`, `style.css`.
+1. Create `blocks/{slug}/` with `block.json`, `render.php`, and the editor, view, and style assets referenced in the metadata.
 2. Set `block.json`:
    - `name`: `beplus-advanced-reviews/{slug}`
-   - `textdomain`: `beplus-advanced-reviews`
-   - `category`: `beplus-advanced-reviews`
+   - `textdomain`: `beplus-advanced-reviews-for-woocommerce`
+   - `category`: `beplus-advanced-reviews-for-woocommerce`
    - `render`: `file:./render.php`
 3. Register the block category in `Plugin::register_block_category()` if needed.
 
 ## Implement — advanced review block
 
-1. **Attributes:** `showDistribution`, `showFilterBar`, `showSubmitForm`, `showImages`, `showAvatar`, `reviewsPerLoad`, `enableLazyLoad`.
+1. **Attributes:** use [the registered metadata](../../../blocks/advanced-review/block.json) and keep the editor and server renderer in sync. Page size comes from the admin setting.
 2. **render.php:** wrap with `get_block_wrapper_attributes()`; render review list, star distribution chart, filter controls, sort controls, submit form shell, and image placeholders; escape all output.
 3. **edit.tsx:** provide Inspector controls for review display and filtering options.
-4. **view.ts:** hydrate client-side filter interactions, image lightbox behavior, load more pagination, star distribution chart, and paste-to-upload support.
+4. **view.js:** bind filters to REST, update the review list and star summary, and handle upload previews, attachment ordering, and the lightbox.
 5. **REST:** use `beplus-advanced-reviews-for-woocommerce/v1/reviews` and `beplus-advanced-reviews-for-woocommerce/v1/reviews/distribution` for live data and submission flows; do not embed ad-hoc SQL in the block.
 
 ## Styling
 
 - Class prefix: `beplus-advanced-reviews-for-woocommerce__*`
-- Loading: `beplus-advanced-reviews--loading` → `beplus-advanced-reviews--ready`
+- Use `aria-busy`, local status messages, and retry controls in the region that is updating.
 - Scope styles to the block wrapper — avoid global resets
 
 ## Build and verify
@@ -49,13 +48,10 @@ description: Adds or extends a Beplus Advanced Reviews For Woocommerce Gutenberg
 | `blocks/advanced-review/block.json` | Primary block metadata, attributes, render callback |
 | `src/Blocks/BlockRegistry.php` | Auto-discovery |
 | `src/Core/Placement.php` | Display mode logic |
-| `docs/advanced-review-block.md` | Block spec, UX, and review flow |
-| `docs/review-filter-ux.md` | Filter UX, DOM contract, accessibility |
-| `docs/review-media.md` | Image previews, uploads, paste, and lightbox behavior |
 
 ## Checklist
 
-- [ ] `block.json` uses `beplus-advanced-reviews/` name prefix and textdomain.
+- [ ] `block.json` uses the `beplus-advanced-reviews/` name prefix and `beplus-advanced-reviews-for-woocommerce` text domain.
 - [ ] `render.php` escaped; no raw user input in output.
 - [ ] REST used for live review data — not ad-hoc SQL in render.
 - [ ] `npm run build` run; no hand-edits to generated files.

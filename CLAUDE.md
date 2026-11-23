@@ -15,9 +15,10 @@ See [`AGENTS.md`](./AGENTS.md) for the complete reference, including:
 ## Essential commands (from plugin root)
 
 ```bash
-npm install && npm run composer:install   # first-time setup
-npm run build                              # compile all assets
-npm run watch                              # dev mode with hot rebuild
+npm install && npm run ensure:composer    # first-time dev setup
+npm run build                              # compile CSS and build the view script
+npm run watch                              # watch the view script
+npm run watch:css                          # watch block and admin SCSS
 npm run precommit                          # pre-commit dry-run
 npm run prepush                            # pre-push dry-run
 npm run lint:php:all                       # PHPStan analysis

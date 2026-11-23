@@ -19,7 +19,7 @@
 | **Hook prefix (new, namespaced)** | `beplus-advanced-reviews-for-woocommerce/` or `beplus_advanced_reviews.` |
 | **REST namespace** | `beplus-advanced-reviews-for-woocommerce/v1` |
 | **Block category** | `beplus-advanced-reviews-for-woocommerce` |
-| **Block name prefix** | `beplus-advanced-reviews-for-woocommerce/` |
+| **Block name prefix** | `beplus-advanced-reviews/` |
 | **Requires WP** | 6.0+ |
 | **Requires PHP** | 7.4+ (8.0+ recommended) |
 
@@ -44,7 +44,7 @@ A drag-and-drop Gutenberg block that renders the full review experience. The **R
 | **Review card** | Avatar, reviewer name, rating score, content, date, media (images & video) |
 | **Review media** | Uploaded media (images/videos) or copy/pasted images attached to a review, displayed via lightbox |
 | **Review submission form** | Inline form to write and submit a review with rating and media, including video preview |
-| **Load More button** | AJAX "Load More" to fetch the next page of reviews |
+| **Load More button** | Fetch the next page with progress, duplicate-click protection, and retry |
 | **Filter & Sort** | Filter by star rating, show only reviews with media, show only verified purchases, sort by date/rating. Also supports hiding reviews below a minimum `rating_threshold`. |
 
 ### 2.3 Review Card
@@ -54,7 +54,7 @@ Each review card displays:
 - **Avatar** (Gravatar or user profile image, if logged in)
 - **Reviewer name**
 - **Rating score** (star rating)
-- **Content** (review text)
+- **Content** (review text with preserved line breaks)
 - **Review date**
 - **Images** (clickable thumbnails, opens lightbox)
 
@@ -63,7 +63,7 @@ Each review card displays:
 - Upload images and videos via file input (multi-select)
 - **Copy/paste from clipboard** into the review form (images only)
 - Uses a swappable `MediaStorageInterface` (backed by standard WordPress Media Library by default) for storage
-- Linked via `{wpdb->prefix}bparfw_review_media` table
+- Users can reorder attachments in the form by dragging or using the move buttons. The media table records the gallery order in `sort_order`; the link `id` breaks ties for existing attachments.
 - Lightbox functionality to view both images and videos on the frontend
 
 ### 2.5 Verified Purchase Badge
@@ -81,7 +81,7 @@ Reviews from customers who have actually purchased the product display a **"Veri
 Administrators can customize the 11 admin-controllable frontend color tokens from **WooCommerce → Advanced Reviews → Styling**.
 
 - **Per-token color pickers:** Each of the 11 editable colors (primary, text, background, button text, empty star, error/success states) has its own color picker with hex input. Derived tones (hover, light, muted, border) are computed via CSS `color-mix()` from the primary/text/bg colors and are **not** individually editable.
-- **Inline CSS injection:** `StylingModule` reads the `colors` settings array and outputs a `<style id="bparfw-custom-colors">` block at `wp_head` priority 1, overriding the default theme-aware colors.
+- **Inline CSS injection:** `StylingModule` reads the `colors` settings array and outputs a `<style id="bparfw-custom-colors">` block at `wp_head` priority `9999`, overriding the plugin CSS defaults.
 - **Default-aware:** When all colors match their defaults, no inline CSS is emitted — the existing `style.css` `:root` block handles styling entirely.
 - **Reset to defaults:** Individual per-field reset buttons and a global "Reset to Defaults" button allow quick reversion.
 - Core logic: `src/Styling/StylingModule.php`. Admin UI: `src/Settings/SettingsRegistry.php` (`render_styling_card()`).
@@ -231,7 +231,7 @@ beplus-advanced-reviews-for-woocommerce/
 
 ### 4.1 CSS Theming Architecture
 
-The plugin uses **all-hardcoded default colors** — no theme-dependent tokens — so the front end always matches what the admin saves in the Styling tab.
+The plugin defines its default colors in SCSS. Values saved in the Styling tab override those defaults through CSS custom properties.
 
 **How it works:**
 
@@ -275,7 +275,7 @@ The plugin uses **all-hardcoded default colors** — no theme-dependent tokens �
 | `--bpar-border` | `color-mix(primary 15%, bg)` |
 | `--bpar-border-dark` | `color-mix(border 85%, black)` |
 
-**To customize:** override any `--bpar-*` token in your theme's custom CSS or `theme.json`:
+**To customize:** override a `--bpar-*` token in your theme's custom CSS:
 ```css
 :root { --bpar-primary: #0073aa; }
 ```
@@ -869,37 +869,7 @@ blocks/advanced-review/
 └── style.css       # compiled styles
 ```
 
-**Sample block.json:**
-
-```json
-{
-	"$schema": "https://schemas.wp.org/trunk/block.json",
-	"apiVersion": 3,
-	"name": "beplus-advanced-reviews/advanced-review",
-	"title": "Advanced Reviews",
-	"category": "beplus-advanced-reviews-for-woocommerce",
-	"icon": "star-filled",
-	"description": "Modern WooCommerce product reviews with images, star distribution, filtering, and load more.",
-	"textdomain": "beplus-advanced-reviews-for-woocommerce",
-	"attributes": {
-		"showDistribution": { "type": "boolean", "default": true },
-		"showFilterBar":    { "type": "boolean", "default": true },
-		"showSubmitForm":   { "type": "boolean", "default": true },
-		"showImages":       { "type": "boolean", "default": true },
-		"showAvatar":       { "type": "boolean", "default": true },
-		"reviewsPerLoad":   { "type": "number",  "default": 10 },
-		"enableLazyLoad":   { "type": "boolean", "default": true }
-	},
-	"supports": {
-		"html": false,
-		"align": ["wide", "full"]
-	},
-	"render": "file:./render.php",
-	"editorScript": "file:./index.js",
-	"viewScript": "file:./view.js",
-	"style": "file:./style.css"
-}
-```
+See [the block metadata](./blocks/advanced-review/block.json) for its current attributes, asset version, and runtime entry points. The admin **Reviews per load** setting supplies the page size.
 
 **BlockRegistry** auto-scans `blocks/*/block.json` and calls `register_block_type_from_metadata()`.
 
@@ -913,30 +883,10 @@ apply_filters( 'beplus_advanced_reviews.blocks', array() );
 
 ## 10. Front-End Data Flow
 
-```
-Page load
-  └── REST GET /reviews?product_id=…        →  ReviewController::get_items()
-  ├── REST GET /reviews/distribution?product_id=… → ReviewController::get_star_distribution()
-  │     Returns initial review page + star distribution
-  │
-  └── view.js hydrates the block:
-        ├── Renders star distribution bar chart
-        ├── Renders review list cards
-        └── Binds filter bar + sort controls
-
-User clicks "Load More"
-  └── REST GET /reviews?product_id=…&page=2  →  Appends next page
-
-User applies filter (star rating / has images)
-  └── REST GET /reviews?product_id=…&rating=5&has_images=1 →  Replaces list
-
-User submits review
-  └── REST POST /reviews  →  ReviewController::create_item()
-        ├── Validates nonce
-        ├── Creates wp_comment via wp_insert_comment()
-        ├── Handles image uploads → MediaHandler
-        └── Handles pasted images → MediaHandler::upload_pasted_image()
-```
+- **Initial display.** PHP renders the review list and star summary. `view.js` keeps that content during requests to `GET /reviews` and `GET /reviews/distribution`. The list uses a skeleton only when there is no initial content.
+- **Filtering and sorting.** The block requests page 1 on each change. Only the latest list request can update the view. On failure, the controls return to the options used by the visible results and provide a retry for the failed selection.
+- **Load More.** The block requests the next page with the applied filters, advances the page only on success, and retries the same page after an error.
+- **Submission.** `POST /reviews` calls `ReviewController::create_item()`. `ReviewSubmission` calls `wp_new_comment()` with WordPress moderation. The media handler links successful uploads in preview order. On success, the block refreshes the list with the current filters and reloads the star summary. A refresh retry repeats the corresponding GET request.
 
 ---
 
@@ -948,12 +898,14 @@ User submits review
 |--------|-------|------|-------------|
 | `GET` | `/reviews` | public | List reviews; supports `product_id`, `rating`, `has_images`, `verified_only`, `page`, `per_page`, `sort` |
 | `GET` | `/reviews/distribution` | public | Star distribution counts for a product |
-| `POST` | `/reviews` | logged-in or nonce | Submit a new review with rating and optional images |
+| `POST` | `/reviews` | logged-in or nonce | Submit a new review with rating and optional media |
 | `DELETE` | `/reviews/{id}` | `manage_woocommerce` | Remove a review |
 | `GET` | `/settings` | `manage_options` | Retrieve plugin settings |
 | `POST` | `/settings` | `manage_options` | Save plugin settings |
 
-- Localize REST URL + nonce via `wp_localize_script` (`bparfwData` object).
+- `POST /reviews` sends files in multipart `media[]` and a clipboard image in optional `paste_image`. When supplied, `paste_position` is the zero-based position of the pasted image in the combined list. Requests that omit it append the pasted image after uploaded files.
+- If a review is saved but one or more attachments fail, the response remains successful and includes `media_failed_count` with a warning message. Successful attachments keep their relative order.
+- The REST URL and nonce are localized in `bparfwData`.
 
 ---
 
@@ -965,35 +917,7 @@ User submits review
 - Blocks: localized data script handles are registered in block metadata or via `wp_enqueue_scripts`
 - `bparfwData` object is localized on a standalone data script (`beplus-advanced-reviews-for-woocommerce-data`) enqueued on every front-end page
 
-**Localized data:**
-
-```php
-wp_localize_script(
-	'beplus-advanced-reviews-for-woocommerce-data',
-	'bparfwData',
-	array(
-		'restUrl'         => rest_url( 'beplus-advanced-reviews-for-woocommerce/v1/' ),
-		'nonce'           => wp_create_nonce( 'wp_rest' ),
-		'maxUploadSize'   => beplus_advanced_reviews_for_woocommerce_get_max_image_size(),
-		'allowedTypes'    => array( 'image/jpeg', 'image/png', 'image/webp' ),
-		'pasteEnabled'    => true,
-		'imagesEnabled'   => true,
-		'videosEnabled'   => false,
-		'maxVideoSize'    => 20971520,
-		'videoTypes'      => array( 'video/mp4', 'video/webm', 'video/ogg' ),
-		'i18n'            => array(
-			'noReviews'       => __( 'No reviews yet.', 'beplus-advanced-reviews-for-woocommerce' ),
-			'loadMore'        => __( 'Load More', 'beplus-advanced-reviews-for-woocommerce' ),
-			'submitSuccess'   => __( 'Review submitted!', 'beplus-advanced-reviews-for-woocommerce' ),
-			'submitError'     => __( 'Something went wrong.', 'beplus-advanced-reviews-for-woocommerce' ),
-			'ratingRequired'  => __( 'Please select a rating.', 'beplus-advanced-reviews-for-woocommerce' ),
-			'contentRequired' => __( 'Please write a review.', 'beplus-advanced-reviews-for-woocommerce' ),
-			'imageTooLarge'   => __( 'Image must be smaller than %s MB.', 'beplus-advanced-reviews-for-woocommerce' ),
-			'videoTooLarge'   => __( 'Video must be smaller than %s MB.', 'beplus-advanced-reviews-for-woocommerce' ),
-		),
-	)
-);
-```
+**Localized data:** [AssetLoader](./src/Core/AssetLoader.php) populates `bparfwData` with the REST URL and nonce, upload settings and MIME types, and translated strings for validation, upload ordering, and AJAX feedback.
 
 **Build commands (package.json):**
 
