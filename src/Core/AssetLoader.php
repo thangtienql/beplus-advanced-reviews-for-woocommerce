@@ -54,6 +54,7 @@ class AssetLoader extends AbstractModule {
 			'videoTypes'      => array( 'video/mp4', 'video/webm', 'video/ogg' ),
 			'i18n'            => array(
 				'noReviews'       => __( 'No reviews yet.', 'beplus-advanced-reviews-for-woocommerce' ),
+				'noMatchingReviews' => __( 'No reviews match your filters.', 'beplus-advanced-reviews-for-woocommerce' ),
 				'loadMore'        => __( 'Load More', 'beplus-advanced-reviews-for-woocommerce' ),
 				'updatingReviews' => __( 'Updating reviews…', 'beplus-advanced-reviews-for-woocommerce' ),
 				'loadingMoreReviews' => __( 'Loading more reviews…', 'beplus-advanced-reviews-for-woocommerce' ),

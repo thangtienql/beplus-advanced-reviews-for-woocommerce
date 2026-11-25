@@ -18,7 +18,7 @@ $prefix: beplus-advanced-reviews-for-woocommerce;
 	flex-direction: column;
 	gap: 16px;
 
-	label {
+	> label {
 		font-size: 13px;
 		font-weight: 500;
 		color: #7c7c7c;
@@ -34,6 +34,7 @@ $prefix: beplus-advanced-reviews-for-woocommerce;
 		font-size: 14px;
 		resize: vertical;
 		background: var(--bpar-bg);
+		color: var(--bpar-text);
 		box-sizing: border-box;
 		transition: border-color 0.2s ease, box-shadow 0.2s ease;
 
@@ -53,6 +54,7 @@ $prefix: beplus-advanced-reviews-for-woocommerce;
 		font-family: inherit;
 		font-size: 14px;
 		background: var(--bpar-bg);
+		color: var(--bpar-text);
 		transition: border-color 0.2s ease, box-shadow 0.2s ease;
 
 		&:focus {

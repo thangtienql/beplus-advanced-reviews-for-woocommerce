@@ -79,19 +79,24 @@ class StylingModule extends AbstractModule {
 
 		// Only output tokens that differ from defaults — the rest stay in style.css.
 		// Compare case-insensitively: native <input type="color"> always returns lowercase hex.
-		$overrides = '';
+		$css_rules = array();
 		foreach ( self::COLOR_MAP as $key => $var ) {
-			$current = isset( $colors[ $key ] ) ? strtoupper( (string) $colors[ $key ] ) : '';
-			$default = strtoupper( self::DEFAULTS[ $key ] );
-			if ( $current !== '' && $current !== $default ) {
-				$overrides .= "  {$var}: " . esc_attr( $current ) . ";\n";
+			$sanitized = sanitize_hex_color( (string) ( $colors[ $key ] ?? '' ) );
+			$current   = $sanitized ? strtoupper( $sanitized ) : '';
+			$default   = strtoupper( self::DEFAULTS[ $key ] );
+			if ( '' !== $current && $current !== $default ) {
+				$css_rules[ $var ] = $current;
 			}
 		}
 
-		if ( '' === $overrides ) {
+		if ( empty( $css_rules ) ) {
 			return;
 		}
 
-		echo '<style id="bparfw-custom-colors">' . "\n:root {\n" . $overrides . "}\n</style>" . "\n";
+		echo '<style id="bparfw-custom-colors">' . "\n:root {\n";
+		foreach ( $css_rules as $var => $value ) {
+			echo '  ' . esc_html( $var ) . ': ' . esc_html( $value ) . ";\n";
+		}
+		echo "}\n</style>\n";
 	}
 }

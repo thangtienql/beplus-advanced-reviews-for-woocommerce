@@ -91,19 +91,6 @@
 		}
 	});
 
-	// Persist active tab before form submit (Save → redirect loses the hash)
-	document.addEventListener('submit', function (e) {
-		var form = e.target.closest('.bparfw-settings__form');
-		if (!form) return;
-
-		var activeTab = document.querySelector('.bparfw-settings__tab.is-active');
-		if (activeTab) {
-			var tabName = activeTab.getAttribute('data-bparfw-tab');
-			if (tabName) {
-				sessionStorage.setItem('bparfwActiveTab', tabName);
-			}
-		}
-	});
 	// =============================================
 	// Color picker sync & validation
 	// =============================================
@@ -120,7 +107,6 @@
 		var hexInput = document.querySelector('[data-bparfw-color-hex="' + key + '"]');
 		var statusEl = document.querySelector('[data-bparfw-color-status="' + key + '"]');
 		var resetBtn = document.querySelector('[data-bparfw-color-reset="' + key + '"]');
-		var errorEl = document.querySelector('[data-bparfw-color-error="' + key + '"]');
 		var nativeInput = document.querySelector('[data-bparfw-color-input="' + key + '"]');
 		var defaultVal = nativeInput ? nativeInput.getAttribute('data-bparfw-color-default') : '';
 
@@ -147,50 +133,47 @@
 			resetBtn.hidden = isDefault;
 		}
 
-		if (errorEl) {
-			errorEl.hidden = true;
-		}
 		if (hexInput) {
-			hexInput.classList.remove('is-invalid');
+			setColorError(hexInput, false);
 		}
 	}
 
 	/**
-	 * Show validation error on a hex input.
+	 * Update the validation state of a hex input.
 	 *
-	 * @param {string} key
+	 * @param {HTMLInputElement} input
+	 * @param {boolean} invalid
 	 */
-	function showColorError(key) {
-		var hexInput = document.querySelector('[data-bparfw-color-hex="' + key + '"]');
+	function setColorError(input, invalid) {
+		var key = input.getAttribute('data-bparfw-color-hex');
 		var errorEl = document.querySelector('[data-bparfw-color-error="' + key + '"]');
-		if (hexInput) {
-			hexInput.classList.add('is-invalid');
-		}
+		input.classList.toggle('is-invalid', invalid);
 		if (errorEl) {
-			errorEl.hidden = false;
+			errorEl.hidden = !invalid;
+		}
+		if (invalid) {
+			input.setAttribute('aria-invalid', 'true');
+			if (errorEl) input.setAttribute('aria-describedby', errorEl.id);
+		} else {
+			input.removeAttribute('aria-invalid');
+			input.removeAttribute('aria-describedby');
 		}
 	}
 
 	/**
-	 * Check all hex fields are valid; return true if all pass.
+	 * Validate a hex input and normalize the value if valid.
 	 *
+	 * @param {HTMLInputElement} input
 	 * @return {boolean}
 	 */
-	function validateAllColors() {
-		var allHexInputs = document.querySelectorAll('[data-bparfw-color-hex]');
-		var allValid = true;
-		allHexInputs.forEach(function (input) {
-			var key = input.getAttribute('data-bparfw-color-hex');
-			if (input.value === '' || !HEX_REGEX.test(input.value)) {
-				showColorError(key);
-				allValid = false;
-			} else {
-				var errorEl = document.querySelector('[data-bparfw-color-error="' + key + '"]');
-				input.classList.remove('is-invalid');
-				if (errorEl) errorEl.hidden = true;
-			}
-		});
-		return allValid;
+	function validateColor(input) {
+		if (!HEX_REGEX.test(input.value)) {
+			setColorError(input, true);
+			return false;
+		}
+		input.value = input.value.toUpperCase();
+		syncColorUI(input.getAttribute('data-bparfw-color-hex'), input.value);
+		return true;
 	}
 
 	// Native color input change → sync hex + swatch
@@ -225,21 +208,9 @@
 	document.addEventListener('blur', function (e) {
 		var input = e.target;
 		if (input.matches && input.matches('[data-bparfw-color-hex]')) {
-			var key = input.getAttribute('data-bparfw-color-hex');
-			var value = input.value;
-
-			if (value === '' || !HEX_REGEX.test(value)) {
-				showColorError(key);
-			} else {
-				var errorEl = document.querySelector('[data-bparfw-color-error="' + key + '"]');
-				input.classList.remove('is-invalid');
-				if (errorEl) errorEl.hidden = true;
-				// Ensure uppercase
-				input.value = value.toUpperCase();
-				syncColorUI(key, value);
-			}
+			validateColor(input);
 		}
-	});
+	}, true);
 
 	// Individual reset button click
 	document.addEventListener('click', function (e) {
@@ -278,14 +249,20 @@
 		var form = e.target.closest('.bparfw-settings__form');
 		if (!form) return;
 
-		if (!validateAllColors()) {
+		var firstError;
+		form.querySelectorAll('[data-bparfw-color-hex]').forEach(function (input) {
+			if (!validateColor(input) && !firstError) firstError = input;
+		});
+
+		if (firstError) {
 			e.preventDefault();
-			// Scroll to first invalid field
-			var firstError = document.querySelector('[data-bparfw-color-hex].is-invalid');
-			if (firstError) {
-				firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
-				firstError.focus();
-			}
+			form.closest('.bparfw-settings').querySelector('[data-bparfw-tab="styling"]').click();
+			firstError.focus();
+			return;
 		}
+
+		// Save → redirect loses the hash.
+		var activeTab = document.querySelector('.bparfw-settings__tab.is-active');
+		if (activeTab) sessionStorage.setItem('bparfwActiveTab', activeTab.getAttribute('data-bparfw-tab'));
 	});
 })();

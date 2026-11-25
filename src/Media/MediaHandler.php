@@ -106,7 +106,7 @@ class MediaHandler extends AbstractModule {
 	private function next_sort_order( int $comment_id ): int {
 		global $wpdb;
 
-		return (int) $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+		return (int) $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Read the current maximum from the custom media table before appending; a cached maximum can be stale.
 			$wpdb->prepare(
 				"SELECT COALESCE(MAX(sort_order) + 1, 0) FROM {$wpdb->prefix}bparfw_review_media WHERE comment_id = %d",
 				$comment_id

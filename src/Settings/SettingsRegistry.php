@@ -370,19 +370,25 @@ class SettingsRegistry extends AbstractModule {
 		// Compare case-insensitively: sanitize_settings() uppercases stored
 		// colors, while get_defaults() uses mixed case for some keys.
 		$is_custom = ( strtoupper( $value ) !== strtoupper( $default ) );
-		$field_name = esc_attr( self::OPTION_KEY . '[colors][' . $key . ']' );
-		$field_id   = 'bparfw-color-' . esc_attr( $key );
+		$field_name = self::OPTION_KEY . '[colors][' . $key . ']';
+		$field_id   = 'bparfw-color-' . $key;
+		/* translators: %s: Color setting label. */
+		$choose_label = sprintf( __( 'Choose %s', 'beplus-advanced-reviews-for-woocommerce' ), $label );
+		/* translators: %s: Color setting label. */
+		$hex_label = sprintf( __( 'Hex value for %s', 'beplus-advanced-reviews-for-woocommerce' ), $label );
+		/* translators: %s: Color setting label. */
+		$reset_label = sprintf( __( 'Reset %s to default', 'beplus-advanced-reviews-for-woocommerce' ), $label );
 		?>
 		<div class="bparfw-color-field" data-bparfw-color-field>
 			<div class="bparfw-color-field__info">
-				<label class="bparfw-color-field__label" for="<?php echo $field_id; ?>"><?php echo esc_html( $label ); ?></label>
+				<label class="bparfw-color-field__label" for="<?php echo esc_attr( $field_id ); ?>"><?php echo esc_html( $label ); ?></label>
 				<p class="bparfw-color-field__desc"><?php echo esc_html( $desc ); ?></p>
 			</div>
 			<div class="bparfw-color-field__controls">
-				<label class="bparfw-color-field__swatch" data-bparfw-color-swatch="<?php echo esc_attr( $key ); ?>" style="background-color:<?php echo esc_attr( $value ); ?>" aria-label="<?php echo esc_attr( sprintf( __( 'Choose %s', 'beplus-advanced-reviews-for-woocommerce' ), $label ) ); ?>">
-					<input type="color" id="<?php echo $field_id; ?>" name="<?php echo $field_name; ?>" value="<?php echo esc_attr( $value ); ?>" class="bparfw-color-field__native" data-bparfw-color-input="<?php echo esc_attr( $key ); ?>" data-bparfw-color-default="<?php echo esc_attr( $default ); ?>">
+				<label class="bparfw-color-field__swatch" data-bparfw-color-swatch="<?php echo esc_attr( $key ); ?>" style="background-color:<?php echo esc_attr( $value ); ?>" aria-label="<?php echo esc_attr( $choose_label ); ?>">
+					<input type="color" id="<?php echo esc_attr( $field_id ); ?>" name="<?php echo esc_attr( $field_name ); ?>" value="<?php echo esc_attr( $value ); ?>" class="bparfw-color-field__native" data-bparfw-color-input="<?php echo esc_attr( $key ); ?>" data-bparfw-color-default="<?php echo esc_attr( $default ); ?>">
 				</label>
-				<input type="text" class="bparfw-color-field__hex" data-bparfw-color-hex="<?php echo esc_attr( $key ); ?>" value="<?php echo esc_attr( $value ); ?>" maxlength="7" pattern="^#[0-9A-Fa-f]{6}$" aria-label="<?php echo esc_attr( sprintf( __( 'Hex value for %s', 'beplus-advanced-reviews-for-woocommerce' ), $label ) ); ?>">
+				<input type="text" class="bparfw-color-field__hex" data-bparfw-color-hex="<?php echo esc_attr( $key ); ?>" value="<?php echo esc_attr( $value ); ?>" maxlength="7" aria-label="<?php echo esc_attr( $hex_label ); ?>">
 				<span class="bparfw-color-field__status" data-bparfw-color-status="<?php echo esc_attr( $key ); ?>">
 					<?php if ( $is_custom ) : ?>
 						<span class="bparfw-color-field__chip bparfw-color-field__chip--custom"><?php echo esc_html__( 'Custom', 'beplus-advanced-reviews-for-woocommerce' ); ?></span>
@@ -390,11 +396,11 @@ class SettingsRegistry extends AbstractModule {
 						<span class="bparfw-color-field__chip bparfw-color-field__chip--default"><?php echo esc_html__( 'Default', 'beplus-advanced-reviews-for-woocommerce' ); ?></span>
 					<?php endif; ?>
 				</span>
-				<button type="button" class="bparfw-color-field__reset" data-bparfw-color-reset="<?php echo esc_attr( $key ); ?>" <?php echo $is_custom ? '' : 'hidden'; ?> aria-label="<?php echo esc_attr( sprintf( __( 'Reset %s to default', 'beplus-advanced-reviews-for-woocommerce' ), $label ) ); ?>">
+				<button type="button" class="bparfw-color-field__reset" data-bparfw-color-reset="<?php echo esc_attr( $key ); ?>" <?php echo $is_custom ? '' : 'hidden'; ?> aria-label="<?php echo esc_attr( $reset_label ); ?>">
 					<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M1 4v6h6M23 20v-6h-6"/><path d="M20.49 9A9 9 0 005.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 013.51 15"/></svg>
 				</button>
 			</div>
-			<p class="bparfw-color-field__error" data-bparfw-color-error="<?php echo esc_attr( $key ); ?>" hidden><?php echo esc_html__( 'Enter a valid hex color (e.g. #FF0000).', 'beplus-advanced-reviews-for-woocommerce' ); ?></p>
+			<p id="<?php echo esc_attr( $field_id . '-error' ); ?>" class="bparfw-color-field__error" data-bparfw-color-error="<?php echo esc_attr( $key ); ?>" hidden><?php echo esc_html__( 'Enter a valid hex color (e.g. #FF0000).', 'beplus-advanced-reviews-for-woocommerce' ); ?></p>
 		</div>
 		<?php
 	}

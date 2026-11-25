@@ -29,6 +29,7 @@
 		let totalPages = 1;
 		let listRequest;
 		let distributionRequest;
+		let filterSpinnerTimer;
 
 		const listContainer = block.querySelector( '.beplus-advanced-reviews-for-woocommerce__list' );
 		const loadMoreBtn = block.querySelector( '.beplus-advanced-reviews-for-woocommerce__load-more' );
@@ -37,6 +38,16 @@
 		const filterImagesChip = block.querySelector( '.beplus-advanced-reviews-for-woocommerce__filter-chip[data-filter="images"]' );
 		const sortSelect = block.querySelector( '.beplus-advanced-reviews-for-woocommerce__sort-select' );
 		const verifiedChip = block.querySelector( '.beplus-advanced-reviews-for-woocommerce__filter-chip[data-filter="verified"]' );
+		const filterControls = block.querySelector( '.beplus-advanced-reviews-for-woocommerce__filter-controls' );
+		const filterSpinner = filterControls && ( filterRatingSelect || sortSelect || filterImagesChip || verifiedChip )
+			? document.createElement( 'span' )
+			: null;
+		if ( filterSpinner ) {
+			filterSpinner.className = 'beplus-advanced-reviews-for-woocommerce__request-spinner beplus-advanced-reviews-for-woocommerce__filter-spinner';
+			filterSpinner.setAttribute( 'aria-hidden', 'true' );
+			filterSpinner.hidden = true;
+			filterControls.append( filterSpinner );
+		}
 		const distributionArea = block.querySelector( '.beplus-advanced-reviews-for-woocommerce__distribution' );
 		const labels = bparfwData.i18n;
 		const listStatus = createRequestStatus( listContainer );
@@ -88,18 +99,33 @@
 			}
 		}
 
-		function refreshReviews( filters = readFilters() ) {
-			return requestReviews( filters, 1, false );
+		function refreshReviews() {
+			return requestReviews( readFilters(), 1, false );
 		}
 
-		async function requestReviews( filters, page, append ) {
+		function updateFilteredReviews() {
+			return requestReviews( readFilters(), 1, false, true );
+		}
+
+		function hideFilterSpinner() {
+			clearTimeout( filterSpinnerTimer );
+			if ( filterSpinner ) filterSpinner.hidden = true;
+		}
+
+		async function requestReviews( filters, page, append, filterUpdate = false ) {
 			if ( ! listContainer ) return;
 			listRequest?.abort();
 			const request = new AbortController();
 			listRequest = request;
 
 			showFilters( filters );
-			listStatus( true, append ? labels.loadingMoreReviews : labels.updatingReviews, null, append );
+			listStatus( true, append ? labels.loadingMoreReviews : labels.updatingReviews, null, append || filterUpdate );
+			hideFilterSpinner();
+			if ( filterUpdate && filterSpinner ) {
+				filterSpinnerTimer = setTimeout( () => {
+					if ( listRequest === request ) filterSpinner.hidden = false;
+				}, 200 );
+			}
 			let skeleton = listContainer.querySelector( '.beplus-advanced-reviews-for-woocommerce__skeleton' );
 			if ( ! listContainer.children.length ) skeleton = showSkeletonCards();
 			if ( loadMoreBtn ) {
@@ -121,9 +147,9 @@
 				if ( ! Array.isArray( data.reviews ) || ! Number.isInteger( data.pages ) ) throw new Error();
 
 				if ( ! append ) {
-					listContainer.innerHTML = buildReviewList( data.reviews );
+					listContainer.innerHTML = buildReviewList( data.reviews, filters );
 				} else if ( data.reviews.length ) {
-					listContainer.insertAdjacentHTML( 'beforeend', buildReviewList( data.reviews ) );
+					listContainer.insertAdjacentHTML( 'beforeend', buildReviewList( data.reviews, filters ) );
 				}
 				appliedFilters = filters;
 				currentPage = page;
@@ -134,9 +160,10 @@
 				if ( listRequest !== request ) return;
 				skeleton?.remove();
 				showFilters( appliedFilters );
-				listStatus( false, labels.reviewsLoadError, () => requestReviews( filters, page, append ) );
+				listStatus( false, labels.reviewsLoadError, () => requestReviews( filters, page, append, filterUpdate ) );
 			} finally {
 				if ( listRequest === request ) {
+					hideFilterSpinner();
 					listRequest = null;
 					if ( loadMoreBtn ) {
 						loadMoreBtn.disabled = false;
@@ -172,11 +199,14 @@
 		 * Build review list HTML.
 		 *
 		 * @param {Array} reviews Array of review objects.
+		 * @param {Object} filters Filters used to fetch the reviews.
 		 * @return {string} HTML string.
 		 */
-		function buildReviewList( reviews ) {
+		function buildReviewList( reviews, filters ) {
 			if ( ! reviews || ! reviews.length ) {
-				return '<p class="beplus-advanced-reviews-for-woocommerce__no-reviews">' + bparfwData.i18n.noReviews + '</p>';
+				const hasFilters = Number( filters.rating ) > 0 || filters.images || filters.verified;
+				const message = hasFilters ? labels.noMatchingReviews : labels.noReviews;
+				return '<p class="beplus-advanced-reviews-for-woocommerce__no-reviews">' + escHtml( message ) + '</p>';
 			}
 
 			var html = '';
@@ -264,12 +294,12 @@
 				requestReviews( appliedFilters, currentPage + 1, true );
 			}
 		} );
-		filterRatingSelect?.addEventListener( 'change', () => refreshReviews() );
-		sortSelect?.addEventListener( 'change', () => refreshReviews() );
+		filterRatingSelect?.addEventListener( 'change', updateFilteredReviews );
+		sortSelect?.addEventListener( 'change', updateFilteredReviews );
 		[ filterImagesChip, verifiedChip ].forEach( function ( chip ) {
 			chip?.addEventListener( 'click', function () {
 				chip.setAttribute( 'aria-pressed', String( chip.getAttribute( 'aria-pressed' ) !== 'true' ) );
-				refreshReviews();
+				updateFilteredReviews();
 			} );
 		} );
 

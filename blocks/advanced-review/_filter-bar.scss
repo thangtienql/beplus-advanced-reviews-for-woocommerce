@@ -10,6 +10,26 @@ $prefix: beplus-advanced-reviews-for-woocommerce;
 	border-bottom: 1px solid var(--bpar-border);
 	margin-bottom: 20px;
 	width: 100%;
+
+	&:has(> .#{$prefix}__filter-spinner) {
+		position: relative;
+		box-sizing: border-box;
+		padding-inline-end: 22px;
+	}
+}
+
+.#{$prefix}__filter-spinner {
+	position: absolute;
+	inset-inline-end: 0;
+	inset-block-start: calc((100% - 14px) / 2);
+	margin-block-start: -7px;
+	box-sizing: border-box;
+	color: var(--bpar-muted);
+	pointer-events: none;
+
+	&[hidden] {
+		display: none;
+	}
 }
 
 .#{$prefix}__filter-controls-left {
