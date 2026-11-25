@@ -29,9 +29,9 @@ Beplus Advanced Reviews for WooCommerce replaces or enhances the default WooComm
 * **Verified Purchase badge** — premium shield icon with glossy shine animation; reviews from customers who actually bought the product are automatically marked
 * **Sort controls** — sort by date (newest/oldest) or rating (highest/lowest)
 * **Load More (AJAX)** — paginated review list with a Load More button powered by the REST API
-* **Gutenberg block** — drag-and-drop `Advanced Reviews` block, automatically applied to all Single Product pages on activation
+* **Gutenberg block** — drag-and-drop `Advanced Reviews` block for Single Product pages (manual placement or auto-replace via Display Mode)
 * **Display modes** — *Keep default* (manual block placement) or *Replace default* (auto-override WooCommerce reviews)
-* **Accessible** — WCAG 2.1 AA compliant: keyboard navigable, focus management, `aria-live` regions, `prefers-reduced-motion` support
+* **Accessible** — targets WCAG 2.1 AA: keyboard navigable, focus management, `aria-live` regions, `prefers-reduced-motion` support
 * **Admin Color Control** — customize the 11 frontend colors (primary, text, background, button text, stars, error/success states) from the plugin settings Styling tab, with consistent hardcoded defaults that render on any theme
 
 **For Developers:**
@@ -50,7 +50,7 @@ This plugin is developed and maintained by [BePlus](https://beplusthemes.com/), 
 
 1. Upload the plugin files to `/wp-content/plugins/beplus-advanced-reviews-for-woocommerce/`, or install the plugin through the WordPress plugins screen directly.
 2. Activate the plugin through the **Plugins** screen in WordPress.
-3. The **Advanced Reviews** block is automatically applied to all Single Product pages upon activation.
+3. Place the **Advanced Reviews** block in your Single Product template, or select **Replace default** under **WooCommerce → Advanced Reviews → General** to replace the default WooCommerce reviews automatically.
 4. Optionally configure display mode and media settings under **WooCommerce → Advanced Reviews**.
 
 **Building from source:**
@@ -108,12 +108,22 @@ Yes. Navigate to **WooCommerce → Advanced Reviews → Styling** to find color 
 == Screenshots ==
 
 1. Plugin settings — General tab (display mode, reviews per load)
-2. Plugin settings — Media tab (image/video upload toggles, max sizes)
-3. Plugin settings — Media tab (image/video upload toggles, max sizes)
+2. Plugin settings — Media tab (image and video upload options enabled)
+3. Plugin settings — Media tab (image and video uploads toggled off)
 4. Review card with image attachments and lightbox preview
 5. Advanced Reviews Gutenberg block on a single product page
 
 == Changelog ==
+
+= 1.1.4 =
+* New: Reorder uploaded and pasted attachments in the review form preview and preserve gallery and lightbox order
+* New: Distinct empty-state message when active filters return no matching reviews
+* Enhanced: Delayed filter-bar loading indicator, retry handling for failed review/Load More requests, and automatic cancellation of superseded filter requests
+* Enhanced: Preserve line breaks in review content and align block media filter labels with admin settings
+* Fix: Video playback in the lightbox and button color alignment with Styling settings
+* Fix: Apply Empty Star and Text Color tokens inside the review submission form
+* Fix: Validate admin color hex fields on blur and across hidden settings tabs
+* Tested: WordPress 7.1 compatibility
 
 = 1.1.0 =
 * New: Verified Purchase badge — premium shield icon with glossy shine animation, auto-marked for customers who bought the product
