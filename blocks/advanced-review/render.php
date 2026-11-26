@@ -88,7 +88,7 @@ $wrapper_attrs = get_block_wrapper_attributes(
 			<div class="beplus-advanced-reviews-for-woocommerce__filter-controls-left">
 			<?php if ( $show_filter_bar ) : ?>
 				<div class="beplus-advanced-reviews-for-woocommerce__filter-stars">
-					<label for="bpar-filter-rating-select" class="beplus-advanced-reviews-for-woocommerce__filter-label"><?php esc_html_e( 'Filter by rating:', 'beplus-advanced-reviews-for-woocommerce' ); ?></label>
+					<label for="bpar-filter-rating-select" class="beplus-advanced-reviews-for-woocommerce__filter-label"><?php esc_html_e( 'Rating', 'beplus-advanced-reviews-for-woocommerce' ); ?></label>
 					<div class="beplus-advanced-reviews-for-woocommerce__sort-wrapper">
 						<select id="bpar-filter-rating-select" class="beplus-advanced-reviews-for-woocommerce__filter-rating-select" aria-label="<?php esc_attr_e( 'Filter reviews by star rating', 'beplus-advanced-reviews-for-woocommerce' ); ?>">
 							<option value="0"><?php esc_html_e( 'All ratings', 'beplus-advanced-reviews-for-woocommerce' ); ?></option>
@@ -101,7 +101,7 @@ $wrapper_attrs = get_block_wrapper_attributes(
 								</option>
 							<?php endfor; ?>
 						</select>
-						<span class="beplus-advanced-reviews-for-woocommerce__sort-icon">
+						<span class="beplus-advanced-reviews-for-woocommerce__sort-icon" aria-hidden="true">
 							<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
 						</span>
 					</div>
@@ -111,7 +111,7 @@ $wrapper_attrs = get_block_wrapper_attributes(
 			<?php if ( $show_sort && $show_filter_bar ) : ?>
 				<div class="beplus-advanced-reviews-for-woocommerce__filter-sort">
 					<label for="bpar-sort-select" class="beplus-advanced-reviews-for-woocommerce__filter-label">
-						<?php esc_html_e( 'Sort by:', 'beplus-advanced-reviews-for-woocommerce' ); ?>
+						<?php esc_html_e( 'Sort by', 'beplus-advanced-reviews-for-woocommerce' ); ?>
 					</label>
 					<div class="beplus-advanced-reviews-for-woocommerce__sort-wrapper">
 						<select id="bpar-sort-select" class="beplus-advanced-reviews-for-woocommerce__sort-select" aria-label="<?php esc_attr_e( 'Sort reviews', 'beplus-advanced-reviews-for-woocommerce' ); ?>">
@@ -123,7 +123,7 @@ $wrapper_attrs = get_block_wrapper_attributes(
 								<option value="helpful"><?php esc_html_e( 'Most helpful', 'beplus-advanced-reviews-for-woocommerce' ); ?></option>
 							<?php endif; ?>
 						</select>
-						<span class="beplus-advanced-reviews-for-woocommerce__sort-icon">
+						<span class="beplus-advanced-reviews-for-woocommerce__sort-icon" aria-hidden="true">
 							<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
 						</span>
 					</div>
@@ -136,11 +136,11 @@ $wrapper_attrs = get_block_wrapper_attributes(
 			<?php if ( $show_media && $media_enabled ) : ?>
 				<?php
 				if ( $images_enabled && $videos_enabled ) {
-					$media_filter_label = __( 'With media attached only', 'beplus-advanced-reviews-for-woocommerce' );
+					$media_filter_label = __( 'With media', 'beplus-advanced-reviews-for-woocommerce' );
 				} elseif ( $videos_enabled ) {
-					$media_filter_label = __( 'With videos only', 'beplus-advanced-reviews-for-woocommerce' );
+					$media_filter_label = __( 'With videos', 'beplus-advanced-reviews-for-woocommerce' );
 				} else {
-					$media_filter_label = __( 'With images only', 'beplus-advanced-reviews-for-woocommerce' );
+					$media_filter_label = __( 'With images', 'beplus-advanced-reviews-for-woocommerce' );
 				}
 				?>
 				<button type="button"

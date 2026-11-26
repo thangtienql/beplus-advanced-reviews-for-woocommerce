@@ -146,30 +146,78 @@ $prefix: beplus-advanced-reviews-for-woocommerce;
 	word-break: break-word;
 }
 
+.#{$prefix}__review-footer {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: flex-start;
+	gap: 4px 12px;
+	border-block-start: 1px solid var(--bpar-border);
+	padding-block-start: 8px;
+}
+
 .#{$prefix}__review-date {
+	display: flex;
+	align-items: center;
+	min-block-size: 40px;
 	font-size: 13px;
-		color: var(--bpar-text);
+	color: var(--bpar-text);
 }
 
 .#{$prefix}__helpful {
-	margin-top: 8px;
+	display: flex;
+	flex-direction: column;
+	align-items: flex-end;
+	min-inline-size: 0;
+	max-inline-size: 100%;
+	margin-inline-start: auto;
 }
 
-.#{$prefix}__helpful-button {
-	min-height: 32px;
-	padding: 4px 10px;
+// Keep the Helpful button's palette and elevation independent of theme button states.
+.#{$prefix}__review-footer .#{$prefix}__helpful-button {
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	min-block-size: 40px;
+	padding: 4px 11px;
 	border: 1px solid var(--bpar-border-dark);
-	border-radius: var(--bpar-radius-sm);
-	background: var(--bpar-bg);
+	border-radius: var(--bpar-radius-pill, 9999px);
+	background: color-mix(in srgb, var(--bpar-primary) 4%, var(--bpar-bg));
 	color: var(--bpar-text);
+	box-shadow: none;
 	font: inherit;
 	font-size: 13px;
+	font-weight: 600;
+	line-height: 1.2;
+	white-space: nowrap;
 	cursor: pointer;
+
+	&::before {
+		// Tabler Icons: thumb-up (MIT).
+		$icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M7 11v8a1 1 0 0 1 -1 1h-2a1 1 0 0 1 -1 -1v-7a1 1 0 0 1 1 -1h3a4 4 0 0 0 4 -4v-1a2 2 0 0 1 4 0v5h3a2 2 0 0 1 2 2l-1 5a2 3 0 0 1 -2 2h-7a3 3 0 0 1 -3 -3'/%3E%3C/svg%3E");
+		content: '';
+		inline-size: 16px;
+		block-size: 16px;
+		flex: none;
+		background: currentColor;
+		-webkit-mask: $icon center / contain no-repeat;
+		mask: $icon center / contain no-repeat;
+	}
+
+	&:hover {
+		background: color-mix(in srgb, var(--bpar-primary) 9%, var(--bpar-bg));
+	}
 
 	&[aria-pressed='true'] {
 		border-color: var(--bpar-primary);
+		background: color-mix(in srgb, var(--bpar-primary) 16%, var(--bpar-bg));
+
+		&:hover {
+			background: color-mix(in srgb, var(--bpar-primary) 20%, var(--bpar-bg));
+		}
+	}
+
+	&[aria-pressed='true']::before {
 		background: var(--bpar-primary);
-		color: var(--bpar-button-text);
 	}
 
 	&[aria-busy='true'] {
@@ -182,12 +230,33 @@ $prefix: beplus-advanced-reviews-for-woocommerce;
 	}
 }
 
+.#{$prefix}__helpful-count {
+	min-inline-size: 1.8em;
+	padding: 3px 6px;
+	border-radius: var(--bpar-radius-pill, 9999px);
+	background: color-mix(in srgb, var(--bpar-primary) 10%, transparent);
+	font-variant-numeric: tabular-nums;
+	text-align: center;
+}
+
 .#{$prefix}__helpful-status {
 	color: var(--bpar-text);
-	font-size: 13px;
+	font-size: 12px;
+	max-inline-size: min(100%, 30ch);
+	text-align: end;
+	overflow-wrap: anywhere;
 
-	&:not(:empty) {
+	&:not(:empty):not(.#{$prefix}__helpful-status--announce-only) {
 		margin-top: 4px;
+	}
+
+	&--announce-only {
+		position: absolute;
+		inline-size: 1px;
+		block-size: 1px;
+		overflow: hidden;
+		clip-path: inset(50%);
+		white-space: nowrap;
 	}
 }
 

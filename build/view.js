@@ -284,6 +284,7 @@
             });
             html += "</div>";
           }
+          html += '<footer class="beplus-advanced-reviews-for-woocommerce__review-footer">';
           html += '<div class="beplus-advanced-reviews-for-woocommerce__review-date">' + escHtml(review.date_human) + "</div>";
           const reviewId = String(review.id);
           if (/^[1-9]\d*$/.test(reviewId) && Number.isInteger(review.helpful_count)) {
@@ -291,9 +292,10 @@
             const busy = pendingVotes.has(reviewId) ? ' aria-disabled="true" aria-busy="true"' : "";
             html += '<div class="beplus-advanced-reviews-for-woocommerce__helpful">';
             html += '<button type="button" class="beplus-advanced-reviews-for-woocommerce__helpful-button" data-review-id="' + reviewId + '"' + pressed + busy + ">";
-            html += escHtml(labels.helpful) + " (<span data-helpful-count>" + (Number(review.helpful_count) || 0) + "</span>)</button>";
+            html += "<span>" + escHtml(labels.helpful) + '</span> <span class="beplus-advanced-reviews-for-woocommerce__helpful-count" data-helpful-count>' + review.helpful_count + "</span></button>";
             html += '<div class="beplus-advanced-reviews-for-woocommerce__helpful-status" role="status"></div></div>';
           }
+          html += "</footer>";
           html += "</div>";
           html += "</article>";
         });
@@ -307,6 +309,11 @@
       function escAttr(str) {
         return (str || "").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
       }
+      function setHelpfulStatus(button, text, announceOnly = false) {
+        const status = button.nextElementSibling;
+        status.classList.toggle("beplus-advanced-reviews-for-woocommerce__helpful-status--announce-only", announceOnly);
+        status.textContent = text;
+      }
       listContainer == null ? void 0 : listContainer.addEventListener("click", async function(event) {
         const button = event.target.closest(helpfulButtonSelector);
         if (!button)
@@ -314,13 +321,12 @@
         const id = button.dataset.reviewId;
         if (!/^[1-9]\d*$/.test(id) || pendingVotes.has(id))
           return;
-        const status = button.nextElementSibling;
         if (!canVoteHelpful) {
-          status.textContent = labels.helpfulSignIn;
+          setHelpfulStatus(button, labels.helpfulSignIn);
           return;
         }
         if (!button.hasAttribute("aria-pressed")) {
-          status.textContent = listRequest ? labels.helpfulLoading : labels.helpfulError;
+          setHelpfulStatus(button, listRequest ? labels.helpfulLoading : labels.helpfulError);
           if (!listRequest)
             refreshReviews();
           return;
@@ -328,7 +334,7 @@
         const selector = helpfulButtonSelector + '[data-review-id="' + id + '"]';
         const voted = button.getAttribute("aria-pressed") !== "true";
         pendingVotes.add(id);
-        status.textContent = "";
+        setHelpfulStatus(button, "");
         button.setAttribute("aria-disabled", "true");
         button.setAttribute("aria-busy", "true");
         try {
@@ -341,7 +347,7 @@
             canVoteHelpful = false;
             const current = listContainer.querySelector(selector);
             if (current)
-              current.nextElementSibling.textContent = labels.helpfulSignIn;
+              setHelpfulStatus(current, labels.helpfulSignIn);
             return;
           }
           if (!response.ok)
@@ -355,12 +361,12 @@
           listContainer.querySelectorAll(selector).forEach((current) => {
             current.setAttribute("aria-pressed", String(data.viewer_has_voted));
             current.querySelector("[data-helpful-count]").textContent = data.helpful_count;
-            current.nextElementSibling.textContent = data.viewer_has_voted ? labels.helpfulAdded : labels.helpfulRemoved;
+            setHelpfulStatus(current, data.viewer_has_voted ? labels.helpfulAdded : labels.helpfulRemoved, true);
           });
         } catch (error) {
           const current = listContainer.querySelector(selector);
           if (current)
-            current.nextElementSibling.textContent = labels.helpfulError;
+            setHelpfulStatus(current, labels.helpfulError);
         } finally {
           pendingVotes.delete(id);
           listContainer.querySelectorAll(selector).forEach((current) => {
