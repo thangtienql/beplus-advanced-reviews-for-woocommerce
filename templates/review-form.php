@@ -18,9 +18,11 @@ if ( ! $show_media && isset( $args['show_images'] ) ) {
 $images_enabled = beplus_advanced_reviews_for_woocommerce_is_images_enabled();
 $videos_enabled = beplus_advanced_reviews_for_woocommerce_is_videos_enabled();
 $user = wp_get_current_user();
+$write_review_label  = beplus_advanced_reviews_for_woocommerce_get_display_label( 'label_write_review', __( 'Write a Review', 'beplus-advanced-reviews-for-woocommerce' ) );
+$submit_review_label = beplus_advanced_reviews_for_woocommerce_get_display_label( 'label_submit_review', __( 'Submit Review', 'beplus-advanced-reviews-for-woocommerce' ) );
 ?>
 <div class="beplus-advanced-reviews-for-woocommerce__submit-form-wrapper">
-	<h3 class="beplus-advanced-reviews-for-woocommerce__submit-form-title"><?php esc_html_e( 'Write a Review', 'beplus-advanced-reviews-for-woocommerce' ); ?></h3>
+	<h3 class="beplus-advanced-reviews-for-woocommerce__submit-form-title"><?php echo esc_html( $write_review_label ); ?></h3>
 	<form class="beplus-advanced-reviews-for-woocommerce__submit-form" method="post" enctype="multipart/form-data">
 		<input type="hidden" name="product_id" value="<?php echo esc_attr( (string) $product_id ); ?>">
 
@@ -131,7 +133,7 @@ $user = wp_get_current_user();
 		<?php endif; ?>
 
 		<button type="submit" class="beplus-advanced-reviews-for-woocommerce__submit-btn">
-			<span data-request-label="<?php esc_attr_e( 'Submit Review', 'beplus-advanced-reviews-for-woocommerce' ); ?>"><?php esc_html_e( 'Submit Review', 'beplus-advanced-reviews-for-woocommerce' ); ?></span>
+			<span data-request-label="<?php echo esc_attr( $submit_review_label ); ?>"><?php echo esc_html( $submit_review_label ); ?></span>
 			<span class="beplus-advanced-reviews-for-woocommerce__submit-spinner" aria-hidden="true"></span>
 		</button>
 	</form>

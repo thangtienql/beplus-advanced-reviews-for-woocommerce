@@ -115,6 +115,12 @@ Yes. Navigate to **WooCommerce → Advanced Reviews → Styling** to find color 
 
 == Changelog ==
 
+= 1.2.0 =
+* New: Helpful votes for product reviews and a Most helpful sort option.
+* New: Customize the review heading and the Write a Review, Submit Review, and Load More labels under Advanced Reviews → General → Display Labels.
+* Fix: Validate Helpful votes before recording them.
+* Fix: Preserve the review media table schema during upgrades.
+
 = 1.1.4 =
 * New: Reorder uploaded and pasted attachments in the review form preview and preserve gallery and lightbox order
 * New: Distinct empty-state message when active filters return no matching reviews

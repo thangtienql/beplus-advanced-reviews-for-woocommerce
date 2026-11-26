@@ -49,6 +49,10 @@ $reviews_per_load  = beplus_advanced_reviews_for_woocommerce_get_load_more_count
 $rating_threshold  = (int) ( beplus_advanced_reviews_for_woocommerce_get_settings()['rating_threshold'] ?? 0 );
 $enable_lazy_load  = ! empty( $attributes['enableLazyLoad'] );
 
+$reviews_label      = beplus_advanced_reviews_for_woocommerce_get_display_label( 'label_customer_reviews', __( 'Customer Reviews', 'beplus-advanced-reviews-for-woocommerce' ) );
+$write_review_label = beplus_advanced_reviews_for_woocommerce_get_display_label( 'label_write_review', __( 'Write a review', 'beplus-advanced-reviews-for-woocommerce' ) );
+$load_more_label    = beplus_advanced_reviews_for_woocommerce_get_display_label( 'label_load_more', __( 'Load More', 'beplus-advanced-reviews-for-woocommerce' ) );
+
 $wrapper_attrs = get_block_wrapper_attributes(
 	array(
 		'class'            => 'beplus-advanced-reviews-for-woocommerce',
@@ -63,7 +67,7 @@ $wrapper_attrs = get_block_wrapper_attributes(
 ?>
 <div <?php echo $wrapper_attrs; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
 
-	<h2 class="beplus-advanced-reviews-for-woocommerce__header"><?php esc_html_e( 'Customer Reviews', 'beplus-advanced-reviews-for-woocommerce' ); ?></h2>
+	<h2 class="beplus-advanced-reviews-for-woocommerce__header"><?php echo esc_html( $reviews_label ); ?></h2>
 
 	<div class="beplus-advanced-reviews-for-woocommerce__layout">
 		<div class="beplus-advanced-reviews-for-woocommerce__layout-sidebar">
@@ -77,8 +81,8 @@ $wrapper_attrs = get_block_wrapper_attributes(
 				<button type="button"
 					class="beplus-advanced-reviews-for-woocommerce__sidebar-write-btn"
 					onclick="var f=this.closest('.beplus-advanced-reviews-for-woocommerce').querySelector('.beplus-advanced-reviews-for-woocommerce__submit-form-wrapper');if(f){f.scrollIntoView({behavior:'smooth'});setTimeout(function(){f.querySelector('textarea').focus();},400);}"
-					aria-label="<?php esc_attr_e( 'Write a review', 'beplus-advanced-reviews-for-woocommerce' ); ?>">
-					<?php esc_html_e( 'Write a review', 'beplus-advanced-reviews-for-woocommerce' ); ?>
+					aria-label="<?php echo esc_attr( $write_review_label ); ?>">
+					<?php echo esc_html( $write_review_label ); ?>
 				</button>
 			<?php endif; ?>
 		</div>
@@ -172,7 +176,7 @@ $wrapper_attrs = get_block_wrapper_attributes(
 
 				<div class="beplus-advanced-reviews-for-woocommerce__load-more-wrapper" hidden>
 					<button type="button" class="beplus-advanced-reviews-for-woocommerce__load-more">
-						<span data-request-label="<?php esc_attr_e( 'Load More', 'beplus-advanced-reviews-for-woocommerce' ); ?>"><?php esc_html_e( 'Load More', 'beplus-advanced-reviews-for-woocommerce' ); ?></span>
+						<span data-request-label="<?php echo esc_attr( $load_more_label ); ?>"><?php echo esc_html( $load_more_label ); ?></span>
 						<span class="beplus-advanced-reviews-for-woocommerce__load-more-spinner" aria-hidden="true"></span>
 					</button>
 				</div>

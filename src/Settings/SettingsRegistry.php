@@ -18,6 +18,13 @@ class SettingsRegistry extends AbstractModule {
 
 	private const OPTION_KEY = 'beplus_advanced_reviews_for_woocommerce_settings';
 
+	private const DISPLAY_LABEL_KEYS = array(
+		'label_customer_reviews',
+		'label_write_review',
+		'label_submit_review',
+		'label_load_more',
+	);
+
 	public function register(): void {
 		add_action( 'admin_menu', array( $this, 'add_settings_page' ) );
 		add_action( 'admin_init', array( $this, 'register_settings' ) );
@@ -76,10 +83,11 @@ class SettingsRegistry extends AbstractModule {
 				settings_fields( 'beplus_advanced_reviews_for_woocommerce_settings' );
 				?>
 
-				<div class="bparfw-settings__panel is-active" data-bparfw-panel="general">
+				<div class="bparfw-settings__panel bparfw-settings__panel--general is-active" data-bparfw-panel="general">
 					<?php $this->render_display_card( $settings ); ?>
 					<?php $this->render_behavior_card( $settings ); ?>
 					<?php $this->render_verified_card( $settings ); ?>
+					<?php $this->render_display_labels_card( $settings ); ?>
 				</div>
 
 				<div class="bparfw-settings__panel" data-bparfw-panel="media">
@@ -110,9 +118,9 @@ class SettingsRegistry extends AbstractModule {
 		$load_count   = absint( $settings['load_more_count'] ?? 10 );
 		?>
 		<div class="bparfw-settings__card">
-			<h2 class="bparfw-settings__card-title"><?php echo esc_html__( 'Display Settings', 'beplus-advanced-reviews-for-woocommerce' ); ?></h2>
+			<h2 class="bparfw-settings__card-title" id="bparfw-display-mode"><?php echo esc_html__( 'Display Mode', 'beplus-advanced-reviews-for-woocommerce' ); ?></h2>
 
-			<div class="bparfw-settings__choice-list">
+			<div class="bparfw-settings__choice-list bparfw-general__grid" role="group" aria-labelledby="bparfw-display-mode">
 				<label class="bparfw-settings__choice">
 					<input type="radio" name="<?php echo esc_attr( self::OPTION_KEY ); ?>[display_mode]" value="replace" <?php checked( 'replace', $display_mode ); ?>>
 					<span class="bparfw-settings__choice-text">
@@ -129,19 +137,13 @@ class SettingsRegistry extends AbstractModule {
 				</label>
 			</div>
 
-			<table class="form-table" role="presentation" style="margin-top:1.25rem;">
-				<tbody>
-					<tr>
-						<th scope="row">
-							<label for="bparfw-load-more"><?php echo esc_html__( 'Reviews per load', 'beplus-advanced-reviews-for-woocommerce' ); ?></label>
-						</th>
-						<td>
-							<input type="number" id="bparfw-load-more" name="<?php echo esc_attr( self::OPTION_KEY ); ?>[load_more_count]" value="<?php echo esc_attr( (string) $load_count ); ?>" min="1" max="50" class="small-text">
-							<p class="description"><?php echo esc_html__( 'Number of reviews shown before the "Load More" button appears.', 'beplus-advanced-reviews-for-woocommerce' ); ?></p>
-						</td>
-					</tr>
-				</tbody>
-			</table>
+			<div class="bparfw-general__row bparfw-general__row--after-grid">
+				<div>
+					<label for="bparfw-load-more"><?php echo esc_html__( 'Reviews per load', 'beplus-advanced-reviews-for-woocommerce' ); ?></label>
+					<p class="description" id="bparfw-load-more-help"><?php echo esc_html__( 'Number of reviews shown before the "Load More" button appears.', 'beplus-advanced-reviews-for-woocommerce' ); ?></p>
+				</div>
+				<input type="number" id="bparfw-load-more" name="<?php echo esc_attr( self::OPTION_KEY ); ?>[load_more_count]" value="<?php echo esc_attr( (string) $load_count ); ?>" min="1" max="50" class="small-text" aria-describedby="bparfw-load-more-help">
+			</div>
 		</div>
 		<?php
 	}
@@ -159,37 +161,67 @@ class SettingsRegistry extends AbstractModule {
 		?>
 		<div class="bparfw-settings__card">
 			<h2 class="bparfw-settings__card-title"><?php echo esc_html__( 'Review Behavior', 'beplus-advanced-reviews-for-woocommerce' ); ?></h2>
-			<table class="form-table" role="presentation">
-				<tbody>
-					<tr>
-						<th scope="row">
-							<label for="bparfw-rating-threshold"><?php echo esc_html__( 'Minimum rating to display', 'beplus-advanced-reviews-for-woocommerce' ); ?></label>
-						</th>
-						<td>
-							<select id="bparfw-rating-threshold" name="<?php echo esc_attr( self::OPTION_KEY ); ?>[rating_threshold]" style="min-width:200px;">
-								<option value="0" <?php selected( 0, $threshold ); ?>><?php echo esc_html__( 'Show all reviews', 'beplus-advanced-reviews-for-woocommerce' ); ?></option>
-								<option value="1" <?php selected( 1, $threshold ); ?>><?php echo esc_html__( '1 star and above', 'beplus-advanced-reviews-for-woocommerce' ); ?></option>
-								<option value="2" <?php selected( 2, $threshold ); ?>><?php echo esc_html__( '2 stars and above', 'beplus-advanced-reviews-for-woocommerce' ); ?></option>
-								<option value="3" <?php selected( 3, $threshold ); ?>><?php echo esc_html__( '3 stars and above', 'beplus-advanced-reviews-for-woocommerce' ); ?></option>
-								<option value="4" <?php selected( 4, $threshold ); ?>><?php echo esc_html__( '4 stars and above', 'beplus-advanced-reviews-for-woocommerce' ); ?></option>
-								<option value="5" <?php selected( 5, $threshold ); ?>><?php echo esc_html__( '5 stars only', 'beplus-advanced-reviews-for-woocommerce' ); ?></option>
-							</select>
-							<p class="description"><?php echo esc_html__( 'Hide reviews below this star rating from the front-end display.', 'beplus-advanced-reviews-for-woocommerce' ); ?></p>
-						</td>
-					</tr>
-				</tbody>
-			</table>
+			<label class="bparfw-general__row bparfw-general__row--check">
+				<span><?php echo esc_html__( 'Show filter bar', 'beplus-advanced-reviews-for-woocommerce' ); ?></span>
+				<input type="checkbox" name="<?php echo esc_attr( self::OPTION_KEY ); ?>[enable_filter]" value="1" <?php checked( $enable_filter ); ?>>
+			</label>
+			<label class="bparfw-general__row bparfw-general__row--check">
+				<span><?php echo esc_html__( 'Show sort controls', 'beplus-advanced-reviews-for-woocommerce' ); ?></span>
+				<input type="checkbox" name="<?php echo esc_attr( self::OPTION_KEY ); ?>[enable_sort]" value="1" <?php checked( $enable_sort ); ?>>
+			</label>
+			<div class="bparfw-general__row">
+				<div>
+					<label for="bparfw-rating-threshold"><?php echo esc_html__( 'Minimum rating to display', 'beplus-advanced-reviews-for-woocommerce' ); ?></label>
+					<p class="description" id="bparfw-rating-threshold-help"><?php echo esc_html__( 'Hide reviews below this star rating from the front-end display.', 'beplus-advanced-reviews-for-woocommerce' ); ?></p>
+				</div>
+				<select id="bparfw-rating-threshold" name="<?php echo esc_attr( self::OPTION_KEY ); ?>[rating_threshold]" aria-describedby="bparfw-rating-threshold-help">
+					<option value="0" <?php selected( 0, $threshold ); ?>><?php echo esc_html__( 'Show all reviews', 'beplus-advanced-reviews-for-woocommerce' ); ?></option>
+					<option value="1" <?php selected( 1, $threshold ); ?>><?php echo esc_html__( '1 star and above', 'beplus-advanced-reviews-for-woocommerce' ); ?></option>
+					<option value="2" <?php selected( 2, $threshold ); ?>><?php echo esc_html__( '2 stars and above', 'beplus-advanced-reviews-for-woocommerce' ); ?></option>
+					<option value="3" <?php selected( 3, $threshold ); ?>><?php echo esc_html__( '3 stars and above', 'beplus-advanced-reviews-for-woocommerce' ); ?></option>
+					<option value="4" <?php selected( 4, $threshold ); ?>><?php echo esc_html__( '4 stars and above', 'beplus-advanced-reviews-for-woocommerce' ); ?></option>
+					<option value="5" <?php selected( 5, $threshold ); ?>><?php echo esc_html__( '5 stars only', 'beplus-advanced-reviews-for-woocommerce' ); ?></option>
+				</select>
+			</div>
+		</div>
+		<?php
+	}
 
-			<div class="bparfw-image__options" style="margin-top:1rem;">
-				<label class="bparfw-filter-row__checkbox">
-					<input type="checkbox" name="<?php echo esc_attr( self::OPTION_KEY ); ?>[enable_filter]" value="1" <?php checked( $enable_filter ); ?>>
-					<?php echo esc_html__( 'Show filter bar (ratings & images filter)', 'beplus-advanced-reviews-for-woocommerce' ); ?>
-				</label>
-				<br>
-				<label class="bparfw-filter-row__checkbox" style="margin-top:8px;">
-					<input type="checkbox" name="<?php echo esc_attr( self::OPTION_KEY ); ?>[enable_sort]" value="1" <?php checked( $enable_sort ); ?>>
-					<?php echo esc_html__( 'Show sort controls (newest, oldest, highest, lowest)', 'beplus-advanced-reviews-for-woocommerce' ); ?>
-				</label>
+	/**
+	 * Render display label settings.
+	 *
+	 * @param array<string, mixed> $settings Plugin settings.
+	 * @return void
+	 */
+	private function render_display_labels_card( array $settings ): void {
+		$labels = array(
+			'label_customer_reviews' => __( 'Customer Reviews', 'beplus-advanced-reviews-for-woocommerce' ),
+			'label_write_review'     => __( 'Write a Review', 'beplus-advanced-reviews-for-woocommerce' ),
+			'label_submit_review'    => __( 'Submit Review', 'beplus-advanced-reviews-for-woocommerce' ),
+			'label_load_more'        => __( 'Load More', 'beplus-advanced-reviews-for-woocommerce' ),
+		);
+		?>
+		<div class="bparfw-settings__card">
+			<h2 class="bparfw-settings__card-title"><?php esc_html_e( 'Display Labels', 'beplus-advanced-reviews-for-woocommerce' ); ?></h2>
+			<p class="description" id="bparfw-display-labels-description">
+				<?php esc_html_e( 'Customize these review labels across your store. Leave a field blank to use the default label.', 'beplus-advanced-reviews-for-woocommerce' ); ?>
+			</p>
+			<div class="bparfw-general__grid">
+				<?php foreach ( $labels as $key => $label ) : ?>
+					<?php
+					$field_id = 'bparfw-' . str_replace( '_', '-', $key );
+					$value    = $settings[ $key ] ?? '';
+					?>
+					<div class="bparfw-general__field">
+						<label for="<?php echo esc_attr( $field_id ); ?>"><?php echo esc_html( $label ); ?></label>
+						<input type="text" class="regular-text"
+							id="<?php echo esc_attr( $field_id ); ?>"
+							name="<?php echo esc_attr( self::OPTION_KEY . '[' . $key . ']' ); ?>"
+							value="<?php echo esc_attr( is_string( $value ) ? $value : '' ); ?>"
+							placeholder="<?php echo esc_attr( $label ); ?>"
+							aria-describedby="bparfw-display-labels-description">
+					</div>
+				<?php endforeach; ?>
 			</div>
 		</div>
 		<?php
@@ -315,7 +347,7 @@ class SettingsRegistry extends AbstractModule {
 			<div class="bparfw-settings__card-header">
 				<h2 class="bparfw-settings__card-title"><?php echo esc_html__( 'Verified Purchase', 'beplus-advanced-reviews-for-woocommerce' ); ?></h2>
 				<label class="bparfw-toggle" for="bparfw-enable-verified">
-					<input type="checkbox" id="bparfw-enable-verified" class="bparfw-toggle__input" name="<?php echo esc_attr( self::OPTION_KEY ); ?>[enable_verified]" value="1" <?php checked( $enable_verified ); ?> data-bparfw-toggle="verified">
+					<input type="checkbox" id="bparfw-enable-verified" class="bparfw-toggle__input" name="<?php echo esc_attr( self::OPTION_KEY ); ?>[enable_verified]" value="1" <?php checked( $enable_verified ); ?> data-bparfw-toggle="verified" aria-label="<?php esc_attr_e( 'Show Verified Purchase badges', 'beplus-advanced-reviews-for-woocommerce' ); ?>">
 					<span class="bparfw-toggle__track" aria-hidden="true">
 						<span class="bparfw-toggle__thumb"></span>
 					</span>
@@ -332,21 +364,18 @@ class SettingsRegistry extends AbstractModule {
 					<?php echo esc_html__( 'Reviews from customers who have purchased this product will display a "Verified Purchase" badge. Customers can also filter to show only verified reviews.', 'beplus-advanced-reviews-for-woocommerce' ); ?>
 				</p>
 
-				<div class="bparfw-settings__choice-list" style="margin-top:1rem;">
-					<label class="bparfw-settings__choice">
-						<input type="radio" name="<?php echo esc_attr( self::OPTION_KEY ); ?>[verified_statuses]" value="completed_processing" <?php checked( 'completed_processing', $verified_status ); ?>>
-						<span class="bparfw-settings__choice-text">
-							<strong><?php echo esc_html__( 'Completed + Processing', 'beplus-advanced-reviews-for-woocommerce' ); ?></strong>
-							<span><?php echo esc_html__( 'Count an order as verified when its status is either Completed or Processing.', 'beplus-advanced-reviews-for-woocommerce' ); ?></span>
-						</span>
-					</label>
-					<label class="bparfw-settings__choice">
-						<input type="radio" name="<?php echo esc_attr( self::OPTION_KEY ); ?>[verified_statuses]" value="completed" <?php checked( 'completed', $verified_status ); ?>>
-						<span class="bparfw-settings__choice-text">
-							<strong><?php echo esc_html__( 'Completed only', 'beplus-advanced-reviews-for-woocommerce' ); ?></strong>
-							<span><?php echo esc_html__( 'Only count an order as verified when its status is Completed.', 'beplus-advanced-reviews-for-woocommerce' ); ?></span>
-						</span>
-					</label>
+				<div class="bparfw-general__row bparfw-general__row--statuses" role="group" aria-labelledby="bparfw-order-status-heading">
+					<strong id="bparfw-order-status-heading"><?php esc_html_e( 'Qualifying order statuses', 'beplus-advanced-reviews-for-woocommerce' ); ?></strong>
+					<div class="bparfw-general__radio-list">
+						<label>
+							<input type="radio" name="<?php echo esc_attr( self::OPTION_KEY ); ?>[verified_statuses]" value="completed_processing" <?php checked( 'completed_processing', $verified_status ); ?>>
+							<span><?php echo esc_html__( 'Completed + Processing', 'beplus-advanced-reviews-for-woocommerce' ); ?></span>
+						</label>
+						<label>
+							<input type="radio" name="<?php echo esc_attr( self::OPTION_KEY ); ?>[verified_statuses]" value="completed" <?php checked( 'completed', $verified_status ); ?>>
+							<span><?php echo esc_html__( 'Completed only', 'beplus-advanced-reviews-for-woocommerce' ); ?></span>
+						</label>
+					</div>
 				</div>
 			</div>
 		</div>
@@ -524,6 +553,11 @@ class SettingsRegistry extends AbstractModule {
 			$clean['verified_statuses'] = 'completed_processing';
 		}
 
+		foreach ( self::DISPLAY_LABEL_KEYS as $key ) {
+			$value         = $input[ $key ] ?? '';
+			$clean[ $key ] = is_string( $value ) ? sanitize_text_field( $value ) : '';
+		}
+
 		// Sanitize colors — normalize to uppercase for case-insensitive comparison.
 		$color_defaults   = $defaults['colors'] ?? array();
 		$clean['colors']  = array();
@@ -597,6 +631,6 @@ class SettingsRegistry extends AbstractModule {
 				'success_text'        => '#155724',
 				'success_border'      => '#c3e6cb',
 			),
-		);
+		) + array_fill_keys( self::DISPLAY_LABEL_KEYS, '' );
 	}
 }

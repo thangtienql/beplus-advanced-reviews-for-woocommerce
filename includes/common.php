@@ -47,6 +47,19 @@ function beplus_advanced_reviews_for_woocommerce_get_settings(): array {
 }
 
 /**
+ * Get a custom review label or its translated default.
+ *
+ * @param string $key      Display label setting key.
+ * @param string $fallback Translated default for the label's location.
+ * @return string Unescaped display text.
+ */
+function beplus_advanced_reviews_for_woocommerce_get_display_label( string $key, string $fallback ): string {
+	$label = beplus_advanced_reviews_for_woocommerce_get_settings()[ $key ] ?? '';
+
+	return is_string( $label ) && '' !== trim( $label ) ? $label : $fallback;
+}
+
+/**
  * Get the display mode setting.
  *
  * @return string 'keep' | 'replace'
