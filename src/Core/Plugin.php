@@ -17,6 +17,7 @@ use BeplusAdvancedReviewsForWoocommerce\Media\MediaHandler;
 use BeplusAdvancedReviewsForWoocommerce\Media\LocalMediaStorage;
 use BeplusAdvancedReviewsForWoocommerce\Media\MediaStorageInterface;
 use BeplusAdvancedReviewsForWoocommerce\Verified\VerifiedPurchaseModule;
+use BeplusAdvancedReviewsForWoocommerce\Reviews\ReviewVoteModule;
 use BeplusAdvancedReviewsForWoocommerce\Styling\StylingModule;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -92,6 +93,7 @@ class Plugin {
 			Placement::class,
 			MediaHandler::class,
 			VerifiedPurchaseModule::class,
+			ReviewVoteModule::class,
 			StylingModule::class,
 		);
 

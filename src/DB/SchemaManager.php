@@ -16,6 +16,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 class SchemaManager extends AbstractModule {
 
+	private const SCHEMA_VERSION = '1.1.5';
+
 	public function register(): void {
 		add_action( 'init', array( $this, 'maybe_create_tables' ) );
 	}
@@ -27,9 +29,8 @@ class SchemaManager extends AbstractModule {
 	 */
 	public function maybe_create_tables(): void {
 		$current_version = get_option( 'beplus_advanced_reviews_for_woocommerce_schema_version', '0' );
-		if ( version_compare( $current_version, BEPLUS_ADVANCED_REVIEWS_FOR_WOOCOMMERCE_VERSION, '<' ) ) {
+		if ( version_compare( $current_version, self::SCHEMA_VERSION, '<' ) ) {
 			$this->create_tables();
-			update_option( 'beplus_advanced_reviews_for_woocommerce_schema_version', BEPLUS_ADVANCED_REVIEWS_FOR_WOOCOMMERCE_VERSION, false );
 		}
 	}
 
@@ -56,5 +57,16 @@ class SchemaManager extends AbstractModule {
 
 		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
 		dbDelta( $sql );
+
+		$table_votes = $wpdb->prefix . 'bparfw_review_votes';
+		dbDelta( "CREATE TABLE {$table_votes} (
+			comment_id bigint(20) unsigned NOT NULL,
+			user_id bigint(20) unsigned NOT NULL,
+			PRIMARY KEY  (comment_id,user_id)
+		) {$charset_collate};" );
+
+		if ( '' === $wpdb->last_error ) {
+			update_option( 'beplus_advanced_reviews_for_woocommerce_schema_version', self::SCHEMA_VERSION, false );
+		}
 	}
 }

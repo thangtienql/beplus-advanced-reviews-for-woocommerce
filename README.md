@@ -38,7 +38,8 @@
 | 📋 **Clipboard Paste** | Paste images directly from clipboard into the review form |
 | ↔️ **Attachment Order** | Reorder selected and pasted media before submitting. The gallery and lightbox follow the saved order. |
 | 🔍 **Smart Filter Bar** | Filter by one star rating, attached media, or verified purchase without reloading the page |
-| 🔃 **Sort Controls** | Sort reviews by date (newest/oldest) or rating (highest/lowest) |
+| 🔃 **Sort Controls** | Sort reviews by date (newest/oldest), rating (highest/lowest), or most helpful |
+| **Helpful Votes** | Anyone can see vote counts. Signed-in customers can add or remove one vote per approved review. Guest review submission is unchanged. |
 | ♾️ **Load More (AJAX)** | Paginated reviews with loading feedback and retry. Filtering, sorting, and review submission also show progress. |
 | 🖼️ **Lightbox** | Full-size image & video preview in an accessible lightbox overlay |
 | 🧩 **Gutenberg Block** | Drag-and-drop `Advanced Reviews` block for Single Product templates (FSE / Site Editor) |
@@ -101,7 +102,7 @@ Navigate to **WooCommerce → Advanced Reviews** in your WordPress admin.
 | **Reviews per load** | Number of reviews shown before the "Load More" button appears. | 10 |
 | **Minimum rating** | Only display reviews at or above this star rating. | 1 |
 | **Show filter bar** | Enable/disable the front-end filter bar. | Enabled |
-| **Show sort controls** | Enable/disable sort-by-date and sort-by-rating controls. | Enabled |
+| **Show sort controls** | Enable/disable sorting by date, rating, and helpful votes. | Enabled |
 
 ### Media Tab
 
@@ -178,6 +179,7 @@ All endpoints use the namespace `beplus-advanced-reviews-for-woocommerce/v1`.
 | `GET` | `/reviews` | Public | List reviews. Supports query params: `product_id`, `rating`, `has_images`, `page`, `per_page`, `sort` |
 | `GET` | `/reviews/distribution` | Public | Star distribution counts for a product (`product_id` required) |
 | `POST` | `/reviews` | Logged-in / Nonce | Submit a new review with star rating and optional media attachments |
+| `PUT` | `/reviews/{id}/helpful` | Logged-in | Set or remove your helpful vote with `{"voted": true}` or `{"voted": false}` |
 | `DELETE` | `/reviews/<id>` | `manage_woocommerce` | Delete a review by ID |
 | `GET` | `/settings` | `manage_options` | Retrieve all plugin settings |
 | `POST` | `/settings` | `manage_options` | Update plugin settings |
@@ -195,6 +197,8 @@ curl "https://yoursite.com/wp-json/beplus-advanced-reviews-for-woocommerce/v1/re
 ```
 
 > **Authentication:** Review submission (`POST /reviews`) requires either a logged-in user session or a valid nonce passed via the `X-WP-Nonce` header. The REST URL and nonce are localized on the front end via the `bparfwData` JavaScript object.
+
+`GET /reviews` includes a public `helpful_count` for each review. Authenticated requests also receive `viewer_has_voted`. Use `sort=helpful` to order by vote count, with newer reviews first when counts tie. The vote endpoint returns the updated count and the authenticated viewer's state.
 
 ---
 
@@ -379,4 +383,3 @@ Contributions are welcome! Here's how to get started:
 <p align="center">
   Made with ❤️ by <a href="https://beplusthemes.com/">Beplus</a>
 </p>
-

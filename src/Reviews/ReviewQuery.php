@@ -56,7 +56,7 @@ class ReviewQuery {
 		}
 
 		if ( isset( $params['sort'] ) ) {
-			$allowed_sorts = array( 'newest', 'oldest', 'highest', 'lowest' );
+			$allowed_sorts = array( 'newest', 'oldest', 'highest', 'lowest', 'helpful' );
 			$sort          = sanitize_text_field( $params['sort'] );
 			if ( in_array( $sort, $allowed_sorts, true ) ) {
 				$args['sort'] = $sort;

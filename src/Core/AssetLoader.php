@@ -43,6 +43,7 @@ class AssetLoader extends AbstractModule {
 		return array(
 			'restUrl'         => rest_url( 'beplus-advanced-reviews-for-woocommerce/v1/' ),
 			'nonce'           => wp_create_nonce( 'wp_rest' ),
+			'canVoteHelpful'  => is_user_logged_in(),
 			'maxUploadSize'   => beplus_advanced_reviews_for_woocommerce_get_max_image_size(),
 			'maxUploadSizeMb' => $settings['max_image_size_mb'] ?? 2,
 			'allowedTypes'    => array( 'image/jpeg', 'image/png', 'image/webp' ),
@@ -55,6 +56,13 @@ class AssetLoader extends AbstractModule {
 			'i18n'            => array(
 				'noReviews'       => __( 'No reviews yet.', 'beplus-advanced-reviews-for-woocommerce' ),
 				'noMatchingReviews' => __( 'No reviews match your filters.', 'beplus-advanced-reviews-for-woocommerce' ),
+				'helpful'         => __( 'Helpful', 'beplus-advanced-reviews-for-woocommerce' ),
+				'helpfulSignIn'   => __( 'Sign in to vote.', 'beplus-advanced-reviews-for-woocommerce' ),
+				'helpfulError'    => __( 'Could not save your vote. Try again.', 'beplus-advanced-reviews-for-woocommerce' ),
+				'helpfulLoading'  => __( 'Your vote status is loading. Please try again in a moment.', 'beplus-advanced-reviews-for-woocommerce' ),
+				'helpfulAdded'    => __( 'Helpful vote added.', 'beplus-advanced-reviews-for-woocommerce' ),
+				'helpfulRemoved'  => __( 'Helpful vote removed.', 'beplus-advanced-reviews-for-woocommerce' ),
+				'refreshHelpful'  => __( 'Refresh review order', 'beplus-advanced-reviews-for-woocommerce' ),
 				'loadMore'        => __( 'Load More', 'beplus-advanced-reviews-for-woocommerce' ),
 				'updatingReviews' => __( 'Updating reviews…', 'beplus-advanced-reviews-for-woocommerce' ),
 				'loadingMoreReviews' => __( 'Loading more reviews…', 'beplus-advanced-reviews-for-woocommerce' ),

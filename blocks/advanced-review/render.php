@@ -119,6 +119,9 @@ $wrapper_attrs = get_block_wrapper_attributes(
 							<option value="oldest"><?php esc_html_e( 'Oldest', 'beplus-advanced-reviews-for-woocommerce' ); ?></option>
 							<option value="highest"><?php esc_html_e( 'Highest rated', 'beplus-advanced-reviews-for-woocommerce' ); ?></option>
 							<option value="lowest"><?php esc_html_e( 'Lowest rated', 'beplus-advanced-reviews-for-woocommerce' ); ?></option>
+							<?php if ( \BeplusAdvancedReviewsForWoocommerce\Reviews\ReviewVoteRepository::is_available_for_product( (int) $product_id ) ) : ?>
+								<option value="helpful"><?php esc_html_e( 'Most helpful', 'beplus-advanced-reviews-for-woocommerce' ); ?></option>
+							<?php endif; ?>
 						</select>
 						<span class="beplus-advanced-reviews-for-woocommerce__sort-icon">
 							<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>

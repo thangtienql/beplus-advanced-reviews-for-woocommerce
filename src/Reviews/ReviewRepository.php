@@ -92,6 +92,9 @@ class ReviewRepository {
 		}
 
 		switch ( $args['sort'] ) {
+			case 'helpful':
+				$orderby = "(SELECT COUNT(*) FROM {$wpdb->prefix}bparfw_review_votes v WHERE v.comment_id = c.comment_ID) DESC, c.comment_date DESC, c.comment_ID DESC";
+				break;
 			case 'oldest':
 				$orderby = 'c.comment_date ASC';
 				break;

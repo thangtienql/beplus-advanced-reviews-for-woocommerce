@@ -37,7 +37,8 @@ if ( empty( $reviews ) ) {
 
 $media_handler = new \BeplusAdvancedReviewsForWoocommerce\Media\MediaHandler( new \BeplusAdvancedReviewsForWoocommerce\Core\Container() );
 $formatter     = new \BeplusAdvancedReviewsForWoocommerce\Reviews\ReviewFormatter( $media_handler );
-$formatted     = $formatter->format_list( $reviews );
+$include_helpful = \BeplusAdvancedReviewsForWoocommerce\Reviews\ReviewVoteRepository::is_available_for_product( (int) $product_id );
+$formatted       = $formatter->format_list( $reviews, 0, $include_helpful );
 
 foreach ( $formatted as $review ) {
 	beplus_advanced_reviews_for_woocommerce_get_template( 'review-card.php', array(

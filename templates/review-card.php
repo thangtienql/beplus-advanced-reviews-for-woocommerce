@@ -84,5 +84,14 @@ $is_verified   = ! empty( $review['is_verified'] );
 			</div>
 		<?php endif; ?>
 		<div class="beplus-advanced-reviews-for-woocommerce__review-date"><?php echo $date_human; // phpcs:ignore ?></div>
+		<?php if ( ! empty( $review['id'] ) && isset( $review['helpful_count'] ) ) : ?>
+			<div class="beplus-advanced-reviews-for-woocommerce__helpful">
+				<button type="button" class="beplus-advanced-reviews-for-woocommerce__helpful-button" data-review-id="<?php echo esc_attr( (string) absint( $review['id'] ) ); ?>">
+					<?php esc_html_e( 'Helpful', 'beplus-advanced-reviews-for-woocommerce' ); ?>
+					(<span data-helpful-count><?php echo esc_html( (string) absint( $review['helpful_count'] ?? 0 ) ); ?></span>)
+				</button>
+				<div class="beplus-advanced-reviews-for-woocommerce__helpful-status" role="status"></div>
+			</div>
+		<?php endif; ?>
 	</div>
 </article>

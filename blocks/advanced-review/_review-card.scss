@@ -151,6 +151,46 @@ $prefix: beplus-advanced-reviews-for-woocommerce;
 		color: var(--bpar-text);
 }
 
+.#{$prefix}__helpful {
+	margin-top: 8px;
+}
+
+.#{$prefix}__helpful-button {
+	min-height: 32px;
+	padding: 4px 10px;
+	border: 1px solid var(--bpar-border-dark);
+	border-radius: var(--bpar-radius-sm);
+	background: var(--bpar-bg);
+	color: var(--bpar-text);
+	font: inherit;
+	font-size: 13px;
+	cursor: pointer;
+
+	&[aria-pressed='true'] {
+		border-color: var(--bpar-primary);
+		background: var(--bpar-primary);
+		color: var(--bpar-button-text);
+	}
+
+	&[aria-busy='true'] {
+		cursor: wait;
+	}
+
+	&:focus-visible {
+		outline: 2px solid var(--bpar-primary);
+		outline-offset: 2px;
+	}
+}
+
+.#{$prefix}__helpful-status {
+	color: var(--bpar-text);
+	font-size: 13px;
+
+	&:not(:empty) {
+		margin-top: 4px;
+	}
+}
+
 .#{$prefix}__review-images {
 	display: flex;
 	gap: 8px;

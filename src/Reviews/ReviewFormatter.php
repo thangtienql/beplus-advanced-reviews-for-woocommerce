@@ -65,10 +65,12 @@ class ReviewFormatter {
 	/**
 	 * Format a list of reviews with batch verified check.
 	 *
-	 * @param array<int, object> $reviews Array of database rows.
+	 * @param array<int, object> $reviews   Array of database rows.
+	 * @param int                $viewer_id       Authenticated viewer, or zero for public output.
+	 * @param bool               $include_helpful Whether the product allows helpful votes.
 	 * @return array<int, array<string, mixed>>
 	 */
-	public function format_list( array $reviews ): array {
+	public function format_list( array $reviews, int $viewer_id = 0, bool $include_helpful = true ): array {
 		if ( empty( $reviews ) ) {
 			return array();
 		}
@@ -88,10 +90,22 @@ class ReviewFormatter {
 		$emails = array_unique( $emails );
 
 		$verified_map = $this->verified_checker->check( $product_id, $emails );
+		$review_ids   = array_map( static function ( object $review ): int {
+			return (int) $review->comment_ID;
+		}, $reviews );
+		$votes = $include_helpful ? ( new ReviewVoteRepository() )->get_summaries( $review_ids, $viewer_id ) : null;
 
 		$formatted = array();
 		foreach ( $reviews as $review ) {
-			$formatted[] = $this->format( $review, $verified_map );
+			$item    = $this->format( $review, $verified_map );
+			if ( null !== $votes ) {
+				$summary = $votes[ $item['id'] ] ?? array();
+				$item['helpful_count'] = $summary['helpful_count'] ?? 0;
+				if ( $viewer_id > 0 ) {
+					$item['viewer_has_voted'] = $summary['viewer_has_voted'] ?? false;
+				}
+			}
+			$formatted[] = $item;
 		}
 
 		return $formatted;

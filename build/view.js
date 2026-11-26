@@ -1,4 +1,20 @@
 (() => {
+  var __defProp = Object.defineProperty;
+  var __getOwnPropSymbols = Object.getOwnPropertySymbols;
+  var __hasOwnProp = Object.prototype.hasOwnProperty;
+  var __propIsEnum = Object.prototype.propertyIsEnumerable;
+  var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+  var __spreadValues = (a, b) => {
+    for (var prop in b || (b = {}))
+      if (__hasOwnProp.call(b, prop))
+        __defNormalProp(a, prop, b[prop]);
+    if (__getOwnPropSymbols)
+      for (var prop of __getOwnPropSymbols(b)) {
+        if (__propIsEnum.call(b, prop))
+          __defNormalProp(a, prop, b[prop]);
+      }
+    return a;
+  };
   (function() {
     var hashRedirectInitialized = false;
     document.addEventListener("DOMContentLoaded", function() {
@@ -33,6 +49,12 @@
       }
       const distributionArea = block.querySelector(".beplus-advanced-reviews-for-woocommerce__distribution");
       const labels = bparfwData.i18n;
+      const helpfulButtonSelector = ".beplus-advanced-reviews-for-woocommerce__helpful-button";
+      const pendingVotes = /* @__PURE__ */ new Set();
+      const voteUpdates = /* @__PURE__ */ new Map();
+      let voteRevision = 0;
+      let rankingRevision = 0;
+      let canVoteHelpful = Boolean(bparfwData.canVoteHelpful);
       const listStatus = createRequestStatus(listContainer);
       const distributionStatus = createRequestStatus(distributionArea);
       let appliedFilters = readFilters();
@@ -94,6 +116,17 @@
         if (filterSpinner)
           filterSpinner.hidden = true;
       }
+      function needsHelpfulRefresh() {
+        return appliedFilters.sort === "helpful" && rankingRevision !== voteRevision;
+      }
+      function updateLoadMore() {
+        const label = loadMoreBtn == null ? void 0 : loadMoreBtn.querySelector("[data-request-label]");
+        const refresh = needsHelpfulRefresh();
+        if (label)
+          label.textContent = refresh ? labels.refreshHelpful : label.dataset.requestLabel;
+        if (loadMoreWrapper)
+          loadMoreWrapper.hidden = !refresh && currentPage >= totalPages;
+      }
       async function requestReviews(filters, page, append, filterUpdate = false) {
         if (!listContainer)
           return;
@@ -117,6 +150,7 @@
           setButtonLoading(loadMoreBtn, append, labels.loadingMoreReviews);
         }
         const url = reviewUrl("reviews");
+        const requestVoteRevision = voteRevision;
         url.searchParams.set("page", page);
         url.searchParams.set("per_page", parseInt(block.dataset.perPage, 10) || 10);
         url.searchParams.set("sort", filters.sort);
@@ -127,15 +161,36 @@
         if (filters.verified)
           url.searchParams.set("verified_only", "1");
         try {
-          const data = await getReviewData(url, request.signal);
+          const headers = canVoteHelpful ? { "X-WP-Nonce": bparfwData.nonce } : void 0;
+          let data;
+          try {
+            data = await getReviewData(url, request.signal, headers);
+          } catch (error) {
+            if (!headers || error.status !== 401 && error.status !== 403 || listRequest !== request)
+              throw error;
+            canVoteHelpful = false;
+            data = await getReviewData(url, request.signal);
+          }
           if (listRequest !== request)
             return;
           if (!Array.isArray(data.reviews) || !Number.isInteger(data.pages))
             throw new Error();
+          if (append && filters.sort === "helpful" && needsHelpfulRefresh()) {
+            listStatus(false);
+            return;
+          }
+          const reviews = data.reviews.map((review) => {
+            const update = voteUpdates.get(String(review.id));
+            return update && update.revision > requestVoteRevision ? __spreadValues(__spreadValues({}, review), update.data) : review;
+          });
           if (!append) {
-            listContainer.innerHTML = buildReviewList(data.reviews, filters);
-          } else if (data.reviews.length) {
-            listContainer.insertAdjacentHTML("beforeend", buildReviewList(data.reviews, filters));
+            listContainer.innerHTML = buildReviewList(reviews, filters);
+            rankingRevision = requestVoteRevision;
+          } else {
+            const displayed = new Set(Array.from(listContainer.querySelectorAll(helpfulButtonSelector), (button) => button.dataset.reviewId));
+            const newReviews = reviews.filter((review) => !displayed.has(String(review.id)));
+            if (newReviews.length)
+              listContainer.insertAdjacentHTML("beforeend", buildReviewList(newReviews, filters));
           }
           appliedFilters = filters;
           currentPage = page;
@@ -156,8 +211,7 @@
               loadMoreBtn.disabled = false;
               setButtonLoading(loadMoreBtn, false);
             }
-            if (loadMoreWrapper)
-              loadMoreWrapper.hidden = currentPage >= totalPages;
+            updateLoadMore();
           }
         }
       }
@@ -231,6 +285,15 @@
             html += "</div>";
           }
           html += '<div class="beplus-advanced-reviews-for-woocommerce__review-date">' + escHtml(review.date_human) + "</div>";
+          const reviewId = String(review.id);
+          if (/^[1-9]\d*$/.test(reviewId) && Number.isInteger(review.helpful_count)) {
+            const pressed = typeof review.viewer_has_voted === "boolean" ? ' aria-pressed="' + review.viewer_has_voted + '"' : "";
+            const busy = pendingVotes.has(reviewId) ? ' aria-disabled="true" aria-busy="true"' : "";
+            html += '<div class="beplus-advanced-reviews-for-woocommerce__helpful">';
+            html += '<button type="button" class="beplus-advanced-reviews-for-woocommerce__helpful-button" data-review-id="' + reviewId + '"' + pressed + busy + ">";
+            html += escHtml(labels.helpful) + " (<span data-helpful-count>" + (Number(review.helpful_count) || 0) + "</span>)</button>";
+            html += '<div class="beplus-advanced-reviews-for-woocommerce__helpful-status" role="status"></div></div>';
+          }
           html += "</div>";
           html += "</article>";
         });
@@ -244,8 +307,74 @@
       function escAttr(str) {
         return (str || "").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
       }
+      listContainer == null ? void 0 : listContainer.addEventListener("click", async function(event) {
+        const button = event.target.closest(helpfulButtonSelector);
+        if (!button)
+          return;
+        const id = button.dataset.reviewId;
+        if (!/^[1-9]\d*$/.test(id) || pendingVotes.has(id))
+          return;
+        const status = button.nextElementSibling;
+        if (!canVoteHelpful) {
+          status.textContent = labels.helpfulSignIn;
+          return;
+        }
+        if (!button.hasAttribute("aria-pressed")) {
+          status.textContent = listRequest ? labels.helpfulLoading : labels.helpfulError;
+          if (!listRequest)
+            refreshReviews();
+          return;
+        }
+        const selector = helpfulButtonSelector + '[data-review-id="' + id + '"]';
+        const voted = button.getAttribute("aria-pressed") !== "true";
+        pendingVotes.add(id);
+        status.textContent = "";
+        button.setAttribute("aria-disabled", "true");
+        button.setAttribute("aria-busy", "true");
+        try {
+          const response = await fetch(bparfwData.restUrl + "reviews/" + id + "/helpful", {
+            method: "PUT",
+            headers: { "Content-Type": "application/json", "X-WP-Nonce": bparfwData.nonce },
+            body: JSON.stringify({ voted })
+          });
+          if (response.status === 401 || response.status === 403) {
+            canVoteHelpful = false;
+            const current = listContainer.querySelector(selector);
+            if (current)
+              current.nextElementSibling.textContent = labels.helpfulSignIn;
+            return;
+          }
+          if (!response.ok)
+            throw new Error();
+          const data = await response.json();
+          if (!Number.isInteger(data.helpful_count) || typeof data.viewer_has_voted !== "boolean")
+            throw new Error();
+          voteUpdates.set(id, { data, revision: ++voteRevision });
+          if (!listRequest)
+            updateLoadMore();
+          listContainer.querySelectorAll(selector).forEach((current) => {
+            current.setAttribute("aria-pressed", String(data.viewer_has_voted));
+            current.querySelector("[data-helpful-count]").textContent = data.helpful_count;
+            current.nextElementSibling.textContent = data.viewer_has_voted ? labels.helpfulAdded : labels.helpfulRemoved;
+          });
+        } catch (error) {
+          const current = listContainer.querySelector(selector);
+          if (current)
+            current.nextElementSibling.textContent = labels.helpfulError;
+        } finally {
+          pendingVotes.delete(id);
+          listContainer.querySelectorAll(selector).forEach((current) => {
+            current.removeAttribute("aria-disabled");
+            current.removeAttribute("aria-busy");
+          });
+        }
+      });
       loadMoreBtn == null ? void 0 : loadMoreBtn.addEventListener("click", function() {
-        if (!listRequest && currentPage < totalPages) {
+        if (listRequest)
+          return;
+        if (needsHelpfulRefresh()) {
+          requestReviews(appliedFilters, 1, false);
+        } else if (currentPage < totalPages) {
           requestReviews(appliedFilters, currentPage + 1, true);
         }
       });
@@ -265,10 +394,10 @@
       initLightbox(block);
       initHashRedirect(block);
     }
-    async function getReviewData(url, signal) {
-      const response = await fetch(url.toString(), { cache: "no-store", signal });
+    async function getReviewData(url, signal, headers) {
+      const response = await fetch(url.toString(), { cache: "no-store", signal, headers });
       if (!response.ok)
-        throw new Error();
+        throw Object.assign(new Error(), { status: response.status });
       return response.json();
     }
     function createRequestStatus(region) {

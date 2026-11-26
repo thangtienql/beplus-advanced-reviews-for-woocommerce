@@ -12,6 +12,7 @@ use BeplusAdvancedReviewsForWoocommerce\Reviews\ReviewRepository;
 use BeplusAdvancedReviewsForWoocommerce\Reviews\ReviewFormatter;
 use BeplusAdvancedReviewsForWoocommerce\Reviews\ReviewQuery;
 use BeplusAdvancedReviewsForWoocommerce\Reviews\ReviewSubmission;
+use BeplusAdvancedReviewsForWoocommerce\Reviews\ReviewVoteRepository;
 use BeplusAdvancedReviewsForWoocommerce\Media\MediaHandler;
 use BeplusAdvancedReviewsForWoocommerce\Core\HookManager;
 
@@ -79,6 +80,22 @@ class ReviewController extends \WP_REST_Controller {
 
 		register_rest_route(
 			$this->namespace,
+			'/' . $this->rest_base . '/(?P<id>\d+)/helpful',
+			array(
+				'methods'             => 'PUT',
+				'callback'            => array( $this, 'set_helpful_vote' ),
+				'permission_callback' => 'is_user_logged_in',
+				'args'                => array(
+					'voted' => array(
+						'type'     => 'boolean',
+						'required' => true,
+					),
+				),
+			)
+		);
+
+		register_rest_route(
+			$this->namespace,
 			'/' . $this->rest_base . '/distribution',
 			array(
 				array(
@@ -129,10 +146,17 @@ class ReviewController extends \WP_REST_Controller {
 			'rating_threshold' => $rating_threshold,
 		);
 
-		$args    = $this->review_query->build_args( $params );
+		$args            = $this->review_query->build_args( $params );
+		$include_helpful = ReviewVoteRepository::is_available_for_product( $product_id );
+		if ( ! $include_helpful && 'helpful' === ( $args['sort'] ?? '' ) ) {
+			return new \WP_Error(
+				'bparfw_helpful_unavailable',
+				__( 'Helpful votes are not available for this product.', 'beplus-advanced-reviews-for-woocommerce' ),
+				array( 'status' => 404 )
+			);
+		}
 		$result  = $this->repository->get_reviews( $product_id, $args );
-
-		$reviews = $this->formatter->format_list( $result['reviews'] );
+		$reviews = $this->formatter->format_list( $result['reviews'], get_current_user_id(), $include_helpful );
 		$reviews = apply_filters( HookManager::REVIEW_RESULTS, $reviews, $product_id ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.DynamicHooknameFound -- Constant resolves to 'beplus_advanced_reviews.review_results'.
 
 		$response = array(
@@ -144,12 +168,53 @@ class ReviewController extends \WP_REST_Controller {
 		);
 
 		$response = rest_ensure_response( $response );
-			$response->header( 'Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0' );
+			$response->header( 'Cache-Control', 'private, no-store, no-cache, must-revalidate, max-age=0' );
 			$response->header( 'Pragma', 'no-cache' );
 			$response->header( 'Expires', 'Thu, 01 Jan 1970 00:00:00 GMT' );
 
 			return $response;
 		}
+
+	/**
+	 * Set the authenticated viewer's helpful vote for an approved product review.
+	 *
+	 * @param \WP_REST_Request $request Request object.
+	 * @return \WP_REST_Response|\WP_Error
+	 */
+	public function set_helpful_vote( \WP_REST_Request $request ) {
+		$url_params = $request->get_url_params();
+		$comment_id = absint( $url_params['id'] ?? 0 );
+		$comment    = $comment_id ? get_comment( $comment_id ) : null;
+		if (
+			! $comment || 'review' !== $comment->comment_type || '1' !== $comment->comment_approved
+			|| ! ReviewVoteRepository::is_available_for_product( (int) $comment->comment_post_ID )
+		) {
+			return new \WP_Error(
+				'bparfw_review_not_found',
+				__( 'Review not found.', 'beplus-advanced-reviews-for-woocommerce' ),
+				array( 'status' => 404 )
+			);
+		}
+
+		$viewer_id = get_current_user_id();
+		$votes     = new ReviewVoteRepository();
+		$saved     = $votes->set_vote( $comment_id, $viewer_id, rest_sanitize_boolean( $request->get_param( 'voted' ) ) );
+		$summaries = $saved ? $votes->get_summaries( array( $comment_id ), $viewer_id ) : null;
+		if ( null === $summaries ) {
+			return new \WP_Error(
+				'bparfw_vote_failed',
+				__( 'Could not save your vote. Try again.', 'beplus-advanced-reviews-for-woocommerce' ),
+				array( 'status' => 500 )
+			);
+		}
+
+		$response = rest_ensure_response( $summaries[ $comment_id ] ?? array(
+			'helpful_count'    => 0,
+			'viewer_has_voted' => false,
+		) );
+		$response->header( 'Cache-Control', 'private, no-store' );
+		return $response;
+	}
 
 	/**
 	 * Create a new review.
@@ -342,10 +407,10 @@ class ReviewController extends \WP_REST_Controller {
 				'default'           => false,
 			),
 			'sort'       => array(
-				'description'       => __( 'Sort order: newest, oldest, highest, lowest.', 'beplus-advanced-reviews-for-woocommerce' ),
+				'description'       => __( 'Sort order: newest, oldest, highest, lowest, helpful.', 'beplus-advanced-reviews-for-woocommerce' ),
 				'type'              => 'string',
 				'default'           => 'newest',
-				'enum'              => array( 'newest', 'oldest', 'highest', 'lowest' ),
+				'enum'              => array( 'newest', 'oldest', 'highest', 'lowest', 'helpful' ),
 			),
 		);
 	}
