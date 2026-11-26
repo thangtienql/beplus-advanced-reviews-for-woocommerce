@@ -242,6 +242,15 @@ WordPress loads the checked-in `blocks/advanced-review/view.js`, editor entry `i
 
 > Husky runs `npm run precommit` before commits and `npm run prepush` before pushes. Install Composer dev dependencies with `npm run ensure:composer` before running PHPStan in a fresh checkout.
 
+### Next WordPress.org Release
+
+**Target: `1.2.0` (unreleased).** This release adds Helpful votes and the Most helpful review sort. Apply the version bump only when preparing the release.
+
+- [ ] Set both the `Version` header and `BEPLUS_ADVANCED_REVIEWS_FOR_WOOCOMMERCE_VERSION` in `beplus-advanced-reviews-for-woocommerce.php` to `1.2.0`.
+- [ ] Set `version` in `blocks/advanced-review/block.json` and `Stable tag` in `readme.txt` to `1.2.0`; add the `1.2.0` changelog entry in `readme.txt`.
+- [ ] Keep the database schema version at `1.1.5` unless the database structure changes again.
+- [ ] Run the quality checks, then run `npm run build` and `npm run build:package` from the tested release source. Verify that the new `1.2.0` ZIP contains the updated plugin; do not reuse the `1.1.4` ZIP.
+
 ---
 
 ## 📁 Project Structure
