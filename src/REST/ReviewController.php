@@ -198,7 +198,8 @@ class ReviewController extends \WP_REST_Controller {
 
 		$viewer_id = get_current_user_id();
 		$votes     = new ReviewVoteRepository();
-		$saved     = $votes->set_vote( $comment_id, $viewer_id, rest_sanitize_boolean( $request->get_param( 'voted' ) ) );
+		// WordPress validates and sanitizes the route's boolean argument before dispatch.
+		$saved     = $votes->set_vote( $comment_id, $viewer_id, true === $request->get_param( 'voted' ) );
 		$summaries = $saved ? $votes->get_summaries( array( $comment_id ), $viewer_id ) : null;
 		if ( null === $summaries ) {
 			return new \WP_Error(

@@ -47,12 +47,13 @@ class SchemaManager extends AbstractModule {
 		$table_media = $wpdb->prefix . 'bparfw_review_media';
 
 		$sql = "CREATE TABLE {$table_media} (
-			id              BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-			comment_id      BIGINT UNSIGNED NOT NULL,
-			attachment_id   BIGINT UNSIGNED NOT NULL,
-			sort_order      TINYINT UNSIGNED NOT NULL DEFAULT 0,
-			created_at      DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-			INDEX idx_comment (comment_id)
+			id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+			comment_id bigint(20) unsigned NOT NULL,
+			attachment_id bigint(20) unsigned NOT NULL,
+			sort_order tinyint(3) unsigned NOT NULL DEFAULT 0,
+			created_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+			PRIMARY KEY  (id),
+			KEY idx_comment (comment_id)
 		) {$charset_collate};";
 
 		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
